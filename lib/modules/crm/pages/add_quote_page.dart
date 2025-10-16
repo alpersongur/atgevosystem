@@ -1,8 +1,8 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
+import '../models/customer_model.dart';
 import '../services/customer_service.dart';
-import '../services/quote_service.dart';
+import '../quotes/services/quote_service.dart';
 
 class AddQuotePage extends StatefulWidget {
   const AddQuotePage({super.key});
@@ -90,7 +90,7 @@ class _AddQuotePageState extends State<AddQuotePage> {
         .toList();
 
     try {
-      await QuoteService.instance.addQuote({
+      await QuoteService().addQuote({
         'customer_id': _selectedCustomerId,
         'products': products,
         'total': _total,
@@ -128,8 +128,8 @@ class _AddQuotePageState extends State<AddQuotePage> {
       appBar: AppBar(
         title: const Text('Yeni Teklif'),
       ),
-      body: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-        stream: FirestoreService.instance.getCustomers(),
+      body: StreamBuilder<List<CustomerModel>>(
+        stream: CustomerService.instance.watchCustomers(),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
             return Center(
@@ -144,7 +144,7 @@ class _AddQuotePageState extends State<AddQuotePage> {
             return const Center(child: CircularProgressIndicator());
           }
 
-          final customers = snapshot.data?.docs ?? [];
+          final customers = snapshot.data ?? <CustomerModel>[];
           if (customers.isEmpty) {
             return const Center(
               child: Text('Teklif eklemek için önce müşteri oluşturun.'),
@@ -164,9 +164,13 @@ class _AddQuotePageState extends State<AddQuotePage> {
                       decoration: const InputDecoration(labelText: 'Müşteri'),
                       items: customers
                           .map(
-                            (doc) => DropdownMenuItem(
-                              value: doc.id,
-                              child: Text(doc.data()['name'] as String? ?? 'İsimsiz'),
+                            (customer) => DropdownMenuItem(
+                              value: customer.id,
+                              child: Text(
+                                customer.companyName.isEmpty
+                                    ? 'İsimsiz'
+                                    : customer.companyName,
+                              ),
                             ),
                           )
                           .toList(),

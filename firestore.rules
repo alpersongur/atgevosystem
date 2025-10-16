@@ -5,12 +5,22 @@ service cloud.firestore {
     return request.auth != null && request.auth.token.email == "alpersongur97@gmail.com";
   }
 
+  function userRole() {
+    return request.auth != null
+      ? get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role
+      : null;
+  }
+
+  function hasRole(roles) {
+    return userRole() in roles;
+  }
+
   match /databases/{database}/documents {
 
     // Genel erişim sadece giriş yapmış kullanıcılara
     match /{document=**} {
       allow read, write, update, delete: if isSuperAdmin();
-      allow read, write: if request.auth != null;
+      allow read: if request.auth != null;
     }
 
     // permissions koleksiyonu sadece admin erişimine açık
@@ -25,6 +35,18 @@ service cloud.firestore {
       allow read: if request.auth != null;
       allow write, update, delete: if
         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ["superadmin", "admin"];
+    }
+
+    match /invoices/{invoiceId} {
+      allow get, list: if request.auth != null;
+      allow create, update, delete: if request.auth != null &&
+        hasRole(["superadmin", "admin", "accounting"]);
+    }
+
+    match /payments/{paymentId} {
+      allow get, list: if request.auth != null;
+      allow create, update, delete: if request.auth != null &&
+        hasRole(["superadmin", "admin", "accounting"]);
     }
   }
 }

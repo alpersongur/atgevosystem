@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../models/customer_model.dart';
 import '../services/customer_service.dart';
 
 class AddCustomerPage extends StatefulWidget {
@@ -39,12 +40,14 @@ class _AddCustomerPageState extends State<AddCustomerPage> {
 
     setState(() => _isSaving = true);
     try {
-      await FirestoreService.instance.addCustomer({
-        'name': _nameController.text.trim(),
-        'email': _emailController.text.trim(),
-        'phone': _phoneController.text.trim(),
-        'address': _addressController.text.trim(),
-      });
+      await CustomerService().createCustomer(
+        CustomerInput(
+          companyName: _nameController.text,
+          email: _emailController.text,
+          phone: _phoneController.text,
+          address: _addressController.text,
+        ),
+      );
 
       if (!mounted) return;
 
@@ -54,9 +57,8 @@ class _AddCustomerPageState extends State<AddCustomerPage> {
       _phoneController.clear();
       _addressController.clear();
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Müşteri başarıyla kaydedildi')),
-      );
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Müşteri kaydedildi')));
     } catch (error) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
