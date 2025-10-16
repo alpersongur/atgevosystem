@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "234919692297",
+    "project_id": "atgevosystem",
+    "storage_bucket": "atgevosystem.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:234919692297:android:88ab1e466b2d432f5810d8",
+        "android_client_info": {
+          "package_name": "com.example.atgevosystem"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAqRfpyw1dDwpNF60sAwcsFGKtImX3OQRg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
