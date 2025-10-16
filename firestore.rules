@@ -1,93 +1,30 @@
 rules_version = '2';
 
 service cloud.firestore {
+  function isSuperAdmin() {
+    return request.auth != null && request.auth.token.email == "alpersongur97@gmail.com";
+  }
+
   match /databases/{database}/documents {
 
-    function authed() { return request.auth != null; }
-    function claimTenant() { return request.auth.token.tenantId; }
-    function isSuperAdmin() {
-      return request.auth != null && (request.auth.token.superadmin == true || request.auth.token.role == 'superadmin');
-    }
-    function sameTenant(d) { return d.tenantId == claimTenant(); }
-
-    // Public readable content (if any)
-    match /public/{docId} {
-      allow read: if true;
-      allow write: if false;
+    // Genel erişim sadece giriş yapmış kullanıcılara
+    match /{document=**} {
+      allow read, write, update, delete: if isSuperAdmin();
+      allow read, write: if request.auth != null;
     }
 
-    // Top-level collections with tenantId field (strict, per-tenant isolation)
-    match /vehicles/{docId} {
-      allow read: if isSuperAdmin() || (authed() && sameTenant(resource.data));
-      allow create: if isSuperAdmin() || (authed() && sameTenant(request.resource.data));
-      allow update: if isSuperAdmin() || (authed() && sameTenant(resource.data) && sameTenant(request.resource.data) && request.resource.data.tenantId == resource.data.tenantId);
-      allow delete: if isSuperAdmin() || (authed() && sameTenant(resource.data));
+    // permissions koleksiyonu sadece admin erişimine açık
+    match /permissions/{module} {
+      allow read, write, update, delete: if isSuperAdmin();
+      allow read, update, create, delete: if
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin";
     }
 
-    match /customers/{docId} {
-      allow read: if isSuperAdmin() || (authed() && sameTenant(resource.data));
-      allow create: if isSuperAdmin() || (authed() && sameTenant(request.resource.data));
-      allow update: if isSuperAdmin() || (authed() && sameTenant(resource.data) && sameTenant(request.resource.data) && request.resource.data.tenantId == resource.data.tenantId);
-      allow delete: if isSuperAdmin() || (authed() && sameTenant(resource.data));
-    }
-
-    match /contracts/{docId} {
-      allow read: if isSuperAdmin() || (authed() && sameTenant(resource.data));
-      allow create: if isSuperAdmin() || (authed() && sameTenant(request.resource.data));
-      allow update: if isSuperAdmin() || (authed() && sameTenant(resource.data) && sameTenant(request.resource.data) && request.resource.data.tenantId == resource.data.tenantId);
-      allow delete: if isSuperAdmin() || (authed() && sameTenant(resource.data));
-    }
-
-    match /reservations/{docId} {
-      allow read: if isSuperAdmin() || (authed() && sameTenant(resource.data));
-      allow create: if isSuperAdmin() || (authed() && sameTenant(request.resource.data));
-      allow update: if isSuperAdmin() || (authed() && sameTenant(resource.data) && sameTenant(request.resource.data) && request.resource.data.tenantId == resource.data.tenantId);
-      allow delete: if isSuperAdmin() || (authed() && sameTenant(resource.data));
-    }
-
-    match /transactions/{docId} {
-      allow read: if isSuperAdmin() || (authed() && sameTenant(resource.data));
-      allow create: if isSuperAdmin() || (authed() && sameTenant(request.resource.data));
-      allow update: if isSuperAdmin() || (authed() && sameTenant(resource.data) && sameTenant(request.resource.data) && request.resource.data.tenantId == resource.data.tenantId);
-      allow delete: if isSuperAdmin() || (authed() && sameTenant(resource.data));
-    }
-
-    // Subcollections under vehicles (maintenance, hgs_topups, etc.)
-    match /vehicles/{vehicleId}/{subcollection}/{subId} {
-      allow read: if isSuperAdmin() || (authed() && sameTenant(get(/databases/$(database)/documents/vehicles/$(vehicleId)).data));
-      allow create: if isSuperAdmin() || (authed() && sameTenant(get(/databases/$(database)/documents/vehicles/$(vehicleId)).data) && sameTenant(request.resource.data));
-      allow update: if isSuperAdmin() || (authed() && sameTenant(get(/databases/$(database)/documents/vehicles/$(vehicleId)).data) && sameTenant(resource.data) && sameTenant(request.resource.data) && request.resource.data.tenantId == resource.data.tenantId);
-      allow delete: if isSuperAdmin() || (authed() && sameTenant(get(/databases/$(database)/documents/vehicles/$(vehicleId)).data));
-    }
-
-    // Subcollections under contracts (payments, etc.)
-    match /contracts/{contractId}/{subcollection}/{subId} {
-      allow read: if isSuperAdmin() || (authed() && sameTenant(get(/databases/$(database)/documents/contracts/$(contractId)).data));
-      allow create: if isSuperAdmin() || (authed() && sameTenant(get(/databases/$(database)/documents/contracts/$(contractId)).data) && sameTenant(request.resource.data));
-      allow update: if isSuperAdmin() || (authed() && sameTenant(get(/databases/$(database)/documents/contracts/$(contractId)).data) && sameTenant(resource.data) && sameTenant(request.resource.data) && request.resource.data.tenantId == resource.data.tenantId);
-      allow delete: if isSuperAdmin() || (authed() && sameTenant(get(/databases/$(database)/documents/contracts/$(contractId)).data));
-    }
-
-    // Admin tenancy metadata
-    match /tenants/{tenantId} {
-      allow read, write: if isSuperAdmin();
-    }
-    match /tenants/{tenantId}/members/{uid} {
-      allow read, write: if isSuperAdmin();
-    }
-
-    // Per-tenant settings editable by the tenant admins
-    match /tenant_settings/{tenantId} {
-      allow read: if isSuperAdmin() || (authed() && claimTenant() == tenantId);
-      allow write: if isSuperAdmin() || (authed() && claimTenant() == tenantId);
-    }
-
-    // HGS events (violations and passes)
-    match /hgs_events/{docId} {
-      allow read: if isSuperAdmin() || (authed() && sameTenant(resource.data));
-      allow create: if isSuperAdmin() || (authed() && sameTenant(request.resource.data));
-      allow update: if isSuperAdmin() || (authed() && sameTenant(resource.data) && sameTenant(request.resource.data) && request.resource.data.tenantId == resource.data.tenantId);
-      allow delete: if isSuperAdmin() || (authed() && sameTenant(resource.data));
+    match /modules/{moduleId} {
+      allow read, write, update, delete: if isSuperAdmin();
+      allow read: if request.auth != null;
+      allow write, update, delete: if
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ["superadmin", "admin"];
     }
   }
 }

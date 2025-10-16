@@ -1,5 +1,8 @@
 {
   "projects": {
-    "default": "filobasewebv2-d7bef"
-  }
+    "default": "filobasewebv2-d7bef",
+    "demo": "atgevo-demo"
+  },
+  "targets": {},
+  "etags": {}
 }

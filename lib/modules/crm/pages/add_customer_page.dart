@@ -1,16 +1,17 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
-class CustomerFormPage extends StatefulWidget {
-  const CustomerFormPage({super.key});
+import '../services/customer_service.dart';
 
-  static const routeName = '/customers/add';
+class AddCustomerPage extends StatefulWidget {
+  const AddCustomerPage({super.key});
+
+  static const routeName = '/add_customer';
 
   @override
-  State<CustomerFormPage> createState() => _CustomerFormPageState();
+  State<AddCustomerPage> createState() => _AddCustomerPageState();
 }
 
-class _CustomerFormPageState extends State<CustomerFormPage> {
+class _AddCustomerPageState extends State<AddCustomerPage> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
@@ -27,29 +28,39 @@ class _CustomerFormPageState extends State<CustomerFormPage> {
     super.dispose();
   }
 
-  Future<void> _saveCustomer() async {
+  Future<void> _submit() async {
     final form = _formKey.currentState;
     if (form == null) return;
     if (!form.validate()) {
       return;
     }
 
+    FocusScope.of(context).unfocus();
+
     setState(() => _isSaving = true);
     try {
-      await FirebaseFirestore.instance.collection('customers').add({
+      await FirestoreService.instance.addCustomer({
         'name': _nameController.text.trim(),
         'email': _emailController.text.trim(),
         'phone': _phoneController.text.trim(),
         'address': _addressController.text.trim(),
-        'created_at': FieldValue.serverTimestamp(),
       });
 
       if (!mounted) return;
-      Navigator.of(context).pop(true);
+
+      form.reset();
+      _nameController.clear();
+      _emailController.clear();
+      _phoneController.clear();
+      _addressController.clear();
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Müşteri başarıyla kaydedildi')),
+      );
     } catch (error) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Kayıt sırasında hata oluştu: $error')),
+        SnackBar(content: Text('Kayıt sırasında bir hata oluştu: $error')),
       );
     } finally {
       if (mounted) {
@@ -62,7 +73,7 @@ class _CustomerFormPageState extends State<CustomerFormPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Yeni Müşteri'),
+        title: const Text('Müşteri Ekle'),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -74,10 +85,8 @@ class _CustomerFormPageState extends State<CustomerFormPage> {
               children: [
                 TextFormField(
                   controller: _nameController,
+                  decoration: const InputDecoration(labelText: 'Ad Soyad'),
                   textInputAction: TextInputAction.next,
-                  decoration: const InputDecoration(
-                    labelText: 'Ad Soyad',
-                  ),
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
                       return 'Ad soyad zorunludur';
@@ -88,19 +97,17 @@ class _CustomerFormPageState extends State<CustomerFormPage> {
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _emailController,
+                  decoration: const InputDecoration(labelText: 'E-posta'),
                   textInputAction: TextInputAction.next,
                   keyboardType: TextInputType.emailAddress,
-                  decoration: const InputDecoration(
-                    labelText: 'E-posta',
-                  ),
                   validator: (value) {
-                    final trimmed = value?.trim() ?? '';
-                    if (trimmed.isEmpty) {
-                      return null;
+                    final text = value?.trim() ?? '';
+                    if (text.isEmpty) {
+                      return 'E-posta zorunludur';
                     }
                     final emailRegex =
                         RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
-                    if (!emailRegex.hasMatch(trimmed)) {
+                    if (!emailRegex.hasMatch(text)) {
                       return 'Geçerli bir e-posta girin';
                     }
                     return null;
@@ -109,11 +116,9 @@ class _CustomerFormPageState extends State<CustomerFormPage> {
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _phoneController,
+                  decoration: const InputDecoration(labelText: 'Telefon'),
                   textInputAction: TextInputAction.next,
                   keyboardType: TextInputType.phone,
-                  decoration: const InputDecoration(
-                    labelText: 'Telefon',
-                  ),
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
                       return 'Telefon zorunludur';
@@ -124,11 +129,9 @@ class _CustomerFormPageState extends State<CustomerFormPage> {
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _addressController,
+                  decoration: const InputDecoration(labelText: 'Adres'),
                   textInputAction: TextInputAction.done,
                   maxLines: 3,
-                  decoration: const InputDecoration(
-                    labelText: 'Adres',
-                  ),
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
                       return 'Adres zorunludur';
@@ -138,11 +141,11 @@ class _CustomerFormPageState extends State<CustomerFormPage> {
                 ),
                 const SizedBox(height: 24),
                 FilledButton(
-                  onPressed: _isSaving ? null : _saveCustomer,
+                  onPressed: _isSaving ? null : _submit,
                   child: _isSaving
                       ? const SizedBox(
-                          height: 20,
                           width: 20,
+                          height: 20,
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
                       : const Text('Kaydet'),
