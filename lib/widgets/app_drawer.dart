@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../core/role_manager.dart';
+import '../core/services/push_notification_service.dart';
 import '../services/auth_service.dart';
 
 class UserRoleNotifier extends ChangeNotifier {
@@ -59,20 +60,51 @@ class AppDrawer extends StatelessWidget {
             ),
             Padding(
               padding: const EdgeInsets.all(16),
-              child: SizedBox(
-                width: double.infinity,
-                child: FilledButton.icon(
-                  onPressed: () async {
-                    await AuthService.instance.logout();
-                    if (context.mounted) {
-                      Navigator.of(
-                        context,
-                      ).pushNamedAndRemoveUntil('/login', (route) => false);
-                    }
-                  },
-                  icon: const Icon(Icons.logout),
-                  label: const Text('Çıkış Yap'),
-                ),
+              child: Column(
+                children: [
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: () async {
+                        final navigator = Navigator.of(context);
+                        final messenger = ScaffoldMessenger.of(context);
+                        final granted = await PushNotificationService.instance
+                            .requestPermissionFromUserGesture();
+                        if (!navigator.mounted) return;
+                        messenger.hideCurrentSnackBar();
+                        messenger.showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              granted
+                                  ? 'Bildirim izinleri etkinleştirildi.'
+                                  : 'Bildirim izni reddedildi.',
+                            ),
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.notifications_active_outlined),
+                      label: const Text('Bildirimleri etkinleştir'),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    width: double.infinity,
+                    child: FilledButton.icon(
+                      onPressed: () async {
+                        final navigator = Navigator.of(context);
+                        await AuthService.instance.logout();
+                        if (navigator.mounted) {
+                          navigator.pushNamedAndRemoveUntil(
+                            '/login',
+                            (route) => false,
+                          );
+                        }
+                      },
+                      icon: const Icon(Icons.logout),
+                      label: const Text('Çıkış Yap'),
+                    ),
+                  ),
+                ],
               ),
             ),
           ],

@@ -1,4 +1,5 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
 
 import 'package:atgevosystem/services/auth_service.dart';
 
@@ -13,7 +14,9 @@ class PushNotificationService {
   Future<void> initialize() async {
     if (_initialized) return;
 
-    await _requestPermission();
+    if (!kIsWeb) {
+      await _requestPermission();
+    }
     await _messaging.setAutoInitEnabled(true);
     FirebaseMessaging.onMessage.listen((message) {
       // Future: integrate local notifications/snackbars if needed.
@@ -27,8 +30,20 @@ class PushNotificationService {
     await _subscribeToRoleTopics(AuthService.instance.currentUserRole);
   }
 
-  Future<void> _requestPermission() async {
-    await _messaging.requestPermission(
+  Future<bool> requestPermissionFromUserGesture() async {
+    final settings = await _requestPermission();
+    final granted =
+        settings.authorizationStatus == AuthorizationStatus.authorized ||
+        settings.authorizationStatus == AuthorizationStatus.provisional;
+    if (granted) {
+      await _messaging.setAutoInitEnabled(true);
+      await _subscribeToRoleTopics(AuthService.instance.currentUserRole);
+    }
+    return granted;
+  }
+
+  Future<NotificationSettings> _requestPermission() {
+    return _messaging.requestPermission(
       alert: true,
       announcement: false,
       badge: true,
