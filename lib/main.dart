@@ -1,8 +1,11 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 
 import 'auth/auth_gate.dart';
 import 'core/auth_guard.dart';
+import 'core/services/push_notification_service.dart';
 import 'firebase_options.dart';
 import 'firebase_options_demo.dart' as demo_options;
 import 'modules/crm/pages/crm_dashboard_page.dart';
@@ -21,6 +24,11 @@ import 'modules/finance/pages/finance_dashboard_page.dart';
 import 'modules/finance/pages/payment_detail_page.dart';
 import 'modules/finance/pages/payment_edit_page.dart';
 import 'modules/finance/pages/payment_list_page.dart';
+import 'modules/purchasing/pages/bill_list_page.dart';
+import 'modules/purchasing/pages/grn_list_page.dart';
+import 'modules/purchasing/pages/po_list_page.dart';
+import 'modules/purchasing/pages/purchasing_dashboard_page.dart';
+import 'modules/purchasing/pages/supplier_list_page.dart';
 import 'modules/production/pages/production_detail_page.dart';
 import 'modules/production/pages/production_list_page.dart';
 import 'modules/production/pages/production_dashboard_page.dart';
@@ -30,8 +38,16 @@ import 'modules/shipment/pages/shipment_list_page.dart';
 import 'modules/shipment/pages/shipment_detail_page.dart';
 import 'modules/shipment/pages/shipment_edit_page.dart';
 import 'modules/admin/pages/add_user_page.dart';
-import 'modules/admin/pages/user_management_page.dart';
+import 'modules/admin/pages/user_list_page.dart';
+import 'modules/admin/pages/role_list_page.dart';
+import 'modules/admin/pages/module_access_page.dart';
+import 'modules/admin/pages/admin_dashboard_page.dart';
+import 'modules/admin/pages/system_settings_page.dart';
 import 'modules/admin/pages/permission_management_page.dart';
+import 'modules/dashboard/pages/notification_list_page.dart';
+import 'modules/dashboard/pages/system_dashboard_page.dart';
+import 'modules/ai/pages/predictive_dashboard_page.dart';
+import 'modules/monitoring/pages/monitoring_dashboard_page.dart';
 import 'pages/login_page.dart';
 import 'pages/main_page.dart';
 
@@ -43,6 +59,16 @@ Future<void> main() async {
       : DefaultFirebaseOptions.currentPlatform;
 
   await Firebase.initializeApp(options: firebaseOptions);
+  FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+  await PushNotificationService.instance.initialize();
+  try {
+    FirebaseFirestore.instance.settings = const Settings(
+      persistenceEnabled: true,
+      cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
+    );
+  } catch (error) {
+    debugPrint('Firestore persistence unavailable: $error');
+  }
   debugPrint(
     'Connected to Firebase project: ${firebaseOptions.projectId} '
     '(${useDemo ? 'DEMO' : 'MAIN'})',
@@ -79,15 +105,44 @@ class MyApp extends StatelessWidget {
         '/': (context) => const AuthGate(),
         '/login': (context) => const LoginPage(),
         '/main': (context) => const MainPage(),
-        '/admin/users': (context) => const RoleGuard(
-          allowedRoles: ['admin'],
-          child: UserManagementPage(),
-        ),
+        '/admin/dashboard': (context) =>
+            const SuperAdminGuard(child: AdminDashboardPage()),
+        '/admin/users': (context) =>
+            const SuperAdminGuard(child: UserListPage()),
         '/admin/add-user': (context) =>
-            const RoleGuard(allowedRoles: ['admin'], child: AddUserPage()),
-        '/admin/permissions': (context) => const RoleGuard(
-          allowedRoles: ['admin'],
-          child: PermissionManagementPage(),
+            const SuperAdminGuard(child: AddUserPage()),
+        '/admin/permissions': (context) =>
+            const SuperAdminGuard(child: PermissionManagementPage()),
+        '/admin/modules': (context) =>
+            const SuperAdminGuard(child: ModuleAccessPage()),
+        '/admin/roles': (context) =>
+            const SuperAdminGuard(child: RoleListPage()),
+        '/admin/settings': (context) =>
+            const SuperAdminGuard(child: SystemSettingsPage()),
+        SystemDashboardPage.routeName: (context) => const RoleGuard(
+          allowedRoles: ['admin', 'superadmin'],
+          child: SystemDashboardPage(),
+        ),
+        NotificationListPage.routeName: (context) => const RoleGuard(
+          allowedRoles: [
+            'admin',
+            'superadmin',
+            'sales',
+            'production',
+            'accounting',
+            'purchasing',
+            'warehouse',
+            'logistics',
+          ],
+          child: NotificationListPage(),
+        ),
+        PredictiveDashboardPage.routeName: (context) => const RoleGuard(
+          allowedRoles: ['admin', 'superadmin'],
+          child: PredictiveDashboardPage(),
+        ),
+        MonitoringDashboardPage.routeName: (context) => const RoleGuard(
+          allowedRoles: ['admin', 'superadmin'],
+          child: MonitoringDashboardPage(),
         ),
         '/crm/customers': (context) => const RoleGuard(
           allowedRoles: ['admin', 'sales'],
@@ -362,6 +417,26 @@ class MyApp extends StatelessWidget {
         FinanceDashboardPage.routeName: (context) => const RoleGuard(
           allowedRoles: ['admin', 'superadmin', 'accounting'],
           child: FinanceDashboardPage(),
+        ),
+        PurchasingDashboardPage.routeName: (context) => const RoleGuard(
+          allowedRoles: ['admin', 'superadmin', 'purchasing'],
+          child: PurchasingDashboardPage(),
+        ),
+        SupplierListPage.routeName: (context) => const RoleGuard(
+          allowedRoles: ['admin', 'superadmin', 'purchasing'],
+          child: SupplierListPage(),
+        ),
+        POListPage.routeName: (context) => const RoleGuard(
+          allowedRoles: ['admin', 'superadmin', 'purchasing'],
+          child: POListPage(),
+        ),
+        GRNListPage.routeName: (context) => const RoleGuard(
+          allowedRoles: ['admin', 'superadmin', 'purchasing', 'warehouse'],
+          child: GRNListPage(),
+        ),
+        BillListPage.routeName: (context) => const RoleGuard(
+          allowedRoles: ['admin', 'superadmin', 'purchasing', 'accounting'],
+          child: BillListPage(),
         ),
         LeadListPage.routeName: (context) => const RoleGuard(
           allowedRoles: ['admin', 'sales'],

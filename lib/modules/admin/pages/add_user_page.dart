@@ -63,14 +63,14 @@ class _AddUserPageState extends State<AddUserPage> {
       _passwordController.clear();
       _departmentController.clear();
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Kullanıcı eklendi')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Kullanıcı eklendi')));
     } catch (error) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Kullanıcı eklenemedi: $error')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Kullanıcı eklenemedi: $error')));
     } finally {
       if (mounted) {
         setState(() => _isSaving = false);
@@ -81,9 +81,7 @@ class _AddUserPageState extends State<AddUserPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Yeni Kullanıcı Ekle'),
-      ),
+      appBar: AppBar(title: const Text('Yeni Kullanıcı Ekle')),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16),
@@ -114,8 +112,7 @@ class _AddUserPageState extends State<AddUserPage> {
                     if (text.isEmpty) {
                       return 'E-posta zorunludur';
                     }
-                    final emailRegex =
-                        RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
+                    final emailRegex = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
                     if (!emailRegex.hasMatch(text)) {
                       return 'Geçerli bir e-posta girin';
                     }
@@ -144,10 +141,8 @@ class _AddUserPageState extends State<AddUserPage> {
                   decoration: const InputDecoration(labelText: 'Rol'),
                   items: _roles
                       .map(
-                        (role) => DropdownMenuItem(
-                          value: role,
-                          child: Text(role),
-                        ),
+                        (role) =>
+                            DropdownMenuItem(value: role, child: Text(role)),
                       )
                       .toList(),
                   onChanged: (value) {

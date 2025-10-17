@@ -12,11 +12,10 @@ class AdminPermissionService {
     return _permissionsCollection.snapshots();
   }
 
-  Future<void> updatePermission(
-    String module,
-    Map<String, dynamic> data,
-  ) {
-    return _permissionsCollection.doc(module).set(data, SetOptions(merge: true));
+  Future<void> updatePermission(String module, Map<String, dynamic> data) {
+    return _permissionsCollection
+        .doc(module)
+        .set(data, SetOptions(merge: true));
   }
 
   Future<void> addModule(String moduleName) {

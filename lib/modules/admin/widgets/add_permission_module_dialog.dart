@@ -6,7 +6,8 @@ class AddPermissionModuleDialog extends StatefulWidget {
   const AddPermissionModuleDialog({super.key});
 
   @override
-  State<AddPermissionModuleDialog> createState() => _AddPermissionModuleDialogState();
+  State<AddPermissionModuleDialog> createState() =>
+      _AddPermissionModuleDialogState();
 }
 
 class _AddPermissionModuleDialogState extends State<AddPermissionModuleDialog> {
@@ -22,9 +23,9 @@ class _AddPermissionModuleDialogState extends State<AddPermissionModuleDialog> {
   Future<void> _handleSubmit() async {
     final moduleName = _controller.text.trim();
     if (moduleName.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Modül adı boş olamaz')),  
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Modül adı boş olamaz')));
       return;
     }
 
@@ -35,9 +36,9 @@ class _AddPermissionModuleDialogState extends State<AddPermissionModuleDialog> {
       Navigator.of(context).pop(moduleName);
     } catch (error) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Modül eklenemedi: $error')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Modül eklenemedi: $error')));
     } finally {
       if (mounted) {
         setState(() => _isSaving = false);

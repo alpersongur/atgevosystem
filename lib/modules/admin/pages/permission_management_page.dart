@@ -10,17 +10,28 @@ class PermissionManagementPage extends StatefulWidget {
   static const routeName = '/admin/permissions';
 
   @override
-  State<PermissionManagementPage> createState() => _PermissionManagementPageState();
+  State<PermissionManagementPage> createState() =>
+      _PermissionManagementPageState();
 }
 
 class _PermissionManagementPageState extends State<PermissionManagementPage> {
   final Map<String, Map<String, Map<String, bool>>> _localPermissions = {};
-  final List<String> _roles = const ['admin', 'sales', 'production', 'accounting'];
+  final List<String> _roles = const [
+    'admin',
+    'sales',
+    'production',
+    'accounting',
+  ];
   final List<String> _actions = const ['read', 'write', 'update', 'delete'];
 
   bool _isSaving = false;
 
-  void _setLocalPermission(String module, String role, String action, bool value) {
+  void _setLocalPermission(
+    String module,
+    String role,
+    String action,
+    bool value,
+  ) {
     _localPermissions.putIfAbsent(module, () => {});
     _localPermissions[module]!.putIfAbsent(role, () => {});
     _localPermissions[module]![role]![action] = value;
@@ -33,20 +44,22 @@ class _PermissionManagementPageState extends State<PermissionManagementPage> {
     try {
       final futures = _localPermissions.entries.map((moduleEntry) {
         final module = moduleEntry.key;
-        final data = moduleEntry.value.map((role, actions) => MapEntry(role, actions));
+        final data = moduleEntry.value.map(
+          (role, actions) => MapEntry(role, actions),
+        );
         return AdminPermissionService.instance.updatePermission(module, data);
       });
       await Future.wait(futures);
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('İzinler kaydedildi')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('İzinler kaydedildi')));
       _localPermissions.clear();
     } catch (error) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('İzinler kaydedilemedi: $error')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('İzinler kaydedilemedi: $error')));
     } finally {
       if (mounted) {
         setState(() => _isSaving = false);
@@ -86,14 +99,14 @@ class _PermissionManagementPageState extends State<PermissionManagementPage> {
     try {
       await AdminPermissionService.instance.addModule(moduleName);
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('$moduleName modülü eklendi')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('$moduleName modülü eklendi')));
     } catch (error) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Modül eklenemedi: $error')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Modül eklenemedi: $error')));
     }
   }
 
@@ -106,7 +119,10 @@ class _PermissionManagementPageState extends State<PermissionManagementPage> {
           TextButton.icon(
             onPressed: _handleAddModule,
             icon: const Icon(Icons.add, color: Colors.white),
-            label: const Text('Modül Ekle', style: TextStyle(color: Colors.white)),
+            label: const Text(
+              'Modül Ekle',
+              style: TextStyle(color: Colors.white),
+            ),
           ),
         ],
       ),
@@ -128,9 +144,7 @@ class _PermissionManagementPageState extends State<PermissionManagementPage> {
             return const Center(child: Text('İzin kaydı bulunmuyor.'));
           }
 
-          final columns = <DataColumn>[
-            const DataColumn(label: Text('Modül')),
-          ];
+          final columns = <DataColumn>[const DataColumn(label: Text('Modül'))];
           for (final role in _roles) {
             for (final action in _actions) {
               columns.add(DataColumn(label: Text('$role\n$action')));
@@ -141,18 +155,19 @@ class _PermissionManagementPageState extends State<PermissionManagementPage> {
             final moduleName = doc.id;
             final data = doc.data();
 
-            final cells = <DataCell>[
-              DataCell(Text(moduleName)),
-            ];
+            final cells = <DataCell>[DataCell(Text(moduleName))];
 
             for (final role in _roles) {
               final roleData = data[role];
               for (final action in _actions) {
-                final actionValue = (roleData is Map && roleData[action] == true);
+                final actionValue =
+                    (roleData is Map && roleData[action] == true);
                 cells.add(
                   DataCell(
                     PermissionSwitchCell(
-                      value: _localPermissions[moduleName]?[role]?[action] ?? actionValue,
+                      value:
+                          _localPermissions[moduleName]?[role]?[action] ??
+                          actionValue,
                       onChanged: (value) {
                         setState(() {
                           _setLocalPermission(moduleName, role, action, value);

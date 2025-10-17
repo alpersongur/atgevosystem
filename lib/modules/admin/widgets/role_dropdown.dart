@@ -1,11 +1,7 @@
 import 'package:flutter/material.dart';
 
 class RoleDropdown extends StatelessWidget {
-  const RoleDropdown({
-    super.key,
-    required this.value,
-    required this.onChanged,
-  });
+  const RoleDropdown({super.key, required this.value, required this.onChanged});
 
   final String value;
   final ValueChanged<String?> onChanged;
@@ -23,12 +19,7 @@ class RoleDropdown extends StatelessWidget {
       initialValue: value,
       decoration: const InputDecoration(labelText: 'Rol'),
       items: roles
-          .map(
-            (role) => DropdownMenuItem(
-              value: role,
-              child: Text(role),
-            ),
-          )
+          .map((role) => DropdownMenuItem(value: role, child: Text(role)))
           .toList(),
       onChanged: onChanged,
     );

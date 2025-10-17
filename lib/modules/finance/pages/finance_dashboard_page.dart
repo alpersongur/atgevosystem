@@ -4,6 +4,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../../../core/utils/responsive.dart';
 import '../../crm/services/customer_service.dart';
 import '../models/aging_buckets_model.dart';
 import '../models/finance_summary_model.dart';
@@ -265,109 +266,209 @@ class _FinanceDashboardPageState extends State<FinanceDashboardPage> {
   }
 
   Widget _buildTablesSection(_DashboardData data) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final device =
+            ResponsiveBreakpoints.sizeForWidth(constraints.maxWidth);
+
+        final header = Text(
           'Tablolar',
           style: Theme.of(
             context,
           ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
-        ),
-        const SizedBox(height: 12),
-        _buildCard(
-          title: 'En Çok Ciro Yapan 10 Müşteri',
-          child: data.topCustomers.isEmpty
-              ? const Padding(
-                  padding: EdgeInsets.all(16),
-                  child: Text('Veri bulunamadı.'),
-                )
-              : SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: DataTable(
-                    columns: const [
-                      DataColumn(label: Text('Müşteri')),
-                      DataColumn(label: Text('Toplam Fatura')),
-                    ],
-                    rows: data.topCustomers
-                        .map(
-                          (customer) => DataRow(
-                            cells: [
-                              DataCell(
-                                Text(
-                                  customer.customerName ??
-                                      data.customerNames[customer.customerId] ??
-                                      customer.customerId,
-                                ),
+        );
+
+        if (device == DeviceSize.phone) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              header,
+              const SizedBox(height: 12),
+              _buildCard(
+                title: 'En Çok Ciro Yapan 10 Müşteri',
+                child: data.topCustomers.isEmpty
+                    ? const Padding(
+                        padding: EdgeInsets.all(16),
+                        child: Text('Veri bulunamadı.'),
+                      )
+                    : ListView.separated(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: data.topCustomers.length,
+                        separatorBuilder: (_, __) =>
+                            const Divider(height: 1),
+                        itemBuilder: (context, index) {
+                          final customer = data.topCustomers[index];
+                          final name = customer.customerName ??
+                              data.customerNames[customer.customerId] ??
+                              customer.customerId;
+                          return ListTile(
+                            leading: CircleAvatar(child: Text('${index + 1}')),
+                            title: Text(name),
+                            subtitle: Text(
+                              _currencyFormat.format(customer.total),
+                            ),
+                          );
+                        },
+                      ),
+              ),
+              const SizedBox(height: 16),
+              _buildCard(
+                title: 'Vadesi Geçmiş Faturalar',
+                child: data.overdueInvoices.isEmpty
+                    ? const Padding(
+                        padding: EdgeInsets.all(16),
+                        child: Text('Vadesi geçmiş fatura bulunmuyor.'),
+                      )
+                    : ListView.separated(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: data.overdueInvoices.length,
+                        separatorBuilder: (_, __) =>
+                            const Divider(height: 1),
+                        itemBuilder: (context, index) {
+                          final invoice = data.overdueInvoices[index];
+                          final customer =
+                              data.customerNames[invoice.customerId] ??
+                                  invoice.customerId;
+                          final issue = invoice.issueDate != null
+                              ? _dateFormat.format(invoice.issueDate!)
+                              : '—';
+                          final due = invoice.dueDate != null
+                              ? _dateFormat.format(invoice.dueDate!)
+                              : '—';
+                          return ListTile(
+                            leading: const Icon(Icons.receipt_long_outlined),
+                            title: Text(invoice.invoiceNo),
+                            subtitle: Text(
+                              '$customer\nFatura: $issue • Vade: $due',
+                            ),
+                            isThreeLine: true,
+                            trailing: Text(
+                              _currencyFormat.format(invoice.grandTotal),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleMedium
+                                  ?.copyWith(fontWeight: FontWeight.w600),
+                            ),
+                          );
+                        },
+                      ),
+              ),
+            ],
+          );
+        }
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            header,
+            const SizedBox(height: 12),
+            _buildCard(
+              title: 'En Çok Ciro Yapan 10 Müşteri',
+              child: data.topCustomers.isEmpty
+                  ? const Padding(
+                      padding: EdgeInsets.all(16),
+                      child: Text('Veri bulunamadı.'),
+                    )
+                  : SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: DataTable(
+                        columns: const [
+                          DataColumn(label: Text('Müşteri')),
+                          DataColumn(label: Text('Toplam Fatura')),
+                        ],
+                        rows: data.topCustomers
+                            .map(
+                              (customer) => DataRow(
+                                cells: [
+                                  DataCell(
+                                    Text(
+                                      customer.customerName ??
+                                          data.customerNames[
+                                              customer.customerId] ??
+                                          customer.customerId,
+                                    ),
+                                  ),
+                                  DataCell(
+                                    Text(
+                                      _currencyFormat.format(customer.total),
+                                    ),
+                                  ),
+                                ],
                               ),
-                              DataCell(
-                                Text(_currencyFormat.format(customer.total)),
+                            )
+                            .toList(growable: false),
+                      ),
+                    ),
+            ),
+            const SizedBox(height: 16),
+            _buildCard(
+              title: 'Vadesi Geçmiş Faturalar',
+              child: data.overdueInvoices.isEmpty
+                  ? const Padding(
+                      padding: EdgeInsets.all(16),
+                      child: Text('Vadesi geçmiş fatura bulunmuyor.'),
+                    )
+                  : SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: DataTable(
+                        columns: const [
+                          DataColumn(label: Text('Fatura No')),
+                          DataColumn(label: Text('Müşteri')),
+                          DataColumn(label: Text('Fatura Tarihi')),
+                          DataColumn(label: Text('Vade Tarihi')),
+                          DataColumn(label: Text('Tutar')),
+                          DataColumn(label: Text('Durum')),
+                        ],
+                        rows: data.overdueInvoices
+                            .map(
+                              (invoice) => DataRow(
+                                cells: [
+                                  DataCell(Text(invoice.invoiceNo)),
+                                  DataCell(
+                                    Text(
+                                      data.customerNames[invoice.customerId] ??
+                                          invoice.customerId,
+                                    ),
+                                  ),
+                                  DataCell(
+                                    Text(
+                                      invoice.issueDate != null
+                                          ? _dateFormat.format(
+                                              invoice.issueDate!,
+                                            )
+                                          : '—',
+                                    ),
+                                  ),
+                                  DataCell(
+                                    Text(
+                                      invoice.dueDate != null
+                                          ? _dateFormat.format(
+                                              invoice.dueDate!,
+                                            )
+                                          : '—',
+                                    ),
+                                  ),
+                                  DataCell(
+                                    Text(
+                                      _currencyFormat
+                                          .format(invoice.grandTotal),
+                                    ),
+                                  ),
+                                  DataCell(
+                                    Text(invoice.status.toUpperCase()),
+                                  ),
+                                ],
                               ),
-                            ],
-                          ),
-                        )
-                        .toList(growable: false),
-                  ),
-                ),
-        ),
-        const SizedBox(height: 16),
-        _buildCard(
-          title: 'Vadesi Geçmiş Faturalar',
-          child: data.overdueInvoices.isEmpty
-              ? const Padding(
-                  padding: EdgeInsets.all(16),
-                  child: Text('Vadesi geçmiş fatura bulunmuyor.'),
-                )
-              : SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: DataTable(
-                    columns: const [
-                      DataColumn(label: Text('Fatura No')),
-                      DataColumn(label: Text('Müşteri')),
-                      DataColumn(label: Text('Fatura Tarihi')),
-                      DataColumn(label: Text('Vade Tarihi')),
-                      DataColumn(label: Text('Tutar')),
-                      DataColumn(label: Text('Durum')),
-                    ],
-                    rows: data.overdueInvoices
-                        .map(
-                          (invoice) => DataRow(
-                            cells: [
-                              DataCell(Text(invoice.invoiceNo)),
-                              DataCell(
-                                Text(
-                                  data.customerNames[invoice.customerId] ??
-                                      invoice.customerId,
-                                ),
-                              ),
-                              DataCell(
-                                Text(
-                                  invoice.issueDate != null
-                                      ? _dateFormat.format(invoice.issueDate!)
-                                      : '—',
-                                ),
-                              ),
-                              DataCell(
-                                Text(
-                                  invoice.dueDate != null
-                                      ? _dateFormat.format(invoice.dueDate!)
-                                      : '—',
-                                ),
-                              ),
-                              DataCell(
-                                Text(
-                                  _currencyFormat.format(invoice.grandTotal),
-                                ),
-                              ),
-                              DataCell(Text(invoice.status.toUpperCase())),
-                            ],
-                          ),
-                        )
-                        .toList(growable: false),
-                  ),
-                ),
-        ),
-      ],
+                            )
+                            .toList(growable: false),
+                      ),
+                    ),
+            ),
+          ],
+        );
+      },
     );
   }
 

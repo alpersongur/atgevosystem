@@ -12,9 +12,6 @@ class PermissionSwitchCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Switch(
-      value: value,
-      onChanged: onChanged,
-    );
+    return Switch(value: value, onChanged: onChanged);
   }
 }

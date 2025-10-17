@@ -33,3 +33,28 @@ class RoleGuard extends StatelessWidget {
     return child;
   }
 }
+
+class SuperAdminGuard extends StatelessWidget {
+  const SuperAdminGuard({super.key, required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final role = AuthService.instance.currentUserRole;
+
+    if (role != 'superadmin') {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!context.mounted) return;
+        Navigator.of(context).pushReplacementNamed('/main');
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Bu alana sadece superadmin erişebilir.')),
+        );
+      });
+
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
+    return child;
+  }
+}

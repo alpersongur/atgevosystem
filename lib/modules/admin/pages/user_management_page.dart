@@ -19,14 +19,12 @@ class UserManagementPage extends StatelessWidget {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!context.mounted) return;
         Navigator.of(context).pushReplacementNamed(MainPage.routeName);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Yetkiniz yok.')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Yetkiniz yok.')));
       });
 
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     return Scaffold(
@@ -60,9 +58,7 @@ class UserManagementPage extends StatelessWidget {
 
           final docs = snapshot.data?.docs ?? [];
           if (docs.isEmpty) {
-            return const Center(
-              child: Text('Kayıtlı kullanıcı bulunmuyor.'),
-            );
+            return const Center(child: Text('Kayıtlı kullanıcı bulunmuyor.'));
           }
 
           return ListView.separated(
@@ -100,8 +96,9 @@ class UserManagementPage extends StatelessWidget {
                           ),
                           Chip(
                             label: Text(isActive ? 'Aktif' : 'Pasif'),
-                            backgroundColor:
-                                isActive ? Colors.green.shade100 : Colors.grey.shade300,
+                            backgroundColor: isActive
+                                ? Colors.green.shade100
+                                : Colors.grey.shade300,
                           ),
                         ],
                       ),
@@ -138,7 +135,8 @@ class UserManagementPage extends StatelessWidget {
                           const SizedBox(width: 8),
                           TextButton.icon(
                             onPressed: () async {
-                              final confirm = await showDialog<bool>(
+                              final confirm =
+                                  await showDialog<bool>(
                                     context: context,
                                     builder: (ctx) => AlertDialog(
                                       title: const Text('Kullanıcıyı Sil'),
@@ -164,11 +162,15 @@ class UserManagementPage extends StatelessWidget {
                               if (!confirm || !context.mounted) return;
 
                               try {
-                                await UserService.instance.deactivateUser(doc.id);
+                                await UserService.instance.deactivateUser(
+                                  doc.id,
+                                );
                                 if (!context.mounted) return;
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
-                                    content: Text('Kullanıcı pasif hale getirildi'),
+                                    content: Text(
+                                      'Kullanıcı pasif hale getirildi',
+                                    ),
                                   ),
                                 );
                               } catch (error) {
@@ -242,9 +244,9 @@ class _EditUserDialogState extends State<EditUserDialog> {
 
   Future<void> _handleSave() async {
     if (_nameController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Ad alanı boş bırakılamaz')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Ad alanı boş bırakılamaz')));
       return;
     }
     if (_departmentController.text.trim().isEmpty) {
@@ -266,9 +268,9 @@ class _EditUserDialogState extends State<EditUserDialog> {
       Navigator.of(context).pop(true);
     } catch (error) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Güncelleme başarısız: $error')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Güncelleme başarısız: $error')));
     } finally {
       if (mounted) {
         setState(() => _isSaving = false);

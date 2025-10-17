@@ -5,6 +5,7 @@ import '../../crm/models/customer_model.dart';
 import '../../crm/quotes/models/quote_model.dart';
 import '../../crm/quotes/services/quote_service.dart';
 import '../../crm/services/customer_service.dart';
+import '../../../core/utils/responsive.dart';
 import '../models/production_order_model.dart';
 import '../services/production_service.dart';
 import '../widgets/production_card.dart';
@@ -108,80 +109,100 @@ class _ProductionOrdersTable extends StatelessWidget {
   Widget build(BuildContext context) {
     final dateFormat = DateFormat('dd.MM.yyyy');
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        children: [
-          ListView.separated(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: orders.length,
-            separatorBuilder: (_, __) => const SizedBox(height: 12),
-            itemBuilder: (context, index) {
-              final order = orders[index];
-              return ProductionCard(
-                order: order,
-                onTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => ProductionDetailPage(orderId: order.id),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final device =
+            ResponsiveBreakpoints.sizeForWidth(constraints.maxWidth);
+        final listSection = ListView.separated(
+          shrinkWrap: true,
+          physics: device == DeviceSize.phone
+              ? const NeverScrollableScrollPhysics()
+              : const NeverScrollableScrollPhysics(),
+          itemCount: orders.length,
+          separatorBuilder: (_, __) => const SizedBox(height: 12),
+          itemBuilder: (context, index) {
+            final order = orders[index];
+            return ProductionCard(
+              order: order,
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => ProductionDetailPage(orderId: order.id),
+                  ),
+                );
+              },
+              onEdit: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => ProductionDetailPage(orderId: order.id),
+                  ),
+                );
+              },
+            );
+          },
+        );
+
+        if (device == DeviceSize.phone) {
+          return Padding(
+            padding: const EdgeInsets.all(16),
+            child: listSection,
+          );
+        }
+
+        return SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            children: [
+              listSection,
+              const SizedBox(height: 24),
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: DataTable(
+                      columns: const [
+                        DataColumn(label: Text('Teklif')),
+                        DataColumn(label: Text('Müşteri')),
+                        DataColumn(label: Text('Durum')),
+                        DataColumn(label: Text('Başlangıç')),
+                        DataColumn(label: Text('Tahmini Bitiş')),
+                      ],
+                      rows: orders.map((order) {
+                        final quote = quotes[order.quoteId];
+                        final customer = customers[order.customerId];
+                        final start = order.startDate != null
+                            ? dateFormat.format(order.startDate!)
+                            : '—';
+                        final eta = order.estimatedCompletion != null
+                            ? dateFormat.format(order.estimatedCompletion!)
+                            : '—';
+                        return DataRow(
+                          cells: [
+                            DataCell(Text(quote?.quoteNumber ?? order.quoteId)),
+                            DataCell(Text(customer?.companyName ?? '—')),
+                            DataCell(ProductionStatusChip(status: order.status)),
+                            DataCell(Text(start)),
+                            DataCell(Text(eta)),
+                          ],
+                          onSelectChanged: (_) {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) =>
+                                    ProductionDetailPage(orderId: order.id),
+                              ),
+                            );
+                          },
+                        );
+                      }).toList(),
                     ),
-                  );
-                },
-                onEdit: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => ProductionDetailPage(orderId: order.id),
-                    ),
-                  );
-                },
-              );
-            },
-          ),
-          const SizedBox(height: 24),
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: DataTable(
-                columns: const [
-                  DataColumn(label: Text('Teklif')),
-                  DataColumn(label: Text('Müşteri')),
-                  DataColumn(label: Text('Durum')),
-                  DataColumn(label: Text('Başlangıç')),
-                  DataColumn(label: Text('Tahmini Bitiş')),
-                ],
-                rows: orders.map((order) {
-                  final quote = quotes[order.quoteId];
-                  final customer = customers[order.customerId];
-                  final start = order.startDate != null
-                      ? dateFormat.format(order.startDate!)
-                      : '—';
-                  final eta = order.estimatedCompletion != null
-                      ? dateFormat.format(order.estimatedCompletion!)
-                      : '—';
-                  return DataRow(
-                    cells: [
-                      DataCell(Text(quote?.quoteNumber ?? order.quoteId)),
-                      DataCell(Text(customer?.companyName ?? '—')),
-                      DataCell(ProductionStatusChip(status: order.status)),
-                      DataCell(Text(start)),
-                      DataCell(Text(eta)),
-                    ],
-                    onSelectChanged: (_) {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (_) =>
-                              ProductionDetailPage(orderId: order.id),
-                        ),
-                      );
-                    },
-                  );
-                }).toList(),
+                  ),
+                ),
               ),
-            ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 }

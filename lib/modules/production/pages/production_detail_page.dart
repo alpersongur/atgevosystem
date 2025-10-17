@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../../../core/utils/responsive.dart';
 import '../../crm/models/customer_model.dart';
 import '../../crm/pages/customer_detail_page.dart';
 import '../../crm/quotes/models/quote_model.dart';
@@ -65,7 +66,7 @@ class _ProductionDetailPageState extends State<ProductionDetailPage> {
           _selectedStatus ??= order.status;
           final dateFormat = DateFormat('dd.MM.yyyy');
 
-          return SingleChildScrollView(
+          final content = SingleChildScrollView(
             padding: const EdgeInsets.all(24),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -93,6 +94,23 @@ class _ProductionDetailPageState extends State<ProductionDetailPage> {
                 _buildQuoteAndCustomer(order),
               ],
             ),
+          );
+
+          return LayoutBuilder(
+            builder: (context, constraints) {
+              final device =
+                  ResponsiveBreakpoints.sizeForWidth(constraints.maxWidth);
+              if (device == DeviceSize.phone) {
+                return Column(
+                  children: [
+                    Expanded(child: content),
+                    const SizedBox(height: 8),
+                    _buildMobileQuickActions(order),
+                  ],
+                );
+              }
+              return content;
+            },
           );
         },
       ),
@@ -123,6 +141,51 @@ class _ProductionDetailPageState extends State<ProductionDetailPage> {
             _DetailRow(label: 'Tahmini Bitiş', value: etaText),
             if ((order.notes ?? '').isNotEmpty)
               _DetailRow(label: 'Notlar', value: order.notes!, multiline: true),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMobileQuickActions(ProductionOrderModel order) {
+    final canStart = order.status == 'waiting';
+    final canComplete = order.status == 'in_progress' ||
+        order.status == 'quality_check';
+
+    return SafeArea(
+      top: false,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            FilledButton.icon(
+              style: FilledButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+              ),
+              onPressed: _isUpdating || !canStart
+                  ? null
+                  : () => _updateStatus(order.id, order.status, 'in_progress'),
+              icon: const Icon(Icons.play_arrow_rounded, size: 32),
+              label: const Text(
+                'Üretimi Başlat',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+              ),
+            ),
+            const SizedBox(height: 12),
+            FilledButton.tonalIcon(
+              style: FilledButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+              ),
+              onPressed: _isUpdating || !canComplete
+                  ? null
+                  : () => _updateStatus(order.id, order.status, 'completed'),
+              icon: const Icon(Icons.check_circle_outline, size: 32),
+              label: const Text(
+                'Üretimi Bitir',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+              ),
+            ),
           ],
         ),
       ),
