@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../models/customer_model.dart';
+import 'package:atgevosystem/core/models/customer.dart';
 
 class CustomerCard extends StatelessWidget {
   const CustomerCard({

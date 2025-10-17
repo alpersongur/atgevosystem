@@ -2,8 +2,8 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-import '../models/customer_model.dart';
-import '../services/customer_service.dart';
+import 'package:atgevosystem/core/models/customer.dart';
+import 'package:atgevosystem/core/services/customer_service.dart';
 import 'customer_detail_page.dart';
 
 class CrmDashboardPage extends StatelessWidget {
@@ -159,17 +159,26 @@ class _SummaryCard extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Text(
-                  value,
-                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
+                Expanded(
+                  child: Text(
+                    value,
+                    style:
+                        Theme.of(context).textTheme.headlineMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                if (unit != null)
-                  Text(unit!, style: Theme.of(context).textTheme.bodySmall),
+                if (unit != null) ...[
+                  const SizedBox(width: 8),
+                  Text(
+                    unit!,
+                    style: Theme.of(context).textTheme.bodySmall,
+                    textAlign: TextAlign.end,
+                  ),
+                ],
               ],
             ),
           ],

@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:meta/meta.dart';
 
 import '../models/aging_buckets_model.dart';
 import '../models/finance_summary_model.dart';
@@ -12,13 +13,37 @@ class FinanceDashboardService {
   FinanceDashboardService._(this._firestore);
 
   factory FinanceDashboardService({FirebaseFirestore? firestore}) {
-    if (firestore == null) return instance;
-    return FinanceDashboardService._(firestore);
+    if (firestore != null) {
+      return FinanceDashboardService._(firestore);
+    }
+    final override = _testInstance;
+    if (override != null) {
+      return override;
+    }
+    return instance;
   }
 
-  static final FinanceDashboardService instance = FinanceDashboardService._(
-    FirebaseFirestore.instance,
-  );
+  static FinanceDashboardService? _instance;
+  static FinanceDashboardService? _testInstance;
+
+  static FinanceDashboardService get instance {
+    final override = _testInstance;
+    if (override != null) {
+      return override;
+    }
+    return _instance ??=
+        FinanceDashboardService._(FirebaseFirestore.instance);
+  }
+
+  @visibleForTesting
+  static void setTestInstance(FinanceDashboardService service) {
+    _testInstance = service;
+  }
+
+  @visibleForTesting
+  static void resetTestInstance() {
+    _testInstance = null;
+  }
 
   final FirebaseFirestore _firestore;
 

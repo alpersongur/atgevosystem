@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-import '../../../services/auth_service.dart';
-import '../models/inventory_item_model.dart';
+import 'package:atgevosystem/core/services/auth_service.dart';
+import 'package:atgevosystem/core/models/inventory_item.dart';
 import '../services/inventory_service.dart';
 import '../widgets/inventory_card.dart';
 import '../widgets/stock_adjustment_dialog.dart';

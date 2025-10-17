@@ -5,7 +5,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 
 import 'package:atgevosystem/core/utils/timestamp_helper.dart';
 
-import '../models/quote_model.dart';
+import 'package:atgevosystem/core/models/quote.dart';
 import 'quote_pdf_service.dart';
 
 class QuoteService with FirestoreTimestamps {

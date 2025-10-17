@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-import '../../crm/models/customer_model.dart';
-import '../../crm/quotes/models/quote_model.dart';
-import '../../crm/quotes/services/quote_service.dart';
-import '../../crm/services/customer_service.dart';
+import 'package:atgevosystem/core/models/customer.dart';
+import 'package:atgevosystem/core/models/quote.dart';
+import 'package:atgevosystem/core/services/customer_service.dart';
+import 'package:atgevosystem/core/services/quote_reader_service.dart';
 import '../../../core/utils/responsive.dart';
 import '../models/production_order_model.dart';
 import '../services/production_service.dart';
@@ -64,8 +64,8 @@ class ProductionListPage extends StatelessWidget {
                   customer.id: customer,
               };
 
-              return StreamBuilder<List<QuoteModel>>(
-                stream: QuoteService().getQuotes(),
+          return StreamBuilder<List<QuoteModel>>(
+            stream: QuoteReaderService.instance.watchQuotes(),
                 builder: (context, quoteSnapshot) {
                   if (quoteSnapshot.connectionState ==
                       ConnectionState.waiting) {

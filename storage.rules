@@ -1,33 +1,40 @@
 rules_version = '2';
 
 service firebase.storage {
-  function isAuthenticated() {
-    return request.auth != null;
-  }
-
-  function userRole() {
-    return request.auth != null
-      ? firestore.get(
-          /databases/(default)/documents/users/$(request.auth.uid),
-        ).data.role
-      : null;
-  }
-
-  function hasRole(roles) {
-    return userRole() in roles;
-  }
-
   match /b/{bucket}/o {
-    match /invoice_attachments/{fileName} {
-      allow read: if isAuthenticated() &&
-        hasRole(['admin', 'sales', 'accounting', 'finance', 'superadmin']);
-      allow write: if isAuthenticated() &&
-        request.resource.contentType == 'application/pdf' &&
-        hasRole(['admin', 'accounting', 'finance', 'superadmin']);
+    function isSignedIn() {
+      return request.auth != null && request.auth.token.role != null;
+    }
+
+    function isActiveUser() {
+      return request.auth.token.is_active == null ||
+             request.auth.token.is_active == true;
+    }
+
+    function userRole() {
+      return request.auth.token.role;
+    }
+
+    function hasAnyRole(allowedRoles) {
+      return isSignedIn() &&
+        isActiveUser() &&
+        allowedRoles.hasAny((role) => role == userRole());
     }
 
     match /{allPaths=**} {
-      allow read, write: if false;
+      allow read: if hasAnyRole([
+        'superadmin',
+        'admin',
+        'finance',
+        'accounting',
+        'purchasing',
+        'production',
+        'sales',
+        'warehouse',
+        'logistics'
+      ]);
+
+      allow write: if hasAnyRole(['superadmin', 'admin']);
     }
   }
 }

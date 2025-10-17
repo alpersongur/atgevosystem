@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../../../core/utils/responsive.dart';
+import '../../monitoring/models/monitoring_models.dart';
 import '../../monitoring/services/monitoring_service.dart';
 import '../widgets/alert_list_widget.dart';
 import '../widgets/metric_card.dart';

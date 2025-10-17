@@ -28,6 +28,10 @@ class _UserListPageState extends State<UserListPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Kullanıcı Yönetimi')),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => Navigator.of(context).pushNamed('/admin/users/add'),
+        child: const Icon(Icons.add),
+      ),
       body: Column(
         children: [
           Padding(

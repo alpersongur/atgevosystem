@@ -6,9 +6,55 @@ on:
       - main
 
 jobs:
-  build_and_deploy:
+  test:
     runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.35.3'
+          channel: 'stable'
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Run tests with coverage
+        run: flutter test --coverage
+
+      - name: Enforce coverage threshold
+        run: |
+          python3 - <<'PY'
+import os
+
+lcov_path = 'coverage/lcov.info'
+lh = lf = 0
+with open(lcov_path) as fh:
+    for line in fh:
+        if line.startswith('LH:'):
+            lh += int(line.strip().split(':')[1])
+        elif line.startswith('LF:'):
+            lf += int(line.strip().split(':')[1])
+
+coverage = 0.0 if lf == 0 else (lh / lf) * 100
+with open(os.environ['GITHUB_ENV'], 'a', encoding='utf-8') as env:
+    env.write(f"COVERAGE_PERCENT={coverage:.2f}\n")
+
+if coverage < 70.0:
+    raise SystemExit(f"Coverage {coverage:.2f}% is below required 70%")
+PY
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          files: coverage/lcov.info
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -25,10 +71,13 @@ jobs:
       - name: Build Flutter web app
         run: flutter build web --release
 
-      - name: Deploy to Firebase Hosting
-        uses: FirebaseExtended/action-hosting-deploy@v0
-        with:
-          repoToken: '${{ secrets.GITHUB_TOKEN }}'
-          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_ATGEVOSYSTEM }}'
-          channelId: live
-          projectId: atgevosystem
+      - name: Install Firebase CLI
+        run: npm install -g firebase-tools
+
+      - name: Deploy to Firebase
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/firebase-key.json
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_ATGEVOSYSTEM }}
+        run: |
+          echo "$FIREBASE_SERVICE_ACCOUNT" > "$GOOGLE_APPLICATION_CREDENTIALS"
+          firebase deploy --only firestore,hosting --project atgevosystem

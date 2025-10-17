@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:printing/printing.dart';
 
-import 'package:atgevosystem/services/auth_service.dart';
+import 'package:atgevosystem/core/services/auth_service.dart';
 
-import '../../models/customer_model.dart';
-import '../../services/customer_service.dart';
-import '../models/quote_model.dart';
+import 'package:atgevosystem/core/models/customer.dart';
+import 'package:atgevosystem/core/services/customer_service.dart';
+import 'package:atgevosystem/core/models/quote.dart';
 import '../services/email_service.dart';
 import '../services/quote_pdf_service.dart';
 import '../services/quote_service.dart';

@@ -1,22 +1,44 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:meta/meta.dart';
 
 import 'package:atgevosystem/core/utils/timestamp_helper.dart';
 
-import '../models/customer_model.dart';
+import 'package:atgevosystem/core/models/customer.dart';
 
 class CustomerService with FirestoreTimestamps {
   CustomerService._internal(this._firestore);
 
   factory CustomerService({FirebaseFirestore? firestore}) {
-    if (firestore == null) {
-      return instance;
+    if (firestore != null) {
+      return CustomerService._internal(firestore);
     }
-    return CustomerService._internal(firestore);
+    final override = _testInstance;
+    if (override != null) {
+      return override;
+    }
+    return instance;
   }
 
-  static final CustomerService instance = CustomerService._internal(
-    FirebaseFirestore.instance,
-  );
+  static CustomerService? _instance;
+  static CustomerService? _testInstance;
+
+  static CustomerService get instance {
+    final override = _testInstance;
+    if (override != null) {
+      return override;
+    }
+    return _instance ??= CustomerService._internal(FirebaseFirestore.instance);
+  }
+
+  @visibleForTesting
+  static void setTestInstance(CustomerService service) {
+    _testInstance = service;
+  }
+
+  @visibleForTesting
+  static void resetTestInstance() {
+    _testInstance = null;
+  }
 
   final FirebaseFirestore _firestore;
 

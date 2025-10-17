@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 import '../models/user_model.dart';
 import '../services/user_service.dart';
+import 'package:atgevosystem/core/services/auth_service.dart';
 
 class UserDetailPage extends StatefulWidget {
   const UserDetailPage({super.key, required this.uid});
@@ -183,6 +185,13 @@ class _UserDetailPageState extends State<UserDetailPage> {
         'is_active': _isActive,
         'modules': _selectedModules.toList(),
       });
+
+      final currentUser = AuthService.instance.currentUser;
+      if (currentUser != null && currentUser.uid == widget.uid) {
+        await FirebaseAuth.instance.currentUser?.getIdToken(true);
+        await AuthService.instance.refreshCurrentUserProfile(serverOnly: true);
+      }
+
       if (!mounted) return;
       ScaffoldMessenger.of(
         context,

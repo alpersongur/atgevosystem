@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../models/inventory_item_model.dart';
+import 'package:atgevosystem/core/models/inventory_item.dart';
 
 class InventoryCard extends StatelessWidget {
   const InventoryCard({super.key, required this.item, this.onTap, this.onEdit});

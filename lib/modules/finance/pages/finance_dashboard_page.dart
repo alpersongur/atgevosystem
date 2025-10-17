@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../../../core/utils/responsive.dart';
-import '../../crm/services/customer_service.dart';
+import 'package:atgevosystem/core/services/customer_service.dart';
 import '../models/aging_buckets_model.dart';
 import '../models/finance_summary_model.dart';
 import '../models/invoice_model.dart';

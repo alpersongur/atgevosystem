@@ -4,9 +4,9 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
-import '../../../services/auth_service.dart';
-import '../../crm/models/customer_model.dart';
-import '../../crm/services/customer_service.dart';
+import 'package:atgevosystem/core/services/auth_service.dart';
+import 'package:atgevosystem/core/models/customer.dart';
+import 'package:atgevosystem/core/services/customer_service.dart';
 import '../models/invoice_model.dart';
 import '../models/payment_model.dart';
 import '../services/invoice_service.dart';

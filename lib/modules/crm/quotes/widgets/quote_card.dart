@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-import '../models/quote_model.dart';
+import 'package:atgevosystem/core/models/quote.dart';
 import 'quote_status_chip.dart';
 
 class QuoteCard extends StatelessWidget {

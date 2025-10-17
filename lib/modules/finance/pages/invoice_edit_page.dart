@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-import '../../../services/auth_service.dart';
-import '../../crm/models/customer_model.dart';
-import '../../crm/services/customer_service.dart';
+import 'package:atgevosystem/core/services/auth_service.dart';
+import 'package:atgevosystem/core/models/customer.dart';
+import 'package:atgevosystem/core/services/customer_service.dart';
 import '../models/invoice_model.dart';
 import '../services/invoice_service.dart';
 

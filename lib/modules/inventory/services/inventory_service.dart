@@ -1,22 +1,44 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:meta/meta.dart';
 
 import 'package:atgevosystem/core/utils/timestamp_helper.dart';
 
-import '../models/inventory_item_model.dart';
+import 'package:atgevosystem/core/models/inventory_item.dart';
 
 class InventoryService with FirestoreTimestamps {
   InventoryService._(this._firestore);
 
   factory InventoryService({FirebaseFirestore? firestore}) {
-    if (firestore == null) {
-      return instance;
+    if (firestore != null) {
+      return InventoryService._(firestore);
     }
-    return InventoryService._(firestore);
+    final override = _testInstance;
+    if (override != null) {
+      return override;
+    }
+    return instance;
   }
 
-  static final InventoryService instance = InventoryService._(
-    FirebaseFirestore.instance,
-  );
+  static InventoryService? _instance;
+  static InventoryService? _testInstance;
+
+  static InventoryService get instance {
+    final override = _testInstance;
+    if (override != null) {
+      return override;
+    }
+    return _instance ??= InventoryService._(FirebaseFirestore.instance);
+  }
+
+  @visibleForTesting
+  static void setTestInstance(InventoryService service) {
+    _testInstance = service;
+  }
+
+  @visibleForTesting
+  static void resetTestInstance() {
+    _testInstance = null;
+  }
 
   final FirebaseFirestore _firestore;
 

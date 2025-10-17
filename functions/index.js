@@ -41,20 +41,20 @@ setGlobalOptions({maxInstances: 10});
  */
 async function getFirebaseUsage(projectId) {
   try {
-    // Placeholder implementation. Replace with real usage API calls.
-    // Return mock usage stats until integration is implemented.
     return {
       projectId,
-      users: 0,
-      modules: [],
-      read: 0,
-      write: 0,
-      delete: 0,
+      status: 'beta',
+      message: 'Firebase Usage API entegrasyonu hazırlanıyor.',
       updated_at: new Date().toISOString(),
     };
   } catch (error) {
     logger.error("Failed to fetch usage for project", projectId, error);
-    return {};
+    return {
+      projectId,
+      status: 'error',
+      message: 'Kullanım metrikleri alınamadı.',
+      updated_at: new Date().toISOString(),
+    };
   }
 }
 
@@ -85,6 +85,7 @@ exports.collectUsageData = onSchedule("every 6 hours", async () => {
 exports.collectMetrics = onSchedule("every 6 hours", async () => monitoring.collectMetricsTask());
 exports.summarizeMetrics = onSchedule({schedule: "0 3 * * *", timeZone: "Europe/Istanbul"}, async () => monitoring.summarizeMetricsTask());
 exports.getSystemMetrics = functions.https.onCall(async () => monitoring.getSystemMetricsCallable());
+exports.createUserWithRole = require("./createUserWithRole").createUserWithRole;
 
 /**
  * Creates a system notification document and logs the operation.

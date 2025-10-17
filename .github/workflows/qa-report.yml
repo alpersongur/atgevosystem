@@ -1,0 +1,76 @@
+name: QA Weekly Report
+
+on:
+  schedule:
+    - cron: '0 5 * * 1'
+  workflow_dispatch:
+
+jobs:
+  qa:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.35.3'
+          channel: 'stable'
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Run tests with coverage
+        run: flutter test --coverage
+
+      - name: Calculate coverage metrics
+        run: |
+          python3 - <<'PY'
+import os
+
+lh = lf = 0
+with open('coverage/lcov.info', encoding='utf-8') as fh:
+    for line in fh:
+        if line.startswith('LH:'):
+            lh += int(line.strip().split(':')[1])
+        elif line.startswith('LF:'):
+            lf += int(line.strip().split(':')[1])
+
+coverage = 0.0 if lf == 0 else (lh / lf) * 100
+with open(os.environ['GITHUB_ENV'], 'a', encoding='utf-8') as env:
+    env.write(f"COVERAGE_PERCENT={coverage:.2f}\n")
+
+if coverage < 70.0:
+    raise SystemExit(f"Coverage {coverage:.2f}% is below required 70%")
+PY
+
+      - name: Publish QA report
+        run: |
+          python3 - <<'PY'
+import os
+
+coverage = os.getenv('COVERAGE_PERCENT', '0.00')
+summary_path = os.environ['GITHUB_STEP_SUMMARY']
+report = (
+    "[QA REPORT]\n"
+    "[TEST RESULTS]\n"
+    "Tüm Flutter testleri başarıyla tamamlandı.\n\n"
+    "[COVERAGE]\n"
+    f"Toplam kapsama: {coverage}%\n\n"
+    "[NEW FAILURES]\n"
+    "Tespit edilmedi.\n\n"
+    "[RECOMMENDATIONS]\n"
+    "1. coverage/html raporunu `genhtml coverage/lcov.info -o coverage/html` komutu ile güncel tutun.\n"
+    "2. Kritik modül testlerini genişletmeye devam edin ve 70% sınırını koruyun.\n"
+)
+with open(summary_path, 'a', encoding='utf-8') as summary:
+    summary.write(report)
+PY
+
+      - name: Upload coverage to Codecov
+        if: env.COVERAGE_PERCENT != '0.00'
+        uses: codecov/codecov-action@v4
+        with:
+          files: coverage/lcov.info
+          token: ${{ secrets.CODECOV_TOKEN }}

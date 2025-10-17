@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../crm/models/customer_model.dart';
-import '../../crm/services/customer_service.dart';
+import 'package:atgevosystem/core/models/customer.dart';
+import 'package:atgevosystem/core/services/customer_service.dart';
 import '../models/shipment_model.dart';
 import '../services/shipment_service.dart';
 import '../widgets/shipment_card.dart';

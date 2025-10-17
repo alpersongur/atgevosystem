@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-import '../../../services/auth_service.dart';
-import '../../crm/models/customer_model.dart';
+import 'package:atgevosystem/core/services/auth_service.dart';
+import 'package:atgevosystem/core/models/customer.dart';
 import '../../crm/pages/customer_detail_page.dart';
-import '../../crm/services/customer_service.dart';
+import 'package:atgevosystem/core/services/customer_service.dart';
 import '../../inventory/services/inventory_service.dart';
 import '../models/shipment_model.dart';
 import '../services/shipment_service.dart';

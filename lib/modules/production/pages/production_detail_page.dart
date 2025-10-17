@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../../../core/utils/responsive.dart';
-import '../../crm/models/customer_model.dart';
+import 'package:atgevosystem/core/models/customer.dart';
 import '../../crm/pages/customer_detail_page.dart';
-import '../../crm/quotes/models/quote_model.dart';
+import 'package:atgevosystem/core/models/quote.dart';
 import '../../crm/quotes/pages/quote_detail_page.dart';
-import '../../crm/quotes/services/quote_service.dart';
-import '../../crm/services/customer_service.dart';
-import '../../inventory/models/inventory_item_model.dart';
+import 'package:atgevosystem/core/services/customer_service.dart';
+import 'package:atgevosystem/core/services/quote_reader_service.dart';
+import 'package:atgevosystem/core/models/inventory_item.dart';
 import '../../inventory/pages/inventory_detail_page.dart';
 import '../../inventory/services/inventory_service.dart';
 import '../../shipment/pages/shipment_edit_page.dart';
@@ -287,7 +287,7 @@ class _ProductionDetailPageState extends State<ProductionDetailPage> {
     return Column(
       children: [
         StreamBuilder<QuoteModel?>(
-          stream: QuoteService().watchQuote(order.quoteId),
+            stream: QuoteReaderService.instance.watchQuote(order.quoteId),
           builder: (context, quoteSnapshot) {
             if (quoteSnapshot.connectionState == ConnectionState.waiting) {
               return const Card(

@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 
 import '../services/user_service.dart';
 import '../widgets/role_dropdown.dart';
-import '../../../services/auth_service.dart';
-import 'add_user_page.dart';
+import 'package:atgevosystem/core/services/auth_service.dart';
+import 'user_edit_page.dart';
 import '../../../pages/main_page.dart';
 
 class UserManagementPage extends StatelessWidget {
@@ -33,7 +33,7 @@ class UserManagementPage extends StatelessWidget {
         actions: [
           IconButton(
             onPressed: () {
-              Navigator.of(context).pushNamed(AddUserPage.routeName);
+              Navigator.of(context).pushNamed(UserEditPage.routeName);
             },
             icon: const Icon(Icons.person_add_alt_1),
             tooltip: 'Yeni Kullanıcı',

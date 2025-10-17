@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-import '../../crm/models/customer_model.dart';
-import '../../crm/services/customer_service.dart';
+import 'package:atgevosystem/core/models/customer.dart';
+import 'package:atgevosystem/core/services/customer_service.dart';
 import '../../production/models/production_order_model.dart';
 import '../../production/services/production_service.dart';
 import '../services/shipment_service.dart';

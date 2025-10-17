@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:meta/meta.dart';
 
 import 'package:atgevosystem/core/utils/timestamp_helper.dart';
 
@@ -8,15 +9,36 @@ class ProductionService with FirestoreTimestamps {
   ProductionService._(this._firestore);
 
   factory ProductionService({FirebaseFirestore? firestore}) {
-    if (firestore == null) {
-      return instance;
+    if (firestore != null) {
+      return ProductionService._(firestore);
     }
-    return ProductionService._(firestore);
+    final override = _testInstance;
+    if (override != null) {
+      return override;
+    }
+    return instance;
   }
 
-  static final ProductionService instance = ProductionService._(
-    FirebaseFirestore.instance,
-  );
+  static ProductionService? _instance;
+  static ProductionService? _testInstance;
+
+  static ProductionService get instance {
+    final override = _testInstance;
+    if (override != null) {
+      return override;
+    }
+    return _instance ??= ProductionService._(FirebaseFirestore.instance);
+  }
+
+  @visibleForTesting
+  static void setTestInstance(ProductionService service) {
+    _testInstance = service;
+  }
+
+  @visibleForTesting
+  static void resetTestInstance() {
+    _testInstance = null;
+  }
 
   final FirebaseFirestore _firestore;
 

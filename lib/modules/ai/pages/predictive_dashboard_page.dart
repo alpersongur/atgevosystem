@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../../../core/utils/responsive.dart';
-import '../analytics_service.dart';
+import '../models/analytics_models.dart';
+import '../services/analytics_service.dart';
 
 class PredictiveDashboardPage extends StatefulWidget {
   const PredictiveDashboardPage({super.key});

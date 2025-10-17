@@ -10,6 +10,7 @@ import 'package:printing/printing.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:atgevosystem/modules/crm/pages/crm_dashboard_page.dart';
+import 'package:atgevosystem/modules/dashboard/models/dashboard_models.dart';
 import 'package:atgevosystem/modules/dashboard/services/system_dashboard_service.dart';
 import 'package:atgevosystem/modules/dashboard/widgets/activity_log_list.dart';
 import 'package:atgevosystem/modules/dashboard/widgets/kpi_card.dart';
@@ -18,7 +19,7 @@ import 'package:atgevosystem/modules/dashboard/widgets/pie_chart_widget.dart';
 import 'package:atgevosystem/modules/finance/pages/finance_dashboard_page.dart';
 import 'package:atgevosystem/modules/production/pages/production_dashboard_page.dart';
 import 'package:atgevosystem/modules/purchasing/pages/purchasing_dashboard_page.dart';
-import 'package:atgevosystem/services/auth_service.dart';
+import 'package:atgevosystem/core/services/auth_service.dart';
 
 class SystemDashboardPage extends StatefulWidget {
   const SystemDashboardPage({super.key});

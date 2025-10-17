@@ -1,4 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
+import 'package:meta/meta.dart';
 
 import 'package:atgevosystem/core/utils/timestamp_helper.dart';
 
@@ -8,13 +10,36 @@ class UserService with FirestoreTimestamps {
   UserService._(this._firestore);
 
   factory UserService({FirebaseFirestore? firestore}) {
-    if (firestore == null) {
-      return instance;
+    if (firestore != null) {
+      return UserService._(firestore);
     }
-    return UserService._(firestore);
+    final override = _testInstance;
+    if (override != null) {
+      return override;
+    }
+    return instance;
   }
 
-  static final UserService instance = UserService._(FirebaseFirestore.instance);
+  static UserService? _instance;
+  static UserService? _testInstance;
+
+  static UserService get instance {
+    final override = _testInstance;
+    if (override != null) {
+      return override;
+    }
+    return _instance ??= UserService._(FirebaseFirestore.instance);
+  }
+
+  @visibleForTesting
+  static void setTestInstance(UserService service) {
+    _testInstance = service;
+  }
+
+  @visibleForTesting
+  static void resetTestInstance() {
+    _testInstance = null;
+  }
 
   final FirebaseFirestore _firestore;
 
@@ -37,7 +62,9 @@ class UserService with FirestoreTimestamps {
   }
 
   Future<UserModel?> getUserById(String uid) async {
-    final doc = await _collection.doc(uid).get();
+    final doc = await _collection
+        .doc(uid)
+        .get(const GetOptions(source: Source.serverAndCache));
     if (!doc.exists) return null;
     return UserModel.fromFirestore(doc);
   }
@@ -83,5 +110,24 @@ class UserService with FirestoreTimestamps {
 
   Future<void> deactivateUser(String uid) {
     return toggleUserActive(uid, false);
+  }
+
+  Future<void> createUser({
+    required String email,
+    required String password,
+    required String displayName,
+    required String role,
+    required List<String> modules,
+  }) async {
+    final callable = FirebaseFunctions.instance.httpsCallable(
+      'createUserWithRole',
+    );
+    await callable.call({
+      'email': email,
+      'password': password,
+      'displayName': displayName,
+      'role': role,
+      'modules': modules,
+    });
   }
 }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-import '../../../services/auth_service.dart';
+import 'package:atgevosystem/core/services/auth_service.dart';
 import '../models/payment_model.dart';
 import '../services/payment_service.dart';
 

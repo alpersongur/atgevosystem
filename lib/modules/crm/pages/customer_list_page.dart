@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../models/customer_model.dart';
-import '../services/customer_service.dart';
+import 'package:atgevosystem/core/models/customer.dart';
+import 'package:atgevosystem/core/services/customer_service.dart';
 import '../widgets/customer_card.dart';
 import '../widgets/customer_filter_bar.dart';
 import 'customer_detail_page.dart';

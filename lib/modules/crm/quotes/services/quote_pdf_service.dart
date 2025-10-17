@@ -5,8 +5,8 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 
-import '../../models/customer_model.dart';
-import '../models/quote_model.dart';
+import 'package:atgevosystem/core/models/customer.dart';
+import 'package:atgevosystem/core/models/quote.dart';
 
 class QuotePdfService {
   QuotePdfService._();

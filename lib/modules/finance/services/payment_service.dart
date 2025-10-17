@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:meta/meta.dart';
 
 import 'package:atgevosystem/core/utils/timestamp_helper.dart';
 
@@ -8,15 +9,36 @@ class PaymentService with FirestoreTimestamps {
   PaymentService._(this._firestore);
 
   factory PaymentService({FirebaseFirestore? firestore}) {
-    if (firestore == null) {
-      return instance;
+    if (firestore != null) {
+      return PaymentService._(firestore);
     }
-    return PaymentService._(firestore);
+    final override = _testInstance;
+    if (override != null) {
+      return override;
+    }
+    return instance;
   }
 
-  static final PaymentService instance = PaymentService._(
-    FirebaseFirestore.instance,
-  );
+  static PaymentService? _instance;
+  static PaymentService? _testInstance;
+
+  static PaymentService get instance {
+    final override = _testInstance;
+    if (override != null) {
+      return override;
+    }
+    return _instance ??= PaymentService._(FirebaseFirestore.instance);
+  }
+
+  @visibleForTesting
+  static void setTestInstance(PaymentService service) {
+    _testInstance = service;
+  }
+
+  @visibleForTesting
+  static void resetTestInstance() {
+    _testInstance = null;
+  }
 
   final FirebaseFirestore _firestore;
 

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/utils/responsive.dart';
-import '../models/inventory_item_model.dart';
+import 'package:atgevosystem/core/models/inventory_item.dart';
 import '../services/inventory_service.dart';
 import '../widgets/inventory_card.dart';
 import 'inventory_detail_page.dart';

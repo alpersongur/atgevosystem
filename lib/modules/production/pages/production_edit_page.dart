@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-import '../../crm/models/customer_model.dart';
-import '../../crm/quotes/models/quote_model.dart';
+import 'package:atgevosystem/core/models/customer.dart';
+import 'package:atgevosystem/core/models/quote.dart';
 import '../../crm/quotes/pages/quote_edit_page.dart';
-import '../../crm/quotes/services/quote_service.dart';
-import '../../crm/services/customer_service.dart';
-import '../../inventory/models/inventory_item_model.dart';
+import 'package:atgevosystem/core/services/customer_service.dart';
+import 'package:atgevosystem/core/services/quote_reader_service.dart';
+import 'package:atgevosystem/core/models/inventory_item.dart';
 import '../../inventory/services/inventory_service.dart';
 import '../services/production_service.dart';
 
@@ -164,7 +164,7 @@ class _ProductionEditPageState extends State<ProductionEditPage> {
   }
 
   Future<_ProductionFormData> _loadFormData() async {
-    final quotesFuture = QuoteService().getQuotes().first;
+    final quotesFuture = QuoteReaderService.instance.watchQuotes().first;
     final customersFuture = CustomerService.instance.getCustomers().first;
     final inventoryFuture = InventoryService.instance
         .getInventoryStream()

@@ -1,159 +1,40 @@
 rules_version = '2';
 
 service cloud.firestore {
-  function isAuthenticated() {
-    return request.auth != null;
-  }
-
-  function isSuperAdmin() {
-    return request.auth != null && request.auth.token.role == 'superadmin';
-  }
-
-  function userRole() {
-    return request.auth != null
-      ? get(/databases/(default)/documents/users/$(request.auth.uid)).data.role
-      : null;
-  }
-
-  function hasRole(roles) {
-    return userRole() in roles;
-  }
-
-  function canAccess(CollectionRoles) {
-    return isSuperAdmin() || hasRole(CollectionRoles);
-  }
-
-  function isDashboardRole() {
-    return hasRole(['admin', 'superadmin']);
-  }
-
   match /databases/{database}/documents {
-
-    match /system_logs/{logId} {
-      allow read: if isAuthenticated();
-      allow create, update, delete: if isSuperAdmin();
+    function isSignedIn() {
+      return request.auth != null && request.auth.token.role != null;
     }
 
-    match /dashboard_snapshots/{snapshotId} {
-      allow read: if canAccess(['admin']);
-      allow create, update, delete: if isSuperAdmin();
+    function isActiveUser() {
+      return request.auth.token.is_active == null ||
+             request.auth.token.is_active == true;
     }
 
-    match /system_notifications/{notificationId} {
-      allow read: if isAuthenticated();
-      allow create, update, delete: if isSuperAdmin();
+    function userRole() {
+      return request.auth.token.role;
     }
 
-    match /system_metrics/{document=**} {
-      allow read: if isDashboardRole();
-      allow write: if false;
+    function hasAnyRole(allowedRoles) {
+      return isSignedIn() &&
+        isActiveUser() &&
+        allowedRoles.hasAny((role) => role == userRole());
     }
 
-    match /analytics/{docId} {
-      allow read: if isDashboardRole();
-      allow create, update, delete: if isSuperAdmin();
-    }
-
-    match /permissions/{module} {
-      allow read: if canAccess(['admin']);
-      allow write, update, delete: if isSuperAdmin();
-    }
-
-    match /modules/{moduleId} {
-      allow read: if isAuthenticated();
-      allow write, update, delete: if canAccess(['admin']);
-    }
-
-    match /users/{userId} {
-      allow read: if isAuthenticated();
-      allow write, update, delete: if isSuperAdmin();
-    }
-
-    match /roles/{roleId} {
-      allow read: if canAccess(['admin']);
-      allow write, update, delete: if isSuperAdmin();
-    }
-
-    match /system_modules/{moduleId} {
-      allow read: if isAuthenticated();
-      allow write, update, delete: if isSuperAdmin();
-    }
-
-    match /system_settings/{docId} {
-      allow read: if canAccess(['admin']);
-      allow write, update, delete: if isSuperAdmin();
-    }
-
-    // CRM collections
-    match /customers/{customerId} {
-      allow read: if isAuthenticated() && canAccess(['admin', 'sales']);
-      allow create, update, delete: if canAccess(['admin', 'sales']);
-    }
-
-    match /leads/{leadId} {
-      allow read: if isAuthenticated() && canAccess(['admin', 'sales']);
-      allow create, update, delete: if canAccess(['admin', 'sales']);
-    }
-
-    match /activities/{activityId} {
-      allow read: if isAuthenticated() && canAccess(['admin', 'sales']);
-      allow create, update, delete: if canAccess(['admin', 'sales']);
-    }
-
-    match /quotes/{quoteId} {
-      allow read: if isAuthenticated() && canAccess(['admin', 'sales']);
-      allow create, update, delete: if canAccess(['admin', 'sales']);
-    }
-
-    // Production & inventory
-    match /production_orders/{orderId} {
-      allow read: if isAuthenticated() && canAccess(['admin', 'sales', 'production']);
-      allow create, update, delete: if canAccess(['admin', 'production']);
-    }
-
-    match /inventory/{itemId} {
-      allow read: if isAuthenticated() && canAccess(['admin', 'sales', 'production', 'warehouse']);
-      allow create, update, delete: if canAccess(['admin', 'production', 'warehouse']);
-    }
-
-    match /shipments/{shipmentId} {
-      allow read: if isAuthenticated() && canAccess(['admin', 'sales', 'production', 'warehouse', 'logistics']);
-      allow create, update, delete: if canAccess(['admin', 'production', 'warehouse', 'logistics']);
-    }
-
-    match /invoices/{invoiceId} {
-      allow get, list: if isAuthenticated() && canAccess(['admin', 'accounting', 'sales']);
-      allow create, update, delete: if canAccess(['admin', 'accounting']);
-    }
-
-    match /payments/{paymentId} {
-      allow get, list: if isAuthenticated() && canAccess(['admin', 'accounting', 'sales']);
-      allow create, update, delete: if canAccess(['admin', 'accounting']);
-    }
-
-    match /suppliers/{supplierId} {
-      allow read: if isAuthenticated() && canAccess(['admin', 'purchasing']);
-      allow create, update, delete: if canAccess(['admin', 'purchasing']);
-    }
-
-    match /purchase_orders/{poId} {
-      allow read: if isAuthenticated() && canAccess(['admin', 'purchasing']);
-      allow create, update, delete: if canAccess(['admin', 'purchasing']);
-    }
-
-    match /grn/{grnId} {
-      allow read: if isAuthenticated() && canAccess(['admin', 'purchasing', 'warehouse']);
-      allow create, update, delete: if canAccess(['admin', 'purchasing']);
-    }
-
-    match /bills/{billId} {
-      allow read: if isAuthenticated() && canAccess(['admin', 'purchasing', 'accounting']);
-      allow create, update, delete: if canAccess(['admin', 'purchasing']);
-    }
-
-    // Default deny
     match /{document=**} {
-      allow read, write: if false;
+      allow read: if hasAnyRole([
+        'superadmin',
+        'admin',
+        'finance',
+        'accounting',
+        'purchasing',
+        'production',
+        'sales',
+        'warehouse',
+        'logistics'
+      ]);
+
+      allow write: if hasAnyRole(['superadmin', 'admin']);
     }
   }
 }
