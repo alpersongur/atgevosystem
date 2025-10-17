@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../core/localization/tr_strings.dart';
 import '../core/services/notification_service.dart';
 import '../core/services/push_notification_service.dart';
 import '../modules/dashboard/pages/notification_list_page.dart';
@@ -27,7 +28,7 @@ class _MainPageState extends State<MainPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('ATG EVO System'),
+        title: Text(tr['app_name']!),
         actions: [
           StreamBuilder<int>(
             stream: NotificationService.instance.streamUnreadCount(),
@@ -77,8 +78,11 @@ class _MainPageState extends State<MainPage> {
         ],
       ),
       drawer: const AppDrawer(),
-      body: const Center(
-        child: Text('ATG EVO System Dashboard', style: TextStyle(fontSize: 18)),
+      body: Center(
+        child: Text(
+          '${tr['app_name']!} ${tr['dashboard']!}',
+          style: const TextStyle(fontSize: 18),
+        ),
       ),
     );
   }

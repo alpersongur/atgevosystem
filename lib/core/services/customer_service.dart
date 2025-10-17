@@ -1,16 +1,16 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:meta/meta.dart';
 
-import 'package:atgevosystem/core/utils/timestamp_helper.dart';
-
 import 'package:atgevosystem/core/models/customer.dart';
+import 'package:atgevosystem/core/utils/timestamp_helper.dart';
+import 'package:atgevosystem/modules/tenant/services/tenant_service.dart';
 
 class CustomerService with FirestoreTimestamps {
-  CustomerService._internal(this._firestore);
+  CustomerService._internal(this._firestoreProvider, this._usesTenantScope);
 
   factory CustomerService({FirebaseFirestore? firestore}) {
     if (firestore != null) {
-      return CustomerService._internal(firestore);
+      return CustomerService._internal(() => firestore, false);
     }
     final override = _testInstance;
     if (override != null) {
@@ -27,7 +27,10 @@ class CustomerService with FirestoreTimestamps {
     if (override != null) {
       return override;
     }
-    return _instance ??= CustomerService._internal(FirebaseFirestore.instance);
+    return _instance ??= CustomerService._internal(
+      () => TenantService.instance.firestore,
+      true,
+    );
   }
 
   @visibleForTesting
@@ -40,10 +43,15 @@ class CustomerService with FirestoreTimestamps {
     _testInstance = null;
   }
 
-  final FirebaseFirestore _firestore;
+  final FirebaseFirestore Function() _firestoreProvider;
+  final bool _usesTenantScope;
+
+  FirebaseFirestore get _firestore => _firestoreProvider();
 
   CollectionReference<Map<String, dynamic>> get _collection =>
-      _firestore.collection('customers');
+      _usesTenantScope
+          ? TenantService.instance.tenantCollection('customers')
+          : _firestore.collection('customers');
 
   Stream<List<CustomerModel>> watchCustomers({String? searchTerm}) {
     return _collection.orderBy('created_at', descending: true).snapshots().map((

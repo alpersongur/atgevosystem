@@ -5,6 +5,10 @@ import '../../purchasing/services/purchasing_dashboard_service.dart';
 import '../services/module_access_service.dart';
 import '../services/role_service.dart';
 import '../services/user_service.dart';
+import '../../assistant/models/assistant_query_model.dart';
+import '../../assistant/pages/assistant_dashboard_page.dart';
+import '../../assistant/services/assistant_service.dart';
+import '../../assistant/widgets/insight_card.dart';
 
 class AdminDashboardPage extends StatefulWidget {
   const AdminDashboardPage({super.key});
@@ -30,6 +34,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
     final modules = await ModuleAccessService.instance.getModulesStream().first;
 
     final summary = await PurchasingDashboardService.instance.getSummary();
+    final insights = await AssistantService.instance.fetchDashboardInsights();
 
     return _DashboardData(
       totalUsers: users.length,
@@ -43,6 +48,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
         'Ortalama Teslim Süresi: ${summary.avgLeadTimeDays.toStringAsFixed(1)} gün',
         'Geciken PO: ${summary.delayedPOs}',
       ],
+      insights: insights,
     );
   }
 
@@ -99,6 +105,8 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                   _buildKpiSection(data),
                   const SizedBox(height: 24),
                   _buildQuickLinks(context),
+                  const SizedBox(height: 24),
+                  _buildAiInsights(data),
                   const SizedBox(height: 24),
                   _buildActivityFeed(data),
                 ],
@@ -203,6 +211,57 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
     );
   }
 
+  Widget _buildAiInsights(_DashboardData data) {
+    final insights = data.insights.take(3).toList(growable: false);
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'AI Önerileri',
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 16),
+            if (insights.isEmpty)
+              const Text(
+                'Henüz öneri bulunmuyor. ERP asistanı daha fazla veriyle size içgörüler sağlayacak.',
+              )
+            else
+              Wrap(
+                spacing: 16,
+                runSpacing: 16,
+                children: insights
+                    .map(
+                      (insight) => SizedBox(
+                        width: 280,
+                        child: InsightCard(insight: insight),
+                      ),
+                    )
+                    .toList(growable: false),
+              ),
+            const SizedBox(height: 16),
+            Align(
+              alignment: Alignment.centerRight,
+              child: OutlinedButton.icon(
+                onPressed: () {
+                  Navigator.of(
+                    context,
+                  ).pushNamed(AssistantDashboardPage.routeName);
+                },
+                icon: const Icon(Icons.bolt_outlined),
+                label: const Text('Detaylı Öneriler'),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildActivityFeed(_DashboardData data) {
     return Card(
       child: Padding(
@@ -254,6 +313,7 @@ class _DashboardData {
     required this.activeModules,
     required this.moduleNames,
     required this.latestInfo,
+    required this.insights,
   });
 
   final int totalUsers;
@@ -262,6 +322,7 @@ class _DashboardData {
   final int activeModules;
   final List<String> moduleNames;
   final List<String> latestInfo;
+  final List<AssistantInsight> insights;
 }
 
 class _KpiTile {

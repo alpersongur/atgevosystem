@@ -109,7 +109,7 @@ class _LeadFormPageState extends State<LeadFormPage> {
 
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(const SnackBar(content: Text('Lead kaydedildi')));
+        ).showSnackBar(const SnackBar(content: Text('Potansiyel kaydedildi')));
         setState(() {});
       }
     } catch (error) {
@@ -126,7 +126,7 @@ class _LeadFormPageState extends State<LeadFormPage> {
 
   @override
   Widget build(BuildContext context) {
-    final title = _isEditing ? 'Lead Düzenle' : 'Lead Ekle';
+    final title = _isEditing ? 'Potansiyel Düzenle' : 'Potansiyel Ekle';
 
     return Scaffold(
       appBar: AppBar(title: Text(title)),

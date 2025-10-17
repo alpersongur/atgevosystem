@@ -1,26 +1,18 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:atgevosystem/core/utils/timestamp_helper.dart';
+import 'package:atgevosystem/modules/tenant/services/tenant_service.dart';
 
 import '../../inventory/services/inventory_service.dart';
 import '../../production/services/production_service.dart';
 import '../models/shipment_model.dart';
 
 class ShipmentService with FirestoreTimestamps {
-  ShipmentService._(this._firestore);
+  ShipmentService._();
 
-  factory ShipmentService({FirebaseFirestore? firestore}) {
-    if (firestore == null) {
-      return instance;
-    }
-    return ShipmentService._(firestore);
-  }
+  static final ShipmentService instance = ShipmentService._();
 
-  static final ShipmentService instance = ShipmentService._(
-    FirebaseFirestore.instance,
-  );
-
-  final FirebaseFirestore _firestore;
+  FirebaseFirestore get _firestore => TenantService.instance.firestore;
 
   CollectionReference<Map<String, dynamic>> get _collection =>
       _firestore.collection('shipments');

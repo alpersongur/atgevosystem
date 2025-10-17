@@ -1,11 +1,11 @@
 {
-    "name": "ATG EVO System",
-    "short_name": "ATG EVO",
+    "name": "ATG Makina ERP",
+    "short_name": "ATG ERP",
     "start_url": "/",
     "display": "standalone",
     "background_color": "#111827",
     "theme_color": "#1F2937",
-    "description": "ATG EVO System ile tekliften sevkiyata tüm operasyonunuzu yönetin.",
+    "description": "ATG Makina ERP ile tekliften sevkiyata tüm iş süreçlerinizi dijitalleştirin.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

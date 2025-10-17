@@ -84,7 +84,7 @@ class PaymentService with FirestoreTimestamps {
   Future<String> addPayment(Map<String, dynamic> data) async {
     final invoiceId = (data['invoice_id'] as String? ?? '').trim();
     if (invoiceId.isEmpty) {
-      throw ArgumentError('invoice_id is required');
+      throw ArgumentError('invoice_id alanı zorunludur');
     }
 
     final payload = withCreateTimestamps(data);
@@ -98,7 +98,7 @@ class PaymentService with FirestoreTimestamps {
   Future<void> updatePayment(String id, Map<String, dynamic> data) async {
     final payment = await getPaymentById(id);
     if (payment == null) {
-      throw StateError('Payment not found');
+      throw StateError('Tahsilat bulunamadı');
     }
 
     final payload = withUpdateTimestamp(data);
@@ -110,7 +110,7 @@ class PaymentService with FirestoreTimestamps {
   Future<void> deletePayment(String id) async {
     final payment = await getPaymentById(id);
     if (payment == null) {
-      throw StateError('Payment not found');
+      throw StateError('Tahsilat bulunamadı');
     }
     await _collection.doc(id).delete();
     await _recalculateInvoiceBalance(payment.invoiceId);

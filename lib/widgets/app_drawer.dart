@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import 'package:atgevosystem/core/models/user_profile.dart';
 import 'package:atgevosystem/core/permission_service.dart';
@@ -10,6 +11,7 @@ import 'package:atgevosystem/modules/admin/pages/permission_management_page.dart
 import 'package:atgevosystem/modules/admin/pages/role_list_page.dart';
 import 'package:atgevosystem/modules/admin/pages/system_settings_page.dart';
 import 'package:atgevosystem/modules/admin/pages/user_list_page.dart';
+import 'package:atgevosystem/modules/admin/pages/api_keys_page.dart';
 import 'package:atgevosystem/modules/ai/pages/predictive_dashboard_page.dart';
 import 'package:atgevosystem/modules/crm/pages/crm_dashboard_page.dart';
 import 'package:atgevosystem/modules/crm/pages/customer_list_page.dart';
@@ -31,6 +33,13 @@ import 'package:atgevosystem/modules/purchasing/pages/po_list_page.dart';
 import 'package:atgevosystem/modules/purchasing/pages/purchasing_dashboard_page.dart';
 import 'package:atgevosystem/modules/purchasing/pages/supplier_list_page.dart';
 import 'package:atgevosystem/modules/shipment/pages/shipment_list_page.dart';
+import 'package:atgevosystem/modules/assistant/pages/assistant_dashboard_page.dart';
+import 'package:atgevosystem/modules/bi/pages/bi_dashboard_page.dart';
+import 'package:atgevosystem/modules/reports/pages/reports_hub_page.dart';
+import 'package:atgevosystem/modules/qa/pages/qa_dashboard_page.dart';
+import 'package:atgevosystem/modules/tenant/pages/tenant_list_page.dart';
+import 'package:atgevosystem/modules/tenant/models/tenant_model.dart';
+import 'package:atgevosystem/modules/licensing/pages/license_management_page.dart';
 
 class DrawerMenuItem {
   const DrawerMenuItem({
@@ -50,8 +59,7 @@ class DrawerMenuItem {
   bool isVisible(String? role, List<String> modules) {
     final normalizedRole = role?.toLowerCase();
     if (allowedRoles != null &&
-        (normalizedRole == null ||
-            !allowedRoles!.contains(normalizedRole))) {
+        (normalizedRole == null || !allowedRoles!.contains(normalizedRole))) {
       return false;
     }
     if (requiredModules.isEmpty) return true;
@@ -78,7 +86,7 @@ class AppDrawer extends StatelessWidget {
       title: 'Genel',
       items: [
         DrawerMenuItem(
-          label: '📊 Genel Dashboard',
+          label: '📊 Genel Kontrol Paneli',
           route: SystemDashboardPage.routeName,
           icon: Icons.insights_outlined,
           requiredModules: ['admin'],
@@ -112,7 +120,7 @@ class AppDrawer extends StatelessWidget {
       title: 'CRM',
       items: [
         DrawerMenuItem(
-          label: 'CRM Dashboard',
+          label: 'CRM Kontrol Paneli',
           route: CrmDashboardPage.routeName,
           icon: Icons.dashboard_outlined,
           requiredModules: ['crm'],
@@ -133,14 +141,14 @@ class AppDrawer extends StatelessWidget {
           allowedRoles: ['admin', 'sales'],
         ),
         DrawerMenuItem(
-          label: 'Lead Listesi',
+          label: 'Potansiyel Listesi',
           route: LeadListPage.routeName,
           icon: Icons.timeline_outlined,
           requiredModules: ['crm'],
           allowedRoles: ['admin', 'sales'],
         ),
         DrawerMenuItem(
-          label: 'Lead Oluştur',
+          label: 'Potansiyel Oluştur',
           route: LeadFormPage.routeName,
           icon: Icons.note_add_outlined,
           requiredModules: ['crm'],
@@ -159,7 +167,7 @@ class AppDrawer extends StatelessWidget {
           allowedRoles: ['admin', 'sales', 'production'],
         ),
         DrawerMenuItem(
-          label: 'Üretim Paneli',
+          label: 'Üretim Kontrol Paneli',
           route: ProductionDashboardPage.routeName,
           icon: Icons.dashboard_customize_outlined,
           requiredModules: ['production'],
@@ -196,7 +204,7 @@ class AppDrawer extends StatelessWidget {
       title: 'Satınalma',
       items: [
         DrawerMenuItem(
-          label: 'Satınalma Dashboard',
+          label: 'Satınalma Kontrol Paneli',
           route: PurchasingDashboardPage.routeName,
           icon: Icons.dashboard_outlined,
           requiredModules: ['purchasing'],
@@ -224,7 +232,7 @@ class AppDrawer extends StatelessWidget {
           allowedRoles: ['admin', 'superadmin', 'purchasing', 'warehouse'],
         ),
         DrawerMenuItem(
-          label: 'Vendor Faturaları',
+          label: 'Tedarikçi Faturaları',
           route: BillListPage.routeName,
           icon: Icons.receipt_outlined,
           requiredModules: ['purchasing'],
@@ -236,7 +244,7 @@ class AppDrawer extends StatelessWidget {
       title: 'Finans',
       items: [
         DrawerMenuItem(
-          label: 'Finance Dashboard',
+          label: 'Finans Kontrol Paneli',
           route: FinanceDashboardPage.routeName,
           icon: Icons.assessment_outlined,
           requiredModules: ['finance'],
@@ -269,7 +277,47 @@ class AppDrawer extends StatelessWidget {
           allowedRoles: ['superadmin'],
         ),
         DrawerMenuItem(
-          label: 'System Health',
+          label: 'Firmalar',
+          route: TenantListPage.routeName,
+          icon: Icons.apartment_outlined,
+          allowedRoles: ['superadmin'],
+        ),
+        DrawerMenuItem(
+          label: 'Lisans Yönetimi',
+          route: LicenseManagementPage.routeName,
+          icon: Icons.verified_user_outlined,
+          allowedRoles: ['superadmin'],
+        ),
+        DrawerMenuItem(
+          label: 'AI Asistanı',
+          route: AssistantDashboardPage.routeName,
+          icon: Icons.bolt_outlined,
+          requiredModules: ['admin'],
+          allowedRoles: ['superadmin', 'admin'],
+        ),
+        DrawerMenuItem(
+          label: 'BI Kontrol Paneli',
+          route: BiDashboardPage.routeName,
+          icon: Icons.bar_chart_outlined,
+          requiredModules: ['admin'],
+          allowedRoles: ['superadmin', 'admin'],
+        ),
+        DrawerMenuItem(
+          label: 'Raporlama',
+          route: ReportsHubPage.routeName,
+          icon: Icons.insert_drive_file_outlined,
+          requiredModules: ['admin'],
+          allowedRoles: ['superadmin', 'admin'],
+        ),
+        DrawerMenuItem(
+          label: 'Test ve QA',
+          route: QaDashboardPage.routeName,
+          icon: Icons.build_circle_outlined,
+          requiredModules: ['admin'],
+          allowedRoles: ['superadmin', 'admin'],
+        ),
+        DrawerMenuItem(
+          label: 'Sistem Sağlığı',
           route: MonitoringDashboardPage.routeName,
           icon: Icons.monitor_heart_outlined,
           requiredModules: ['admin'],
@@ -310,6 +358,12 @@ class AppDrawer extends StatelessWidget {
           requiredModules: ['admin'],
           allowedRoles: ['superadmin'],
         ),
+        DrawerMenuItem(
+          label: 'API Anahtarları',
+          route: ApiKeysPage.routeName,
+          icon: Icons.vpn_key_outlined,
+          allowedRoles: ['superadmin'],
+        ),
       ],
     ),
   ];
@@ -317,6 +371,7 @@ class AppDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final auth = AuthService.instance;
+    final tenant = context.watch<TenantModel?>();
     return Drawer(
       child: SafeArea(
         child: StreamBuilder<UserProfileState?>(
@@ -328,7 +383,9 @@ class AppDrawer extends StatelessWidget {
               return const Center(child: CircularProgressIndicator());
             }
             final role = profile.role?.toLowerCase();
-            final modules = profile.modules.map((m) => m.toLowerCase()).toList();
+            final modules = profile.modules
+                .map((m) => m.toLowerCase())
+                .toList();
 
             final visibleSections = _sections
                 .where((section) => section.isVisible(role, modules))
@@ -355,6 +412,11 @@ class AppDrawer extends StatelessWidget {
                         const SizedBox(height: 4),
                         Text(
                           'Rol: ${(role ?? 'belirtilmemiş').toUpperCase()}',
+                          style: const TextStyle(color: Colors.white70),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Aktif Firma: ${tenant?.companyName ?? 'Seçilmedi'}',
                           style: const TextStyle(color: Colors.white70),
                         ),
                       ],
@@ -384,8 +446,7 @@ class AppDrawer extends StatelessWidget {
                         if (hasTitle) {
                           if (index == offset) {
                             return Padding(
-                              padding:
-                                  const EdgeInsets.fromLTRB(16, 24, 16, 8),
+                              padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
                               child: Text(
                                 section.title!,
                                 style: const TextStyle(
@@ -444,8 +505,7 @@ class AppDrawer extends StatelessWidget {
                               ),
                             );
                           },
-                          icon:
-                              const Icon(Icons.notifications_active_outlined),
+                          icon: const Icon(Icons.notifications_active_outlined),
                           label: const Text('Bildirimleri etkinleştir'),
                         ),
                       ),

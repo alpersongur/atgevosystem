@@ -18,7 +18,7 @@ service firebase.storage {
     function hasAnyRole(allowedRoles) {
       return isSignedIn() &&
         isActiveUser() &&
-        allowedRoles.hasAny((role) => role == userRole());
+        allowedRoles.hasAny([userRole()]);
     }
 
     match /{allPaths=**} {

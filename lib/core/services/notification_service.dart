@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import 'package:atgevosystem/modules/tenant/services/tenant_service.dart';
+
 class SystemNotification {
   const SystemNotification({
     required this.id,
@@ -42,18 +44,21 @@ class SystemNotification {
 }
 
 class NotificationService {
-  NotificationService._(this._firestore);
+  NotificationService._({FirebaseFirestore? firestore})
+      : _firestoreProvider = firestore != null
+            ? (() => firestore)
+            : (() => TenantService.instance.firestore);
 
   factory NotificationService({FirebaseFirestore? firestore}) {
     if (firestore == null) return instance;
-    return NotificationService._(firestore);
+    return NotificationService._(firestore: firestore);
   }
 
-  static final NotificationService instance = NotificationService._(
-    FirebaseFirestore.instance,
-  );
+  static final NotificationService instance = NotificationService._();
 
-  final FirebaseFirestore _firestore;
+  final FirebaseFirestore Function() _firestoreProvider;
+
+  FirebaseFirestore get _firestore => _firestoreProvider();
 
   CollectionReference<Map<String, dynamic>> get _collection =>
       _firestore.collection('system_notifications');

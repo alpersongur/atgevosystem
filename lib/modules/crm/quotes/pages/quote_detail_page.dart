@@ -311,7 +311,7 @@ class _QuoteDetailContent extends StatelessWidget {
         recipientEmail: email,
         subject: 'Yeni Teklifiniz (${quote.quoteNumber})',
         body:
-            'Sayın ${customer.contactPerson ?? customer.companyName},\nEk\'te teklifinizi bulabilirsiniz.\n\nSaygılarımızla,\nATG System',
+            'Sayın ${customer.contactPerson ?? customer.companyName},\nEk\'te teklifinizi bulabilirsiniz.\n\nSaygılarımızla,\nATG Makina ERP',
         pdfAttachment: pdfData,
       );
       messenger.showSnackBar(

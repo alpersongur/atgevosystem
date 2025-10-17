@@ -3,31 +3,17 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 
+import 'package:atgevosystem/modules/tenant/services/tenant_service.dart';
+
 import '../models/monitoring_models.dart';
 
 class MonitoringService {
-  MonitoringService._(this._firestore, this._functions);
+  MonitoringService._();
 
-  factory MonitoringService({
-    FirebaseFirestore? firestore,
-    FirebaseFunctions? functions,
-  }) {
-    if (firestore == null && functions == null) {
-      return instance;
-    }
-    return MonitoringService._(
-      firestore ?? FirebaseFirestore.instance,
-      functions ?? FirebaseFunctions.instance,
-    );
-  }
+  static final MonitoringService instance = MonitoringService._();
 
-  static final MonitoringService instance = MonitoringService._(
-    FirebaseFirestore.instance,
-    FirebaseFunctions.instance,
-  );
-
-  final FirebaseFirestore _firestore;
-  final FirebaseFunctions _functions;
+  FirebaseFirestore get _firestore => TenantService.instance.firestore;
+  FirebaseFunctions get _functions => FirebaseFunctions.instance;
 
   Future<MonitoringRealtimeMetrics> fetchRealtimeMetrics() async {
     try {

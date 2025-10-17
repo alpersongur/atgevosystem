@@ -1,0 +1,198 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "ATG ERP External API",
+    "version": "1.0.0",
+    "description": "REST API for external integrations."
+  },
+  "servers": [
+    {
+      "url": "https://<region>-<project>.cloudfunctions.net/api",
+      "description": "Production"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "ApiKey": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "x-api-key"
+      },
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  },
+  "security": [
+    {
+      "ApiKey": []
+    },
+    {
+      "BearerAuth": []
+    }
+  ],
+  "paths": {
+    "/v1/crm/customers": {
+      "get": {
+        "summary": "List customers",
+        "parameters": [
+          {
+            "name": "x-company-id",
+            "in": "header",
+            "required": true,
+            "schema": {"type": "string"}
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Customer list",
+            "content": {
+              "application/json": {
+                "example": {
+                  "data": [
+                    {"id": "cust1", "name": "Acme", "email": "info@acme.com"}
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create customer",
+        "parameters": [
+          {
+            "name": "x-company-id",
+            "in": "header",
+            "required": true,
+            "schema": {"type": "string"}
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {"type": "string"},
+                  "email": {"type": "string"},
+                  "phone": {"type": "string"}
+                },
+                "required": ["name"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Customer created"
+          }
+        }
+      }
+    },
+    "/v1/finance/invoices": {
+      "get": {
+        "summary": "List invoices",
+        "parameters": [
+          {
+            "name": "x-company-id",
+            "in": "header",
+            "required": true,
+            "schema": {"type": "string"}
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {"type": "string"}
+          }
+        ],
+        "responses": {
+          "200": {"description": "Invoices returned"}
+        }
+      }
+    },
+    "/v1/finance/payments": {
+      "post": {
+        "summary": "Create payment",
+        "parameters": [
+          {
+            "name": "x-company-id",
+            "in": "header",
+            "required": true,
+            "schema": {"type": "string"}
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "invoice_id": {"type": "string"},
+                  "amount": {"type": "number"},
+                  "method": {"type": "string"}
+                },
+                "required": ["invoice_id", "amount"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {"description": "Payment created"}
+        }
+      }
+    },
+    "/v1/inventory/items": {
+      "get": {
+        "summary": "List inventory items",
+        "parameters": [
+          {
+            "name": "x-company-id",
+            "in": "header",
+            "required": true,
+            "schema": {"type": "string"}
+          }
+        ],
+        "responses": {
+          "200": {"description": "Items returned"}
+        }
+      }
+    },
+    "/v1/inventory/adjust": {
+      "post": {
+        "summary": "Adjust inventory",
+        "parameters": [
+          {
+            "name": "x-company-id",
+            "in": "header",
+            "required": true,
+            "schema": {"type": "string"}
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "item_id": {"type": "string"},
+                  "delta": {"type": "number"}
+                },
+                "required": ["item_id", "delta"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {"description": "Inventory adjusted"}
+        }
+      }
+    }
+  }
+}

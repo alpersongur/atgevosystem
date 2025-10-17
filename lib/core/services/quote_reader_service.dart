@@ -2,13 +2,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:meta/meta.dart';
 
 import 'package:atgevosystem/core/models/quote.dart';
+import 'package:atgevosystem/modules/tenant/services/tenant_service.dart';
 
 class QuoteReaderService {
-  QuoteReaderService._(this._firestore);
+  QuoteReaderService._(this._firestoreProvider);
 
   factory QuoteReaderService({FirebaseFirestore? firestore}) {
     if (firestore != null) {
-      return QuoteReaderService._(firestore);
+      return QuoteReaderService._(() => firestore);
     }
     final override = _testInstance;
     if (override != null) {
@@ -25,7 +26,8 @@ class QuoteReaderService {
     if (override != null) {
       return override;
     }
-    return _instance ??= QuoteReaderService._(FirebaseFirestore.instance);
+    return _instance ??=
+        QuoteReaderService._(() => TenantService.instance.firestore);
   }
 
   @visibleForTesting
@@ -38,7 +40,9 @@ class QuoteReaderService {
     _testInstance = null;
   }
 
-  final FirebaseFirestore _firestore;
+  final FirebaseFirestore Function() _firestoreProvider;
+
+  FirebaseFirestore get _firestore => _firestoreProvider();
 
   CollectionReference<Map<String, dynamic>> get _collection =>
       _firestore.collection('quotes');

@@ -4,8 +4,12 @@ class MobileAppService {
   MobileAppService._();
 
   static final MobileAppService instance = MobileAppService._();
+  bool _initialized = false;
 
   Future<void> initialize() async {
-    // TODO(v1.03): PWA kurulum kontrolleri ve mobil senkronizasyonu ekleyin.
+    if (_initialized) return;
+    // PWA kurulum kontrolleri ve senkronizasyon mantığı burada kademeli olarak
+    // genişletilecek. Şimdilik yalnızca tek seferlik kurulum akışını güvence altına alıyoruz.
+    _initialized = true;
   }
 }

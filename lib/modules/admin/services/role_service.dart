@@ -1,22 +1,16 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:atgevosystem/core/utils/timestamp_helper.dart';
+import 'package:atgevosystem/modules/tenant/services/tenant_service.dart';
 
 import '../models/role_model.dart';
 
 class RoleService with FirestoreTimestamps {
-  RoleService._(this._firestore);
+  RoleService._();
 
-  factory RoleService({FirebaseFirestore? firestore}) {
-    if (firestore == null) {
-      return instance;
-    }
-    return RoleService._(firestore);
-  }
+  static final RoleService instance = RoleService._();
 
-  static final RoleService instance = RoleService._(FirebaseFirestore.instance);
-
-  final FirebaseFirestore _firestore;
+  FirebaseFirestore get _firestore => TenantService.instance.firestore;
 
   CollectionReference<Map<String, dynamic>> get _collection =>
       _firestore.collection('roles');

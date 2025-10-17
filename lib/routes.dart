@@ -9,6 +9,7 @@ import 'modules/admin/pages/role_list_page.dart';
 import 'modules/admin/pages/system_settings_page.dart';
 import 'modules/admin/pages/user_edit_page.dart';
 import 'modules/admin/pages/user_list_page.dart';
+import 'modules/admin/pages/api_keys_page.dart';
 import 'modules/ai/pages/predictive_dashboard_page.dart';
 import 'modules/crm/pages/crm_dashboard_page.dart';
 import 'modules/crm/pages/customer_detail_page.dart';
@@ -42,6 +43,22 @@ import 'modules/purchasing/pages/supplier_list_page.dart';
 import 'modules/shipment/pages/shipment_detail_page.dart';
 import 'modules/shipment/pages/shipment_edit_page.dart';
 import 'modules/shipment/pages/shipment_list_page.dart';
+import 'modules/tenant/models/tenant_model.dart';
+import 'modules/tenant/pages/tenant_detail_page.dart';
+import 'modules/tenant/pages/tenant_edit_page.dart';
+import 'modules/tenant/pages/tenant_list_page.dart';
+import 'modules/licensing/pages/license_detail_page.dart';
+import 'modules/licensing/pages/license_edit_page.dart';
+import 'modules/licensing/pages/license_list_page.dart';
+import 'modules/licensing/pages/license_management_page.dart';
+import 'modules/assistant/pages/assistant_dashboard_page.dart';
+import 'modules/assistant/pages/assistant_chat_page.dart';
+import 'modules/bi/pages/bi_dashboard_page.dart';
+import 'modules/reports/models/report_request_model.dart';
+import 'modules/reports/pages/reports_hub_page.dart';
+import 'modules/reports/pages/report_preview_page.dart';
+import 'modules/qa/pages/qa_dashboard_page.dart';
+import 'modules/qa/pages/qa_run_detail_page.dart';
 import 'pages/login_page.dart';
 import 'pages/main_page.dart';
 
@@ -54,58 +71,196 @@ class AppRouter {
     MainPage.routeName: (_) => const MainPage(),
     AdminDashboardPage.routeName: (_) =>
         const SuperAdminGuard(child: AdminDashboardPage()),
-    UserListPage.routeName: (_) =>
-        const SuperAdminGuard(child: UserListPage()),
-    UserEditPage.routeName: (_) =>
-        const SuperAdminGuard(child: UserEditPage()),
+    UserListPage.routeName: (_) => const SuperAdminGuard(child: UserListPage()),
+    UserEditPage.routeName: (_) => const SuperAdminGuard(child: UserEditPage()),
     PermissionManagementPage.routeName: (_) =>
         const SuperAdminGuard(child: PermissionManagementPage()),
     ModuleAccessPage.routeName: (_) =>
         const SuperAdminGuard(child: ModuleAccessPage()),
-    RoleListPage.routeName: (_) =>
-        const SuperAdminGuard(child: RoleListPage()),
+    RoleListPage.routeName: (_) => const SuperAdminGuard(child: RoleListPage()),
     SystemSettingsPage.routeName: (_) =>
         const SuperAdminGuard(child: SystemSettingsPage()),
+    ApiKeysPage.routeName: (_) => const SuperAdminGuard(child: ApiKeysPage()),
+    TenantListPage.routeName: (_) =>
+        const SuperAdminGuard(child: TenantListPage()),
+    TenantEditPage.routeName: (context) {
+      final args = ModalRoute.of(context)?.settings.arguments;
+      final resolvedArgs = args is TenantEditPageArgs
+          ? args
+          : args is TenantModel
+          ? TenantEditPageArgs(editTenant: args)
+          : null;
+      return SuperAdminGuard(child: TenantEditPage(args: resolvedArgs));
+    },
+    TenantDetailPage.routeName: (context) {
+      final args = ModalRoute.of(context)?.settings.arguments;
+      final resolvedArgs = args is TenantDetailPageArgs
+          ? args
+          : args is String
+          ? TenantDetailPageArgs(tenantId: args)
+          : null;
+      if (resolvedArgs == null) {
+        return const SuperAdminGuard(
+          child: _RouteErrorPage(
+            message: 'Firma detay sayfası için bir kimlik gereklidir.',
+          ),
+        );
+      }
+      return SuperAdminGuard(
+        child: TenantDetailPage(tenantId: resolvedArgs.tenantId),
+      );
+    },
+    LicenseManagementPage.routeName: (_) =>
+        const SuperAdminGuard(child: LicenseManagementPage()),
+    LicenseListPage.routeName: (context) {
+      final args = ModalRoute.of(context)?.settings.arguments;
+      if (args is! LicenseListPageArgs) {
+        return const SuperAdminGuard(
+          child: _RouteErrorPage(
+            message: 'Lisans listesi için firma kimliği gerekli.',
+          ),
+        );
+      }
+      return SuperAdminGuard(
+        child: LicenseListPage(
+          companyId: args.companyId,
+          companyName: args.companyName,
+        ),
+      );
+    },
+    LicenseEditPage.routeName: (context) {
+      final args = ModalRoute.of(context)?.settings.arguments;
+      if (args is! LicenseEditPageArgs) {
+        return const SuperAdminGuard(
+          child: _RouteErrorPage(
+            message: 'Lisans düzenleme için firma kimliği gerekli.',
+          ),
+        );
+      }
+      return SuperAdminGuard(child: LicenseEditPage(args: args));
+    },
+    LicenseDetailPage.routeName: (context) {
+      final args = ModalRoute.of(context)?.settings.arguments;
+      if (args is! LicenseDetailPageArgs) {
+        return const SuperAdminGuard(
+          child: _RouteErrorPage(
+            message: 'Lisans detayı için firma ve lisans kimliği zorunlu.',
+          ),
+        );
+      }
+      return SuperAdminGuard(
+        child: LicenseDetailPage(
+          companyId: args.companyId,
+          licenseId: args.licenseId,
+          companyName: args.companyName,
+        ),
+      );
+    },
+    AssistantDashboardPage.routeName: (_) => const RoleGuard(
+      allowedRoles: ['admin', 'superadmin'],
+      requiredModules: ['admin'],
+      child: AssistantDashboardPage(),
+    ),
+    AssistantChatPage.routeName: (_) => const RoleGuard(
+      allowedRoles: ['admin', 'superadmin'],
+      requiredModules: ['admin'],
+      child: AssistantChatPage(),
+    ),
+    BiDashboardPage.routeName: (_) => const RoleGuard(
+      allowedRoles: ['admin', 'superadmin'],
+      requiredModules: ['admin'],
+      child: BiDashboardPage(),
+    ),
+    ReportsHubPage.routeName: (_) => const RoleGuard(
+      allowedRoles: ['admin', 'superadmin'],
+      requiredModules: ['admin'],
+      child: ReportsHubPage(),
+    ),
+    ReportPreviewPage.routeName: (context) {
+      final args = ModalRoute.of(context)?.settings.arguments;
+      if (args is! Map<String, dynamic>) {
+        return const RoleGuard(
+          allowedRoles: ['admin', 'superadmin'],
+          requiredModules: ['admin'],
+          child: _RouteErrorPage(message: 'Rapor verisi bulunamadı.'),
+        );
+      }
+      final request = args['request'] as ReportRequest?;
+      final data = args['data'] as ReportData?;
+      if (request == null || data == null) {
+        return const RoleGuard(
+          allowedRoles: ['admin', 'superadmin'],
+          requiredModules: ['admin'],
+          child: _RouteErrorPage(message: 'Rapor verisi bulunamadı.'),
+        );
+      }
+      return RoleGuard(
+        allowedRoles: const ['admin', 'superadmin'],
+        requiredModules: const ['admin'],
+        child: ReportPreviewPage(request: request, data: data),
+      );
+    },
+    QaDashboardPage.routeName: (_) => const RoleGuard(
+      allowedRoles: ['admin', 'superadmin'],
+      requiredModules: ['admin'],
+      child: QaDashboardPage(),
+    ),
+    QaRunDetailPage.routeName: (context) {
+      final args = ModalRoute.of(context)?.settings.arguments;
+      final runId = args is String ? args : null;
+      if (runId == null) {
+        return const RoleGuard(
+          allowedRoles: ['admin', 'superadmin'],
+          requiredModules: ['admin'],
+          child: _RouteErrorPage(message: 'Test kaydı bulunamadı.'),
+        );
+      }
+      return RoleGuard(
+        allowedRoles: const ['admin', 'superadmin'],
+        requiredModules: const ['admin'],
+        child: QaRunDetailPage(runId: runId),
+      );
+    },
     SystemDashboardPage.routeName: (_) => const RoleGuard(
-          allowedRoles: ['admin', 'superadmin'],
-          requiredModules: ['admin'],
-          child: SystemDashboardPage(),
-        ),
+      allowedRoles: ['admin', 'superadmin'],
+      requiredModules: ['admin'],
+      child: SystemDashboardPage(),
+    ),
     NotificationListPage.routeName: (_) => const RoleGuard(
-          allowedRoles: [
-            'admin',
-            'superadmin',
-            'sales',
-            'production',
-            'accounting',
-            'purchasing',
-            'warehouse',
-            'logistics',
-          ],
-          child: NotificationListPage(),
-        ),
+      allowedRoles: [
+        'admin',
+        'superadmin',
+        'sales',
+        'production',
+        'accounting',
+        'purchasing',
+        'warehouse',
+        'logistics',
+      ],
+      child: NotificationListPage(),
+    ),
     PredictiveDashboardPage.routeName: (_) => const RoleGuard(
-          allowedRoles: ['admin', 'superadmin'],
-          requiredModules: ['admin'],
-          child: PredictiveDashboardPage(),
-        ),
+      allowedRoles: ['admin', 'superadmin'],
+      requiredModules: ['admin'],
+      child: PredictiveDashboardPage(),
+    ),
     MonitoringDashboardPage.routeName: (_) => const RoleGuard(
-          allowedRoles: ['admin', 'superadmin'],
-          requiredModules: ['admin'],
-          child: MonitoringDashboardPage(),
-        ),
+      allowedRoles: ['admin', 'superadmin'],
+      requiredModules: ['admin'],
+      child: MonitoringDashboardPage(),
+    ),
     '/crm/customers': (_) => const RoleGuard(
-          allowedRoles: ['admin', 'sales'],
-          requiredModules: ['crm'],
-          child: CustomerListPage(),
-        ),
+      allowedRoles: ['admin', 'sales'],
+      requiredModules: ['crm'],
+      child: CustomerListPage(),
+    ),
     CustomerDetailPage.routeName: (context) {
       final args = ModalRoute.of(context)?.settings.arguments;
       final customerId = args is CustomerDetailPageArgs
           ? args.customerId
           : args is String
-              ? args
-              : null;
+          ? args
+          : null;
       if (customerId == null) {
         return const RoleGuard(
           allowedRoles: ['admin', 'sales'],
@@ -122,17 +277,17 @@ class AppRouter {
       );
     },
     CustomerEditPage.createRoute: (_) => const RoleGuard(
-          allowedRoles: ['admin', 'sales'],
-          requiredModules: ['crm'],
-          child: CustomerEditPage(),
-        ),
+      allowedRoles: ['admin', 'sales'],
+      requiredModules: ['crm'],
+      child: CustomerEditPage(),
+    ),
     CustomerEditPage.editRoute: (context) {
       final args = ModalRoute.of(context)?.settings.arguments;
       final customerId = args is CustomerEditPageArgs
           ? args.customerId
           : args is String
-              ? args
-              : null;
+          ? args
+          : null;
       if (customerId == null) {
         return const RoleGuard(
           allowedRoles: ['admin', 'sales'],
@@ -149,17 +304,17 @@ class AppRouter {
       );
     },
     QuoteListPage.routeName: (_) => const RoleGuard(
-          allowedRoles: ['admin', 'sales'],
-          requiredModules: ['crm'],
-          child: QuoteListPage(),
-        ),
+      allowedRoles: ['admin', 'sales'],
+      requiredModules: ['crm'],
+      child: QuoteListPage(),
+    ),
     QuoteDetailPage.routeName: (context) {
       final args = ModalRoute.of(context)?.settings.arguments;
       final quoteId = args is QuoteDetailPageArgs
           ? args.quoteId
           : args is String
-              ? args
-              : null;
+          ? args
+          : null;
       if (quoteId == null) {
         return const RoleGuard(
           allowedRoles: ['admin', 'sales'],
@@ -176,17 +331,17 @@ class AppRouter {
       );
     },
     QuoteEditPage.createRoute: (_) => const RoleGuard(
-          allowedRoles: ['admin', 'sales'],
-          requiredModules: ['crm'],
-          child: QuoteEditPage(),
-        ),
+      allowedRoles: ['admin', 'sales'],
+      requiredModules: ['crm'],
+      child: QuoteEditPage(),
+    ),
     QuoteEditPage.editRoute: (context) {
       final args = ModalRoute.of(context)?.settings.arguments;
       final quoteId = args is QuoteEditPageArgs
           ? args.quoteId
           : args is String
-              ? args
-              : null;
+          ? args
+          : null;
       if (quoteId == null) {
         return const RoleGuard(
           allowedRoles: ['admin', 'sales'],
@@ -203,22 +358,22 @@ class AppRouter {
       );
     },
     ProductionListPage.routeName: (_) => const RoleGuard(
-          allowedRoles: ['admin', 'sales', 'production'],
-          requiredModules: ['production'],
-          child: ProductionListPage(),
-        ),
+      allowedRoles: ['admin', 'sales', 'production'],
+      requiredModules: ['production'],
+      child: ProductionListPage(),
+    ),
     ProductionDashboardPage.routeName: (_) => const RoleGuard(
-          allowedRoles: ['admin', 'sales', 'production'],
-          requiredModules: ['production'],
-          child: ProductionDashboardPage(),
-        ),
+      allowedRoles: ['admin', 'sales', 'production'],
+      requiredModules: ['production'],
+      child: ProductionDashboardPage(),
+    ),
     ProductionDetailPage.routeName: (context) {
       final args = ModalRoute.of(context)?.settings.arguments;
       final orderId = args is ProductionDetailPageArgs
           ? args.orderId
           : args is String
-              ? args
-              : null;
+          ? args
+          : null;
       if (orderId == null) {
         return const RoleGuard(
           allowedRoles: ['admin', 'sales', 'production'],
@@ -235,17 +390,17 @@ class AppRouter {
       );
     },
     InventoryListPage.routeName: (_) => const RoleGuard(
-          allowedRoles: ['admin', 'sales', 'production', 'warehouse'],
-          requiredModules: ['inventory'],
-          child: InventoryListPage(),
-        ),
+      allowedRoles: ['admin', 'sales', 'production', 'warehouse'],
+      requiredModules: ['inventory'],
+      child: InventoryListPage(),
+    ),
     InventoryDetailPage.routeName: (context) {
       final args = ModalRoute.of(context)?.settings.arguments;
       final itemId = args is InventoryDetailPageArgs
           ? args.itemId
           : args is String
-              ? args
-              : null;
+          ? args
+          : null;
       if (itemId == null) {
         return const RoleGuard(
           allowedRoles: ['admin', 'sales', 'production', 'warehouse'],
@@ -262,23 +417,17 @@ class AppRouter {
       );
     },
     ShipmentListPage.routeName: (_) => const RoleGuard(
-          allowedRoles: [
-            'admin',
-            'sales',
-            'production',
-            'warehouse',
-            'logistics',
-          ],
-          requiredModules: ['shipment'],
-          child: ShipmentListPage(),
-        ),
+      allowedRoles: ['admin', 'sales', 'production', 'warehouse', 'logistics'],
+      requiredModules: ['shipment'],
+      child: ShipmentListPage(),
+    ),
     ShipmentDetailPage.routeName: (context) {
       final args = ModalRoute.of(context)?.settings.arguments;
       final shipmentId = args is ShipmentDetailPageArgs
           ? args.shipmentId
           : args is String
-              ? args
-              : null;
+          ? args
+          : null;
       if (shipmentId == null) {
         return const RoleGuard(
           allowedRoles: [
@@ -307,28 +456,22 @@ class AppRouter {
       );
     },
     ShipmentEditPage.routeName: (_) => const RoleGuard(
-          allowedRoles: [
-            'admin',
-            'sales',
-            'production',
-            'warehouse',
-            'logistics',
-          ],
-          requiredModules: ['shipment'],
-          child: ShipmentEditPage(),
-        ),
+      allowedRoles: ['admin', 'sales', 'production', 'warehouse', 'logistics'],
+      requiredModules: ['shipment'],
+      child: ShipmentEditPage(),
+    ),
     InvoiceListPage.routeName: (_) => const RoleGuard(
-          allowedRoles: ['admin', 'superadmin', 'sales', 'accounting'],
-          requiredModules: ['finance'],
-          child: InvoiceListPage(),
-        ),
+      allowedRoles: ['admin', 'superadmin', 'sales', 'accounting'],
+      requiredModules: ['finance'],
+      child: InvoiceListPage(),
+    ),
     InvoiceDetailPage.routeName: (context) {
       final args = ModalRoute.of(context)?.settings.arguments;
       final invoiceId = args is InvoiceDetailPageArgs
           ? args.invoiceId
           : args is String
-              ? args
-              : null;
+          ? args
+          : null;
       if (invoiceId == null) {
         return const RoleGuard(
           allowedRoles: ['admin', 'superadmin', 'sales', 'accounting'],
@@ -350,24 +493,21 @@ class AppRouter {
       return RoleGuard(
         allowedRoles: const ['admin', 'superadmin', 'sales', 'accounting'],
         requiredModules: const ['finance'],
-        child: InvoiceEditPage(
-          invoiceId: editArgs?.invoiceId,
-          args: editArgs,
-        ),
+        child: InvoiceEditPage(invoiceId: editArgs?.invoiceId, args: editArgs),
       );
     },
     PaymentListPage.routeName: (_) => const RoleGuard(
-          allowedRoles: ['admin', 'superadmin', 'sales', 'accounting'],
-          requiredModules: ['finance'],
-          child: PaymentListPage(),
-        ),
+      allowedRoles: ['admin', 'superadmin', 'sales', 'accounting'],
+      requiredModules: ['finance'],
+      child: PaymentListPage(),
+    ),
     PaymentDetailPage.routeName: (context) {
       final args = ModalRoute.of(context)?.settings.arguments;
       final paymentId = args is PaymentDetailPageArgs
           ? args.paymentId
           : args is String
-              ? args
-              : null;
+          ? args
+          : null;
       if (paymentId == null) {
         return const RoleGuard(
           allowedRoles: ['admin', 'superadmin', 'sales', 'accounting'],
@@ -389,57 +529,54 @@ class AppRouter {
       return RoleGuard(
         allowedRoles: const ['admin', 'superadmin', 'sales', 'accounting'],
         requiredModules: const ['finance'],
-        child: PaymentEditPage(
-          paymentId: editArgs?.paymentId,
-          args: editArgs,
-        ),
+        child: PaymentEditPage(paymentId: editArgs?.paymentId, args: editArgs),
       );
     },
     FinanceDashboardPage.routeName: (_) => const RoleGuard(
-          allowedRoles: ['admin', 'superadmin', 'accounting'],
-          requiredModules: ['finance'],
-          child: FinanceDashboardPage(),
-        ),
+      allowedRoles: ['admin', 'superadmin', 'accounting'],
+      requiredModules: ['finance'],
+      child: FinanceDashboardPage(),
+    ),
     PurchasingDashboardPage.routeName: (_) => const RoleGuard(
-          allowedRoles: ['admin', 'superadmin', 'purchasing'],
-          requiredModules: ['purchasing'],
-          child: PurchasingDashboardPage(),
-        ),
+      allowedRoles: ['admin', 'superadmin', 'purchasing'],
+      requiredModules: ['purchasing'],
+      child: PurchasingDashboardPage(),
+    ),
     SupplierListPage.routeName: (_) => const RoleGuard(
-          allowedRoles: ['admin', 'superadmin', 'purchasing'],
-          requiredModules: ['purchasing'],
-          child: SupplierListPage(),
-        ),
+      allowedRoles: ['admin', 'superadmin', 'purchasing'],
+      requiredModules: ['purchasing'],
+      child: SupplierListPage(),
+    ),
     POListPage.routeName: (_) => const RoleGuard(
-          allowedRoles: ['admin', 'superadmin', 'purchasing'],
-          requiredModules: ['purchasing'],
-          child: POListPage(),
-        ),
+      allowedRoles: ['admin', 'superadmin', 'purchasing'],
+      requiredModules: ['purchasing'],
+      child: POListPage(),
+    ),
     GRNListPage.routeName: (_) => const RoleGuard(
-          allowedRoles: ['admin', 'superadmin', 'purchasing', 'warehouse'],
-          requiredModules: ['purchasing'],
-          child: GRNListPage(),
-        ),
+      allowedRoles: ['admin', 'superadmin', 'purchasing', 'warehouse'],
+      requiredModules: ['purchasing'],
+      child: GRNListPage(),
+    ),
     BillListPage.routeName: (_) => const RoleGuard(
-          allowedRoles: ['admin', 'superadmin', 'purchasing', 'accounting'],
-          requiredModules: ['purchasing'],
-          child: BillListPage(),
-        ),
+      allowedRoles: ['admin', 'superadmin', 'purchasing', 'accounting'],
+      requiredModules: ['purchasing'],
+      child: BillListPage(),
+    ),
     LeadListPage.routeName: (_) => const RoleGuard(
-          allowedRoles: ['admin', 'sales'],
-          requiredModules: ['crm'],
-          child: LeadListPage(),
-        ),
+      allowedRoles: ['admin', 'sales'],
+      requiredModules: ['crm'],
+      child: LeadListPage(),
+    ),
     LeadFormPage.routeName: (_) => const RoleGuard(
-          allowedRoles: ['admin', 'sales'],
-          requiredModules: ['crm'],
-          child: LeadFormPage(),
-        ),
+      allowedRoles: ['admin', 'sales'],
+      requiredModules: ['crm'],
+      child: LeadFormPage(),
+    ),
     CrmDashboardPage.routeName: (_) => const RoleGuard(
-          allowedRoles: ['admin', 'sales', 'production', 'accounting'],
-          requiredModules: ['crm'],
-          child: CrmDashboardPage(),
-        ),
+      allowedRoles: ['admin', 'sales', 'production', 'accounting'],
+      requiredModules: ['crm'],
+      child: CrmDashboardPage(),
+    ),
   };
 
   static Route<dynamic> unknownRoute(RouteSettings settings) {

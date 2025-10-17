@@ -37,7 +37,7 @@ async function buildMetricsSnapshot() {
     const totalSize = metadata && metadata.size ? Number(metadata.size) : 0;
     storageMb = totalSize / (1024 * 1024);
   } catch (error) {
-    logger.warn("Failed to fetch storage metadata", error);
+    logger.warn("Depolama meta verileri alınamadı", error);
   }
 
   let activeUsers = 0;
@@ -45,7 +45,7 @@ async function buildMetricsSnapshot() {
     const list = await admin.auth().listUsers(1000);
     activeUsers = list.users.length;
   } catch (error) {
-    logger.warn("Failed to list users", error);
+    logger.warn("Kullanıcı listesi alınamadı", error);
   }
 
   const hostingStatusDoc = await db
@@ -85,7 +85,7 @@ async function collectMetricsTask() {
       .doc(dateKey);
 
   await docRef.set(metrics, {merge: true});
-  logger.info("System metrics snapshot stored", {dateKey});
+  logger.info("Sistem metrikleri kaydedildi", {dateKey});
 }
 
 
@@ -95,7 +95,7 @@ async function countDocuments(query) {
     const data = snapshot.data();
     return data && typeof data.count === "number" ? data.count : 0;
   } catch (error) {
-    logger.warn("Count aggregation failed, falling back to in-memory count", error);
+    logger.warn("Sayı toplaması başarısız, bellek içi sayım yapılıyor", error);
     const snapshot = await query.get();
     return snapshot.size;
   }
@@ -238,7 +238,7 @@ async function summarizeMetricsTask() {
         generated_at: admin.firestore.FieldValue.serverTimestamp(),
       }, {merge: true});
 
-  logger.info("Dashboard metrics summarized", {dateKey, summary});
+  logger.info("Kontrol paneli metrikleri özetlendi", {dateKey, summary});
 }
 
 async function getSystemMetricsCallable() {

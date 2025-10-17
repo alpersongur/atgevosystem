@@ -4,9 +4,13 @@ class AutomationService {
   AutomationService._();
 
   static final AutomationService instance = AutomationService._();
+  bool _initialized = false;
 
   /// Gelecekte planlanan otomasyon görevleri burada başlatılacak.
   Future<void> initialize() async {
-    // TODO(v1.03): Modül tamamlandığında gerekli başlangıç işlemlerini ekleyin.
+    if (_initialized) return;
+    // Otomasyon görevleri henüz etkin değil. Bu metot, ileride eklenecek
+    // zamanlayıcı ve tetikleyiciler için idempotent bir giriş noktası sağlar.
+    _initialized = true;
   }
 }

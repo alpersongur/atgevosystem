@@ -14,7 +14,7 @@ class CrmDashboardPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('CRM Dashboard')),
+      appBar: AppBar(title: const Text('CRM Kontrol Paneli')),
       body: StreamBuilder<List<CustomerModel>>(
         stream: CustomerService().getCustomers(),
         builder: (context, snapshot) {
@@ -43,7 +43,7 @@ class CrmDashboardPage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'CRM Dashboard',
+                  'CRM Kontrol Paneli',
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),

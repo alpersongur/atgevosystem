@@ -1,12 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import 'package:atgevosystem/modules/tenant/services/tenant_service.dart';
+
 class AdminPermissionService {
   AdminPermissionService._();
 
   static final AdminPermissionService instance = AdminPermissionService._();
 
-  final CollectionReference<Map<String, dynamic>> _permissionsCollection =
-      FirebaseFirestore.instance.collection('permissions');
+  CollectionReference<Map<String, dynamic>> get _permissionsCollection =>
+      TenantService.instance.tenantCollection('permissions');
 
   Stream<QuerySnapshot<Map<String, dynamic>>> getAllPermissions() {
     return _permissionsCollection.snapshots();

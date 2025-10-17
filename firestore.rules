@@ -11,6 +11,16 @@ service cloud.firestore {
              request.auth.token.is_active == true;
     }
 
+    function isCompanyActive() {
+      if (!isSignedIn()) {
+        return false;
+      }
+      return request.auth.token.company_id == null ||
+        get(
+          /databases/$(database)/documents/companies/$(request.auth.token.company_id)
+        ).data.status == "active";
+    }
+
     function userRole() {
       return request.auth.token.role;
     }
@@ -18,7 +28,12 @@ service cloud.firestore {
     function hasAnyRole(allowedRoles) {
       return isSignedIn() &&
         isActiveUser() &&
-        allowedRoles.hasAny((role) => role == userRole());
+        isCompanyActive() &&
+        allowedRoles.hasAny([userRole()]);
+    }
+
+    function isSuperAdmin() {
+      return isSignedIn() && userRole() == 'superadmin';
     }
 
     match /{document=**} {
@@ -35,6 +50,35 @@ service cloud.firestore {
       ]);
 
       allow write: if hasAnyRole(['superadmin', 'admin']);
+    }
+
+    match /companies/{companyId}/licenses/{licenseId} {
+      allow read: if hasAnyRole(['superadmin', 'admin']);
+      allow write: if isSuperAdmin();
+    }
+
+    match /companies/{companyId}/payments/{paymentId} {
+      allow read: if hasAnyRole(['superadmin', 'admin']);
+      allow write: if isSuperAdmin();
+    }
+
+    match /assistant_logs/{logId} {
+      allow read: if hasAnyRole(['superadmin', 'admin']);
+      allow write: if hasAnyRole(['superadmin', 'admin']);
+    }
+
+    match /qa_runs/{runId} {
+      allow read: if hasAnyRole(['superadmin', 'admin']);
+      allow write: if isSuperAdmin();
+    }
+
+    match /companies/{companyId}/report_schedules/{scheduleId} {
+      allow read, write: if hasAnyRole(['superadmin', 'admin']);
+    }
+
+    match /companies/{companyId}/report_logs/{logId} {
+      allow read: if hasAnyRole(['superadmin', 'admin']);
+      allow write: if isSuperAdmin();
     }
   }
 }

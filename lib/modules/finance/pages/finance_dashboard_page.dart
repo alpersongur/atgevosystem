@@ -112,7 +112,7 @@ class _FinanceDashboardPageState extends State<FinanceDashboardPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Finance Dashboard')),
+      appBar: AppBar(title: const Text('Finans Kontrol Paneli')),
       body: FutureBuilder<_DashboardData>(
         future: _future,
         builder: (context, snapshot) {
@@ -134,7 +134,9 @@ class _FinanceDashboardPageState extends State<FinanceDashboardPage> {
 
           final data = snapshot.data;
           if (data == null) {
-            return const Center(child: Text('Dashboard verileri bulunamadı.'));
+            return const Center(
+              child: Text('Kontrol paneli verileri bulunamadı.'),
+            );
           }
 
           return RefreshIndicator(
@@ -146,7 +148,7 @@ class _FinanceDashboardPageState extends State<FinanceDashboardPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Finance Dashboard',
+                    'Finans Kontrol Paneli',
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),

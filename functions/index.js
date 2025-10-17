@@ -14,6 +14,14 @@ const {onSchedule} = require("firebase-functions/v2/scheduler");
 const logger = require("firebase-functions/logger");
 const admin = require("firebase-admin");
 const monitoring = require("./collectMetrics");
+const licenseChecks = require("./license_check");
+const aiAssistant = require("./ai_assistant");
+const bqQuery = require("./bq_query");
+const mzRefresh = require("./mz_refresh");
+const apiApp = require("./api");
+const reportCallable = require("./report_callable");
+const reportsScheduler = require("./reports_scheduler");
+const qaIngest = require("./qa_ingest");
 
 admin.initializeApp();
 const db = admin.firestore();
@@ -48,7 +56,7 @@ async function getFirebaseUsage(projectId) {
       updated_at: new Date().toISOString(),
     };
   } catch (error) {
-    logger.error("Failed to fetch usage for project", projectId, error);
+    logger.error("Proje için kullanım verileri alınamadı", projectId, error);
     return {
       projectId,
       status: 'error',
@@ -64,13 +72,13 @@ async function getFirebaseUsage(projectId) {
  * @return {Promise<void>} Resolved when sync completes
  */
 exports.collectUsageData = onSchedule("every 6 hours", async () => {
-      logger.info("Running scheduled usage collection");
+      logger.info("Zamanlanmış kullanım verisi toplama çalıştırılıyor");
       const companiesSnapshot = await db.collection("companies").get();
       for (const company of companiesSnapshot.docs) {
         const data = company.data();
         const projectId = data.firebase_project_id || data.projectId;
         if (!projectId) {
-          logger.warn("Skipping company without project id", company.id);
+          logger.warn("Proje kimliği olmayan şirket atlandı", company.id);
           continue;
         }
 
@@ -84,8 +92,16 @@ exports.collectUsageData = onSchedule("every 6 hours", async () => {
 
 exports.collectMetrics = onSchedule("every 6 hours", async () => monitoring.collectMetricsTask());
 exports.summarizeMetrics = onSchedule({schedule: "0 3 * * *", timeZone: "Europe/Istanbul"}, async () => monitoring.summarizeMetricsTask());
+exports.license_check = onSchedule({schedule: "0 2 * * *", timeZone: "Europe/Istanbul"}, async () => licenseChecks.licenseCheckTask());
 exports.getSystemMetrics = functions.https.onCall(async () => monitoring.getSystemMetricsCallable());
 exports.createUserWithRole = require("./createUserWithRole").createUserWithRole;
+exports.aiQuery = aiAssistant.aiQuery;
+exports.runBQQuery = bqQuery.runBQQuery;
+exports.mz_refresh = mzRefresh.mz_refresh;
+exports.api = functions.region("europe-west1").https.onRequest(apiApp);
+exports.requestImmediateReport = reportCallable.requestImmediateReport;
+exports.sendScheduledReport = reportsScheduler.sendScheduledReport;
+exports.ingestQaRun = qaIngest.ingestQaRun;
 
 /**
  * Creates a system notification document and logs the operation.
@@ -109,7 +125,7 @@ async function createSystemNotification(payload) {
   };
 
   const docRef = await db.collection("system_notifications").add(notification);
-  logger.info("System notification created", {id: docRef.id, ...payload});
+  logger.info("Sistem bildirimi oluşturuldu", {id: docRef.id, ...payload});
   return docRef;
 }
 
@@ -128,9 +144,9 @@ async function enqueueEmail(to, subject, text) {
       to,
       message: {subject, text},
     });
-    logger.info("Queued notification email", {to, subject});
+    logger.info("Bildirim e-postası kuyruğa alındı", {to, subject});
   } catch (error) {
-    logger.error("Failed to enqueue email", error);
+    logger.error("E-posta kuyruğa alınamadı", error);
   }
 }
 
@@ -161,10 +177,10 @@ async function sendPushNotification(snap) {
     };
     const logContext = {topic, notificationId: snap.id};
     return admin.messaging().send(message)
-        .then(() => logger.info("FCM push sent", logContext))
+        .then(() => logger.info("FCM bildirimi gönderildi", logContext))
         .catch((error) => {
           const errorContext = {topic, error};
-          logger.error("Failed to send FCM push", errorContext);
+          logger.error("FCM bildirimi gönderilemedi", errorContext);
         });
   });
 
@@ -354,7 +370,7 @@ exports.onInvoiceOverdue = functionsV1.firestore
             );
           }
         } catch (error) {
-          logger.error("Failed to fetch customer for invoice email", error);
+          logger.error("Fatura e-postası için müşteri bilgileri alınamadı", error);
         }
       }
     });

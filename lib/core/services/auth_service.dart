@@ -7,11 +7,18 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/user_profile.dart';
+import '../../modules/tenant/services/tenant_service.dart';
+import '../../modules/tenant/models/tenant_model.dart';
 
 class AuthService {
   AuthService._({FirebaseAuth? auth, FirebaseFirestore? firestore})
-      : _auth = auth ?? FirebaseAuth.instance,
-        _firestore = firestore ?? FirebaseFirestore.instance;
+      : _authProvider = auth != null
+            ? (() => auth)
+            : (() => TenantService.instance.auth),
+        _firestoreProvider = firestore != null
+            ? (() => firestore)
+            : (() => TenantService.instance.firestore),
+        _usesTenantScope = auth == null && firestore == null;
 
   static AuthService? _instance;
   static AuthService? _testInstance;
@@ -24,8 +31,12 @@ class AuthService {
     return _instance ??= AuthService._();
   }
 
-  final FirebaseAuth _auth;
-  final FirebaseFirestore _firestore;
+  final FirebaseAuth Function() _authProvider;
+  final FirebaseFirestore Function() _firestoreProvider;
+  final bool _usesTenantScope;
+
+  FirebaseAuth get _auth => _authProvider();
+  FirebaseFirestore get _firestore => _firestoreProvider();
 
   final StreamController<UserProfileState?> _profileController =
       StreamController<UserProfileState?>.broadcast();
@@ -33,7 +44,8 @@ class AuthService {
   SharedPreferences? _prefs;
   StreamSubscription<User?>? _authSubscription;
   StreamSubscription<DocumentSnapshot<Map<String, dynamic>>>?
-  _profileSubscription;
+      _profileSubscription;
+  StreamSubscription<TenantModel?>? _tenantSubscription;
   Timer? _refreshDebounce;
   bool _initialized = false;
 
@@ -56,17 +68,14 @@ class AuthService {
     _initialized = true;
 
     _prefs = await SharedPreferences.getInstance();
-    _authSubscription = _auth.authStateChanges().listen(_handleAuthStateChange);
-
-    final user = _auth.currentUser;
-    if (user != null) {
-      final cached = await _loadCachedProfile(user.uid);
-      if (cached != null) {
-        _updateProfile(cached, persist: false);
-      }
-    } else {
-      _updateProfile(null, persist: false);
+    if (_usesTenantScope) {
+      _tenantSubscription =
+          TenantService.instance.activeTenantStream.listen(
+        _onActiveTenantChanged,
+      );
     }
+
+    await _bindAuthStreams(initialLoad: true);
   }
 
   Future<UserCredential> login(String email, String password) async {
@@ -119,6 +128,7 @@ class AuthService {
 
   Future<void> dispose() async {
     await _authSubscription?.cancel();
+    await _tenantSubscription?.cancel();
     await _stopProfileSync();
     await _profileController.close();
     _refreshDebounce?.cancel();
@@ -142,13 +152,43 @@ class AuthService {
     await _startUserProfileSync(user, fromAuthChange: true);
   }
 
+  Future<void> _bindAuthStreams({required bool initialLoad}) async {
+    await _authSubscription?.cancel();
+    _authSubscription = _auth.authStateChanges().listen(_handleAuthStateChange);
+
+    final user = _auth.currentUser;
+    if (user != null) {
+      if (initialLoad) {
+        final cached = await _loadCachedProfile(user.uid);
+        if (cached != null) {
+          _updateProfile(cached, persist: false);
+        }
+      }
+      await _startUserProfileSync(user, fromAuthChange: !initialLoad);
+    } else {
+      _updateProfile(null, persist: false);
+    }
+  }
+
+  void _onActiveTenantChanged(TenantModel? tenant) {
+    if (!_initialized || !_usesTenantScope) return;
+    unawaited(_rebindAuthForTenantChange());
+  }
+
+  Future<void> _rebindAuthForTenantChange() async {
+    await _authSubscription?.cancel();
+    await _stopProfileSync();
+    _updateProfile(null);
+    await _bindAuthStreams(initialLoad: true);
+  }
+
   Future<void> _startUserProfileSync(
     User user, {
     required bool fromAuthChange,
   }) async {
     await _profileSubscription?.cancel();
 
-    final docRef = _firestore.collection('users').doc(user.uid);
+    final docRef = _userDocRef(user.uid);
 
     _profileSubscription = docRef.snapshots().listen(
       (snapshot) {
@@ -190,7 +230,7 @@ class AuthService {
       final options = GetOptions(
         source: serverOnly ? Source.server : Source.serverAndCache,
       );
-      return await _firestore.collection('users').doc(uid).get(options);
+      return await _userDocRef(uid).get(options);
     } catch (error, stackTrace) {
       debugPrint('Kullanıcı verisi alınırken hata oluştu: $error\n$stackTrace');
       return null;
@@ -322,7 +362,24 @@ class AuthService {
     }
   }
 
-  String _cacheKey(String uid) => 'user_profile_$uid';
+  DocumentReference<Map<String, dynamic>> _userDocRef(String uid) {
+    if (!_usesTenantScope) {
+      return _firestore.collection('users').doc(uid);
+    }
+    try {
+      return TenantService.instance.tenantCollection('users').doc(uid);
+    } catch (_) {
+      return _firestore.collection('users').doc(uid);
+    }
+  }
+
+  String _cacheKey(String uid) {
+    if (!_usesTenantScope) {
+      return 'user_profile_$uid';
+    }
+    final tenantId = TenantService.instance.activeTenantId ?? 'global';
+    return 'user_profile_${tenantId}_$uid';
+  }
 
   @visibleForTesting
   void debugSetProfile(UserProfileState? profile) {

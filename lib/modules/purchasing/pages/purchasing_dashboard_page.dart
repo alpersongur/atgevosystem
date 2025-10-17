@@ -97,7 +97,7 @@ class _PurchasingDashboardPageState extends State<PurchasingDashboardPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Satınalma Dashboard')),
+      appBar: AppBar(title: const Text('Satınalma Kontrol Paneli')),
       body: FutureBuilder<_DashboardData>(
         future: _future,
         builder: (context, snapshot) {
@@ -110,7 +110,7 @@ class _PurchasingDashboardPageState extends State<PurchasingDashboardPage> {
               child: Padding(
                 padding: const EdgeInsets.all(24),
                 child: Text(
-                  'Dashboard verileri yüklenirken hata oluştu.\n${snapshot.error}',
+                  'Kontrol paneli verileri yüklenirken hata oluştu.\n${snapshot.error}',
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -119,7 +119,9 @@ class _PurchasingDashboardPageState extends State<PurchasingDashboardPage> {
 
           final data = snapshot.data;
           if (data == null) {
-            return const Center(child: Text('Dashboard verileri bulunamadı.'));
+            return const Center(
+              child: Text('Kontrol paneli verileri bulunamadı.'),
+            );
           }
 
           return RefreshIndicator(
@@ -131,7 +133,7 @@ class _PurchasingDashboardPageState extends State<PurchasingDashboardPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Satınalma Dashboard',
+                    'Satınalma Kontrol Paneli',
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),

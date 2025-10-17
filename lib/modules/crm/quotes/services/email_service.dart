@@ -22,7 +22,7 @@ class EmailService {
     );
 
     final message = Message()
-      ..from = Address('youremail@gmail.com', 'ATG System')
+      ..from = Address('youremail@gmail.com', 'ATG Makina ERP')
       ..recipients.add(recipientEmail)
       ..subject = subject
       ..text = body

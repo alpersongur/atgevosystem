@@ -5,6 +5,7 @@ import '../pages/login_page.dart';
 import '../pages/main_page.dart';
 import 'package:atgevosystem/core/models/user_profile.dart';
 import 'package:atgevosystem/core/services/auth_service.dart';
+import 'package:atgevosystem/modules/tenant/services/tenant_service.dart';
 
 class AuthGate extends StatelessWidget {
   const AuthGate({super.key});
@@ -12,7 +13,7 @@ class AuthGate extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<User?>(
-      stream: FirebaseAuth.instance.authStateChanges(),
+      stream: TenantService.instance.auth.authStateChanges(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Scaffold(

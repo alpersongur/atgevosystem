@@ -20,6 +20,10 @@ import 'package:atgevosystem/modules/finance/pages/finance_dashboard_page.dart';
 import 'package:atgevosystem/modules/production/pages/production_dashboard_page.dart';
 import 'package:atgevosystem/modules/purchasing/pages/purchasing_dashboard_page.dart';
 import 'package:atgevosystem/core/services/auth_service.dart';
+import 'package:atgevosystem/modules/licensing/models/license_model.dart';
+import 'package:atgevosystem/modules/licensing/services/license_service.dart';
+import 'package:atgevosystem/modules/tenant/services/tenant_service.dart';
+import 'package:atgevosystem/modules/licensing/pages/license_list_page.dart';
 
 class SystemDashboardPage extends StatefulWidget {
   const SystemDashboardPage({super.key});
@@ -49,6 +53,194 @@ class _SystemDashboardPageState extends State<SystemDashboardPage> {
     _dashboardFuture = _loadData();
     _loadCompanies();
     _scheduleAutoRefresh();
+  }
+
+  Widget _buildLicenseBanner() {
+    final companyId =
+        _filter.companyId ?? TenantService.instance.activeTenantId;
+    if (companyId == null) {
+      return const SizedBox.shrink();
+    }
+
+    final companyName = _companyOptions
+        .firstWhere(
+          (option) => option.id == companyId,
+          orElse: () => _CompanyOption(
+            id: companyId,
+            name:
+                TenantService.instance.activeTenant?.companyName ??
+                'Seçili Firma',
+          ),
+        )
+        .name;
+
+    return FutureBuilder<List<LicenseModel?>>(
+      future: Future.wait([
+        LicenseService.instance.fetchActiveLicense(companyId),
+        LicenseService.instance.fetchLatestLicense(companyId),
+      ]),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Card(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: const Padding(
+              padding: EdgeInsets.all(16),
+              child: LinearProgressIndicator(minHeight: 3),
+            ),
+          );
+        }
+
+        final active = snapshot.data != null && snapshot.data!.isNotEmpty
+            ? snapshot.data![0]
+            : null;
+        final latest = snapshot.data != null && snapshot.data!.length > 1
+            ? snapshot.data![1]
+            : null;
+        final license = active ?? latest;
+        final hasActive = active != null;
+        final hasAny = license != null;
+        final remainingDays = active?.remainingDays;
+        final licensePrice = license?.price;
+        final licenseCurrency = license?.currency ?? '';
+        final licenseStart = license?.startDate;
+        final licenseEnd = license?.endDate;
+        final isExpiring =
+            hasActive && remainingDays != null && remainingDays <= 7;
+
+        final theme = Theme.of(context);
+        final Color background;
+        final Color foreground;
+        final IconData icon;
+        String title;
+        String subtitle;
+
+        if (!hasAny) {
+          background = theme.colorScheme.errorContainer;
+          foreground = theme.colorScheme.onErrorContainer;
+          icon = Icons.report_gmailerrorred_outlined;
+          title = 'Aktif lisans bulunamadı';
+          subtitle =
+              'Lütfen lisans satın alarak modüllere tam erişim sağlayın.';
+        } else if (!hasActive) {
+          background = theme.colorScheme.errorContainer;
+          foreground = theme.colorScheme.onErrorContainer;
+          icon = Icons.lock_clock_outlined;
+          final end = licenseEnd;
+          final endText = end != null
+              ? '${end.day.toString().padLeft(2, '0')}.'
+                    '${end.month.toString().padLeft(2, '0')}.'
+                    '${end.year}'
+              : '-';
+          title = 'Lisans süresi doldu';
+          subtitle =
+              'Son geçerlilik tarihi: $endText. Sistem yetkileri sınırlandı.';
+        } else if (isExpiring) {
+          background = theme.colorScheme.secondaryContainer;
+          foreground = theme.colorScheme.onSecondaryContainer;
+          icon = Icons.schedule_outlined;
+          title = 'Lisans süresi dolmak üzere';
+          subtitle = 'Kalan gün: $remainingDays. Yenilemeyi planlayın.';
+        } else {
+          background = theme.colorScheme.primaryContainer;
+          foreground = theme.colorScheme.onPrimaryContainer;
+          icon = Icons.verified_outlined;
+          title = 'Lisans aktif';
+          final daysText = remainingDays?.toString() ?? '-';
+          final modules = active.modules
+              .map((m) => m.toUpperCase())
+              .join(', ');
+          subtitle = 'Kalan gün: $daysText • Modüller: $modules';
+        }
+
+        final canManage = AuthService.instance.currentUserRole == 'superadmin';
+
+        return Card(
+          color: background,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(icon, color: foreground),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            companyName,
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              color: foreground,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          Text(
+                            title,
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: foreground,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  subtitle,
+                  style: theme.textTheme.bodySmall?.copyWith(color: foreground),
+                ),
+                if (hasAny && licensePrice != null) ...[
+                  const SizedBox(height: 8),
+                  Text(
+                    'Ücret: ${licensePrice.toStringAsFixed(2)} $licenseCurrency',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: foreground,
+                    ),
+                  ),
+                  Text(
+                    'Geçerlilik: ${_formatDate(licenseStart)} - ${_formatDate(licenseEnd)}',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: foreground,
+                    ),
+                  ),
+                ],
+                if (canManage) ...[
+                  const SizedBox(height: 12),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: OutlinedButton.icon(
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: foreground,
+                        side: BorderSide(color: foreground),
+                      ),
+                      onPressed: () {
+                        Navigator.of(context).pushNamed(
+                          LicenseListPage.routeName,
+                          arguments: LicenseListPageArgs(
+                            companyId: companyId,
+                            companyName: companyName,
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.manage_accounts_outlined),
+                      label: const Text('Lisansı Yönet'),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -194,7 +386,9 @@ class _SystemDashboardPageState extends State<SystemDashboardPage> {
 
           final data = snapshot.data;
           if (data == null) {
-            return const Center(child: Text('Dashboard verileri bulunamadı.'));
+            return const Center(
+              child: Text('Kontrol paneli verileri bulunamadı.'),
+            );
           }
 
           _latestSnapshot = data;
@@ -208,6 +402,8 @@ class _SystemDashboardPageState extends State<SystemDashboardPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _buildFilterRow(),
+                  const SizedBox(height: 16),
+                  _buildLicenseBanner(),
                   const SizedBox(height: 24),
                   _buildKpiSection(context, data),
                   const SizedBox(height: 24),
@@ -235,7 +431,7 @@ class _SystemDashboardPageState extends State<SystemDashboardPage> {
             const Icon(Icons.error_outline, size: 48, color: Colors.red),
             const SizedBox(height: 16),
             Text(
-              'Dashboard verileri yüklenirken hata oluştu.\n$error',
+              'Kontrol paneli verileri yüklenirken hata oluştu.\n$error',
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodyLarge,
             ),
@@ -407,6 +603,13 @@ class _SystemDashboardPageState extends State<SystemDashboardPage> {
         );
       },
     );
+  }
+
+  String _formatDate(DateTime? value) {
+    if (value == null) return '-';
+    return '${value.day.toString().padLeft(2, '0')}.'
+        '${value.month.toString().padLeft(2, '0')}.'
+        '${value.year}';
   }
 
   Widget _buildChartsSection(BuildContext context, DashboardSnapshot data) {

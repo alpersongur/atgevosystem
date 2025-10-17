@@ -3,15 +3,16 @@ import 'package:cloud_functions/cloud_functions.dart';
 import 'package:meta/meta.dart';
 
 import 'package:atgevosystem/core/utils/timestamp_helper.dart';
+import 'package:atgevosystem/modules/tenant/services/tenant_service.dart';
 
 import '../models/user_model.dart';
 
 class UserService with FirestoreTimestamps {
-  UserService._(this._firestore);
+  UserService._(this._firestoreProvider);
 
   factory UserService({FirebaseFirestore? firestore}) {
     if (firestore != null) {
-      return UserService._(firestore);
+      return UserService._(() => firestore);
     }
     final override = _testInstance;
     if (override != null) {
@@ -28,7 +29,8 @@ class UserService with FirestoreTimestamps {
     if (override != null) {
       return override;
     }
-    return _instance ??= UserService._(FirebaseFirestore.instance);
+    return _instance ??=
+        UserService._(() => TenantService.instance.firestore);
   }
 
   @visibleForTesting
@@ -41,7 +43,9 @@ class UserService with FirestoreTimestamps {
     _testInstance = null;
   }
 
-  final FirebaseFirestore _firestore;
+  final FirebaseFirestore Function() _firestoreProvider;
+
+  FirebaseFirestore get _firestore => _firestoreProvider();
 
   CollectionReference<Map<String, dynamic>> get _collection =>
       _firestore.collection('users');

@@ -1,22 +1,15 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import 'package:atgevosystem/modules/tenant/services/tenant_service.dart';
+
 import '../models/module_access_model.dart';
 
 class ModuleAccessService {
-  ModuleAccessService._(this._firestore);
+  ModuleAccessService._();
 
-  factory ModuleAccessService({FirebaseFirestore? firestore}) {
-    if (firestore == null) {
-      return instance;
-    }
-    return ModuleAccessService._(firestore);
-  }
+  static final ModuleAccessService instance = ModuleAccessService._();
 
-  static final ModuleAccessService instance = ModuleAccessService._(
-    FirebaseFirestore.instance,
-  );
-
-  final FirebaseFirestore _firestore;
+  FirebaseFirestore get _firestore => TenantService.instance.firestore;
 
   CollectionReference<Map<String, dynamic>> get _collection =>
       _firestore.collection('system_modules');

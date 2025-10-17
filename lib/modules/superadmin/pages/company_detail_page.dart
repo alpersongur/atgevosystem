@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../services/company_service.dart';
+import '../../licensing/models/license_model.dart';
+import '../../licensing/services/license_service.dart';
+import '../../licensing/pages/license_list_page.dart';
 
 class CompanyDetailPage extends StatelessWidget {
   const CompanyDetailPage({super.key, required this.companyId});
@@ -66,6 +69,80 @@ class CompanyDetailPage extends StatelessWidget {
                       ],
                     ),
                   ),
+                ),
+                const SizedBox(height: 24),
+                FutureBuilder<LicenseModel?>(
+                  future: LicenseService.instance.fetchActiveLicense(companyId),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                    final license = snapshot.data;
+                    return Card(
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                const Text(
+                                  'Lisans Bilgileri',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const Spacer(),
+                                FilledButton.icon(
+                                  onPressed: () {
+                                    Navigator.of(context).pushNamed(
+                                      LicenseListPage.routeName,
+                                      arguments: LicenseListPageArgs(
+                                        companyId: companyId,
+                                        companyName: name,
+                                      ),
+                                    );
+                                  },
+                                  icon: const Icon(Icons.verified_outlined),
+                                  label: const Text('Lisans Yönetimi'),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            if (license == null)
+                              const Text(
+                                'Aktif lisans bulunamadı. Süresi dolmuş olabilir.',
+                              )
+                            else ...[
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      'Modüller: ${license.modules.map((m) => m.toUpperCase()).join(', ')}',
+                                    ),
+                                  ),
+                                  Chip(
+                                    label: Text(license.status.toUpperCase()),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Dönem: ${_formatDate(license.startDate)} - ${_formatDate(license.endDate)}',
+                              ),
+                              Text(
+                                'Kalan Gün: ${license.remainingDays ?? '-'}',
+                              ),
+                              Text(
+                                'Ücret: ${license.price.toStringAsFixed(2)} ${license.currency}',
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                    );
+                  },
                 ),
                 const SizedBox(height: 24),
                 Card(
@@ -216,4 +293,11 @@ class CompanyDetailPage extends StatelessWidget {
       }
     }
   }
+}
+
+String _formatDate(DateTime? date) {
+  if (date == null) return '-';
+  return '${date.day.toString().padLeft(2, '0')}.'
+      '${date.month.toString().padLeft(2, '0')}.'
+      '${date.year}';
 }

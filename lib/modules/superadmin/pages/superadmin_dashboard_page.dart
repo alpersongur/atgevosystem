@@ -73,7 +73,7 @@ class _SuperadminDashboardPageState extends State<SuperadminDashboardPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Süper Admin Dashboard'),
+        title: const Text('Süper Yönetici Kontrol Paneli'),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),

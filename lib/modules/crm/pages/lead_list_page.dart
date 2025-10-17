@@ -14,14 +14,14 @@ class LeadListPage extends StatelessWidget {
     final stream = LeadService.instance.getLeads();
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Lead Listesi')),
+      appBar: AppBar(title: const Text('Potansiyel Listesi')),
       body: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
         stream: stream,
         builder: (context, snapshot) {
           if (snapshot.hasError) {
             return Center(
               child: Text(
-                'Lead verileri alınırken hata oluştu.\n${snapshot.error}',
+                'Potansiyel verileri alınırken hata oluştu.\n${snapshot.error}',
                 textAlign: TextAlign.center,
               ),
             );
@@ -33,7 +33,7 @@ class LeadListPage extends StatelessWidget {
 
           final docs = snapshot.data?.docs ?? [];
           if (docs.isEmpty) {
-            return const Center(child: Text('Henüz lead kaydı bulunmuyor.'));
+            return const Center(child: Text('Henüz potansiyel kaydı bulunmuyor.'));
           }
 
           return ListView.separated(
@@ -44,7 +44,7 @@ class LeadListPage extends StatelessWidget {
               final doc = docs[index];
               final data = doc.data();
 
-              final name = data['name'] as String? ?? 'İsimsiz Lead';
+              final name = data['name'] as String? ?? 'İsimsiz potansiyel';
               final company = data['company'] as String? ?? '-';
               final status = data['status'] as String? ?? 'new';
               final assignedTo = data['assigned_to'] as String? ?? '-';
@@ -83,7 +83,7 @@ class LeadListPage extends StatelessWidget {
                           if (!context.mounted) return;
                           if (result == true) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Lead güncellendi')),
+                              const SnackBar(content: Text('Potansiyel güncellendi')),
                             );
                           }
                         },
@@ -96,9 +96,9 @@ class LeadListPage extends StatelessWidget {
                               await showDialog<bool>(
                                 context: context,
                                 builder: (ctx) => AlertDialog(
-                                  title: const Text('Lead Sil'),
+                                  title: const Text('Potansiyeli Sil'),
                                   content: Text(
-                                    '"$name" lead kaydını silmek istediğinize emin misiniz?',
+                                    '"$name" potansiyel kaydını silmek istediğinize emin misiniz?',
                                   ),
                                   actions: [
                                     TextButton(
@@ -122,7 +122,7 @@ class LeadListPage extends StatelessWidget {
                             await LeadService.instance.deleteLead(doc.id);
                             if (!context.mounted) return;
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Lead silindi')),
+                              const SnackBar(content: Text('Potansiyel silindi')),
                             );
                           } catch (error) {
                             if (!context.mounted) return;
