@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class LeadService {
+import 'package:atgevosystem/core/utils/timestamp_helper.dart';
+
+class LeadService with FirestoreTimestamps {
   LeadService._();
 
   static final LeadService instance = LeadService._();
@@ -9,30 +11,18 @@ class LeadService {
       FirebaseFirestore.instance.collection('leads');
 
   Stream<QuerySnapshot<Map<String, dynamic>>> getLeads() {
-    return _leadsCollection
-        .orderBy('created_at', descending: true)
-        .snapshots();
+    return _leadsCollection.orderBy('created_at', descending: true).snapshots();
   }
 
   Future<DocumentReference<Map<String, dynamic>>> addLead(
     Map<String, dynamic> data,
   ) {
-    final payload = {
-      ...data,
-      'created_at': FieldValue.serverTimestamp(),
-      'updated_at': FieldValue.serverTimestamp(),
-    };
+    final payload = withCreateTimestamps(data);
     return _leadsCollection.add(payload);
   }
 
-  Future<void> updateLead(
-    String id,
-    Map<String, dynamic> data,
-  ) {
-    final payload = {
-      ...data,
-      'updated_at': FieldValue.serverTimestamp(),
-    };
+  Future<void> updateLead(String id, Map<String, dynamic> data) {
+    final payload = withUpdateTimestamp(data);
     return _leadsCollection.doc(id).update(payload);
   }
 

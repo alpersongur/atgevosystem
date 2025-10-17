@@ -15,10 +15,7 @@ class AlertItem {
 enum AlertSeverity { info, warning, critical }
 
 class AlertListWidget extends StatelessWidget {
-  const AlertListWidget({
-    super.key,
-    required this.alerts,
-  });
+  const AlertListWidget({super.key, required this.alerts});
 
   final List<AlertItem> alerts;
 
@@ -35,7 +32,7 @@ class AlertListWidget extends StatelessWidget {
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       itemCount: alerts.length,
-      separatorBuilder: (_, __) => const Divider(height: 1),
+      separatorBuilder: (context, _) => const Divider(height: 1),
       itemBuilder: (context, index) {
         final alert = alerts[index];
         final color = _colorForSeverity(alert.severity, context);
@@ -44,9 +41,9 @@ class AlertListWidget extends StatelessWidget {
           leading: Icon(icon, color: color),
           title: Text(
             alert.title,
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
           ),
           subtitle: Text(alert.message),
         );

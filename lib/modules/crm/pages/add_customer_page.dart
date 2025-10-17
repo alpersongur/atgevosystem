@@ -57,8 +57,9 @@ class _AddCustomerPageState extends State<AddCustomerPage> {
       _phoneController.clear();
       _addressController.clear();
 
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Müşteri kaydedildi')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Müşteri kaydedildi')));
     } catch (error) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -74,9 +75,7 @@ class _AddCustomerPageState extends State<AddCustomerPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Müşteri Ekle'),
-      ),
+      appBar: AppBar(title: const Text('Müşteri Ekle')),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16),
@@ -107,8 +106,7 @@ class _AddCustomerPageState extends State<AddCustomerPage> {
                     if (text.isEmpty) {
                       return 'E-posta zorunludur';
                     }
-                    final emailRegex =
-                        RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
+                    final emailRegex = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
                     if (!emailRegex.hasMatch(text)) {
                       return 'Geçerli bir e-posta girin';
                     }

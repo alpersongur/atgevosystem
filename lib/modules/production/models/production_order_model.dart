@@ -53,8 +53,7 @@ class ProductionOrderModel {
       'customer_id': customerId,
       'status': status,
       'inventory_item_id': inventoryItemId,
-      'start_date':
-          startDate != null ? Timestamp.fromDate(startDate!) : null,
+      'start_date': startDate != null ? Timestamp.fromDate(startDate!) : null,
       'estimated_completion': estimatedCompletion != null
           ? Timestamp.fromDate(estimatedCompletion!)
           : null,

@@ -43,23 +43,16 @@ class QuoteCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      quote.quoteNumber.isEmpty
-                          ? 'Teklif'
-                          : quote.quoteNumber,
+                      quote.quoteNumber.isEmpty ? 'Teklif' : quote.quoteNumber,
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
                     if (quote.title.isNotEmpty) ...[
                       const SizedBox(height: 4),
                       Text(
                         quote.title,
-                        style: Theme.of(context)
-                            .textTheme
-                            .bodyMedium
-                            ?.copyWith(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .onSurfaceVariant,
-                            ),
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
                       ),
                     ],
                     const SizedBox(height: 6),

@@ -36,10 +36,13 @@ class ModuleOverviewCard extends StatelessWidget {
                 return ListTile(
                   contentPadding: EdgeInsets.zero,
                   title: Text(name),
-                  subtitle: Text('Kod: $code${description.isEmpty ? '' : ' • $description'}'),
+                  subtitle: Text(
+                    'Kod: $code${description.isEmpty ? '' : ' • $description'}',
+                  ),
                   trailing: Switch(
                     value: active,
-                    onChanged: (value) => onToggle(module['id'] as String, value),
+                    onChanged: (value) =>
+                        onToggle(module['id'] as String, value),
                   ),
                 );
               }),

@@ -16,16 +16,12 @@ class InventoryListPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Depo & Envanter'),
-      ),
+      appBar: AppBar(title: const Text('Depo & Envanter')),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (_) => const InventoryEditPage(),
-            ),
-          );
+          Navigator.of(
+            context,
+          ).push(MaterialPageRoute(builder: (_) => const InventoryEditPage()));
         },
         child: const Icon(Icons.add),
       ),
@@ -57,12 +53,13 @@ class InventoryListPage extends StatelessWidget {
 
           return LayoutBuilder(
             builder: (context, constraints) {
-              final device =
-                  ResponsiveBreakpoints.sizeForWidth(constraints.maxWidth);
+              final device = ResponsiveBreakpoints.sizeForWidth(
+                constraints.maxWidth,
+              );
               final listView = ListView.separated(
                 padding: const EdgeInsets.fromLTRB(16, 16, 16, 88),
                 itemCount: items.length,
-                separatorBuilder: (_, __) => const SizedBox(height: 12),
+                separatorBuilder: (context, _) => const SizedBox(height: 12),
                 itemBuilder: (context, index) {
                   final item = items[index];
                   return InventoryCard(
@@ -146,9 +143,7 @@ class _InventoryQuickActions extends StatelessWidget {
               ),
               onPressed: () {
                 Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (_) => const InventoryEditPage(),
-                  ),
+                  MaterialPageRoute(builder: (_) => const InventoryEditPage()),
                 );
               },
               icon: const Icon(Icons.inventory_2_outlined, size: 28),

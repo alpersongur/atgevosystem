@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 
 class PermissionTableWidget extends StatelessWidget {
-  const PermissionTableWidget({
-    super.key,
-    required this.permissions,
-  });
+  const PermissionTableWidget({super.key, required this.permissions});
 
   final Map<String, Map<String, bool>> permissions;
 
@@ -19,11 +16,9 @@ class PermissionTableWidget extends StatelessWidget {
       );
     }
 
-    final roles = permissions.values
-        .expand((roleMap) => roleMap.keys)
-        .toSet()
-        .toList()
-      ..sort();
+    final roles =
+        permissions.values.expand((roleMap) => roleMap.keys).toSet().toList()
+          ..sort();
 
     return Card(
       child: Padding(
@@ -41,7 +36,9 @@ class PermissionTableWidget extends StatelessWidget {
               child: DataTable(
                 columns: [
                   const DataColumn(label: Text('Modül')),
-                  ...roles.map((role) => DataColumn(label: Text(role.toUpperCase()))),
+                  ...roles.map(
+                    (role) => DataColumn(label: Text(role.toUpperCase())),
+                  ),
                 ],
                 rows: permissions.entries.map((entry) {
                   final module = entry.key;

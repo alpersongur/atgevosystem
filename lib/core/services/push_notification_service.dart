@@ -5,8 +5,7 @@ import 'package:atgevosystem/services/auth_service.dart';
 class PushNotificationService {
   PushNotificationService._();
 
-  static final PushNotificationService instance =
-      PushNotificationService._();
+  static final PushNotificationService instance = PushNotificationService._();
 
   final FirebaseMessaging _messaging = FirebaseMessaging.instance;
   bool _initialized = false;

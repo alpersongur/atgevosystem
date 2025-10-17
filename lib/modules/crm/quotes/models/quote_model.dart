@@ -17,9 +17,7 @@ class QuoteModel {
     this.pdfUrl,
   });
 
-  factory QuoteModel.fromDocument(
-    DocumentSnapshot<Map<String, dynamic>> doc,
-  ) {
+  factory QuoteModel.fromDocument(DocumentSnapshot<Map<String, dynamic>> doc) {
     final data = doc.data() ?? <String, dynamic>{};
     return QuoteModel.fromMap(doc.id, data);
   }

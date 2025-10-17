@@ -67,8 +67,7 @@ class DashboardLineChart extends StatelessWidget {
             show: true,
             horizontalInterval: effectiveInterval,
             getDrawingHorizontalLine: (value) => FlLine(
-              color: theme.colorScheme.outlineVariant
-                  .withValues(alpha: 0.4),
+              color: theme.colorScheme.outlineVariant.withValues(alpha: 0.4),
               strokeWidth: 1,
             ),
             drawVerticalLine: false,
@@ -128,8 +127,7 @@ class DashboardLineChart extends StatelessWidget {
                   theme.colorScheme.surface.withValues(alpha: 0.92),
               getTooltipItems: (touchedSpots) {
                 final baseStyle =
-                    theme.textTheme.bodyMedium ??
-                        const TextStyle(fontSize: 12);
+                    theme.textTheme.bodyMedium ?? const TextStyle(fontSize: 12);
                 return touchedSpots
                     .map((spot) {
                       final index = spot.x.toInt();

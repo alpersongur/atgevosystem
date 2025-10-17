@@ -3,11 +3,7 @@ import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
 
 class RoleGuard extends StatelessWidget {
-  const RoleGuard({
-    super.key,
-    required this.allowedRoles,
-    required this.child,
-  });
+  const RoleGuard({super.key, required this.allowedRoles, required this.child});
 
   final List<String> allowedRoles;
   final Widget child;
@@ -20,14 +16,12 @@ class RoleGuard extends StatelessWidget {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!context.mounted) return;
         Navigator.of(context).pushReplacementNamed('/main');
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Yetkiniz yok.')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Yetkiniz yok.')));
       });
 
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     return child;
@@ -48,7 +42,9 @@ class SuperAdminGuard extends StatelessWidget {
         if (!context.mounted) return;
         Navigator.of(context).pushReplacementNamed('/main');
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Bu alana sadece superadmin erişebilir.')),
+          const SnackBar(
+            content: Text('Bu alana sadece superadmin erişebilir.'),
+          ),
         );
       });
 

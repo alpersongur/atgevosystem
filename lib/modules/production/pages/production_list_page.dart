@@ -20,14 +20,12 @@ class ProductionListPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Üretim Talimatları'),
-      ),
+      appBar: AppBar(title: const Text('Üretim Talimatları')),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(builder: (_) => const ProductionEditPage()),
-          );
+          Navigator.of(
+            context,
+          ).push(MaterialPageRoute(builder: (_) => const ProductionEditPage()));
         },
         child: const Icon(Icons.add),
       ),
@@ -111,15 +109,14 @@ class _ProductionOrdersTable extends StatelessWidget {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final device =
-            ResponsiveBreakpoints.sizeForWidth(constraints.maxWidth);
+        final device = ResponsiveBreakpoints.sizeForWidth(constraints.maxWidth);
         final listSection = ListView.separated(
           shrinkWrap: true,
           physics: device == DeviceSize.phone
               ? const NeverScrollableScrollPhysics()
               : const NeverScrollableScrollPhysics(),
           itemCount: orders.length,
-          separatorBuilder: (_, __) => const SizedBox(height: 12),
+          separatorBuilder: (context, _) => const SizedBox(height: 12),
           itemBuilder: (context, index) {
             final order = orders[index];
             return ProductionCard(
@@ -143,10 +140,7 @@ class _ProductionOrdersTable extends StatelessWidget {
         );
 
         if (device == DeviceSize.phone) {
-          return Padding(
-            padding: const EdgeInsets.all(16),
-            child: listSection,
-          );
+          return Padding(padding: const EdgeInsets.all(16), child: listSection);
         }
 
         return SingleChildScrollView(
@@ -181,7 +175,9 @@ class _ProductionOrdersTable extends StatelessWidget {
                           cells: [
                             DataCell(Text(quote?.quoteNumber ?? order.quoteId)),
                             DataCell(Text(customer?.companyName ?? '—')),
-                            DataCell(ProductionStatusChip(status: order.status)),
+                            DataCell(
+                              ProductionStatusChip(status: order.status),
+                            ),
                             DataCell(Text(start)),
                             DataCell(Text(eta)),
                           ],

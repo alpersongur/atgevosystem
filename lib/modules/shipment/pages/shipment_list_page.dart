@@ -15,16 +15,12 @@ class ShipmentListPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Sevkiyatlar'),
-      ),
+      appBar: AppBar(title: const Text('Sevkiyatlar')),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (_) => const ShipmentEditPage(),
-            ),
-          );
+          Navigator.of(
+            context,
+          ).push(MaterialPageRoute(builder: (_) => const ShipmentEditPage()));
         },
         child: const Icon(Icons.add),
       ),
@@ -64,7 +60,7 @@ class ShipmentListPage extends StatelessWidget {
               return ListView.separated(
                 padding: const EdgeInsets.all(16),
                 itemCount: shipments.length,
-                separatorBuilder: (_, __) => const SizedBox(height: 12),
+                separatorBuilder: (context, _) => const SizedBox(height: 12),
                 itemBuilder: (context, index) {
                   final shipment = shipments[index];
                   return ShipmentCard(
@@ -73,18 +69,16 @@ class ShipmentListPage extends StatelessWidget {
                     onTap: () {
                       Navigator.of(context).push(
                         MaterialPageRoute(
-                          builder: (_) => ShipmentDetailPage(
-                            shipmentId: shipment.id,
-                          ),
+                          builder: (_) =>
+                              ShipmentDetailPage(shipmentId: shipment.id),
                         ),
                       );
                     },
                     onEdit: () {
                       Navigator.of(context).push(
                         MaterialPageRoute(
-                          builder: (_) => ShipmentEditPage(
-                            shipmentId: shipment.id,
-                          ),
+                          builder: (_) =>
+                              ShipmentEditPage(shipmentId: shipment.id),
                         ),
                       );
                     },

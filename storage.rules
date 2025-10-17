@@ -1,10 +1,31 @@
 rules_version = '2';
 
-// Craft rules based on data in your Firestore database
-// allow write: if firestore.get(
-//    /databases/(default)/documents/users/$(request.auth.uid)).data.isAdmin;
 service firebase.storage {
+  function isAuthenticated() {
+    return request.auth != null;
+  }
+
+  function userRole() {
+    return request.auth != null
+      ? firestore.get(
+          /databases/(default)/documents/users/$(request.auth.uid),
+        ).data.role
+      : null;
+  }
+
+  function hasRole(roles) {
+    return userRole() in roles;
+  }
+
   match /b/{bucket}/o {
+    match /invoice_attachments/{fileName} {
+      allow read: if isAuthenticated() &&
+        hasRole(['admin', 'sales', 'accounting', 'finance', 'superadmin']);
+      allow write: if isAuthenticated() &&
+        request.resource.contentType == 'application/pdf' &&
+        hasRole(['admin', 'accounting', 'finance', 'superadmin']);
+    }
+
     match /{allPaths=**} {
       allow read, write: if false;
     }

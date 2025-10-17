@@ -14,9 +14,7 @@ class LeadListPage extends StatelessWidget {
     final stream = LeadService.instance.getLeads();
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Lead Listesi'),
-      ),
+      appBar: AppBar(title: const Text('Lead Listesi')),
       body: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
         stream: stream,
         builder: (context, snapshot) {
@@ -35,15 +33,13 @@ class LeadListPage extends StatelessWidget {
 
           final docs = snapshot.data?.docs ?? [];
           if (docs.isEmpty) {
-            return const Center(
-              child: Text('Henüz lead kaydı bulunmuyor.'),
-            );
+            return const Center(child: Text('Henüz lead kaydı bulunmuyor.'));
           }
 
           return ListView.separated(
             padding: const EdgeInsets.all(16),
             itemCount: docs.length,
-            separatorBuilder: (_, __) => const SizedBox(height: 12),
+            separatorBuilder: (context, _) => const SizedBox(height: 12),
             itemBuilder: (context, index) {
               final doc = docs[index];
               final data = doc.data();
@@ -87,9 +83,7 @@ class LeadListPage extends StatelessWidget {
                           if (!context.mounted) return;
                           if (result == true) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Lead güncellendi'),
-                              ),
+                              const SnackBar(content: Text('Lead güncellendi')),
                             );
                           }
                         },
@@ -98,7 +92,8 @@ class LeadListPage extends StatelessWidget {
                         icon: const Icon(Icons.delete),
                         tooltip: 'Sil',
                         onPressed: () async {
-                          final confirm = await showDialog<bool>(
+                          final confirm =
+                              await showDialog<bool>(
                                 context: context,
                                 builder: (ctx) => AlertDialog(
                                   title: const Text('Lead Sil'),

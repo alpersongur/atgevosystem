@@ -45,9 +45,7 @@ class _QuoteListPageState extends State<QuoteListPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Teklifler & Fırsatlar'),
-      ),
+      appBar: AppBar(title: const Text('Teklifler & Fırsatlar')),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -124,13 +122,16 @@ class _QuoteListPageState extends State<QuoteListPage> {
 
                       if (filtered.isEmpty) {
                         return const Center(
-                          child: Text('Arama kriterine uygun teklif bulunamadı.'),
+                          child: Text(
+                            'Arama kriterine uygun teklif bulunamadı.',
+                          ),
                         );
                       }
 
                       return ListView.separated(
                         itemCount: filtered.length,
-                        separatorBuilder: (_, __) => const SizedBox(height: 12),
+                        separatorBuilder: (context, _) =>
+                            const SizedBox(height: 12),
                         itemBuilder: (context, index) {
                           final quote = filtered[index];
                           final customerName =
@@ -141,18 +142,16 @@ class _QuoteListPageState extends State<QuoteListPage> {
                             onTap: () {
                               Navigator.of(context).push(
                                 MaterialPageRoute(
-                                  builder: (_) => QuoteDetailPage(
-                                    quoteId: quote.id,
-                                  ),
+                                  builder: (_) =>
+                                      QuoteDetailPage(quoteId: quote.id),
                                 ),
                               );
                             },
                             onEdit: () {
                               Navigator.of(context).push(
                                 MaterialPageRoute(
-                                  builder: (_) => QuoteEditPage(
-                                    quoteId: quote.id,
-                                  ),
+                                  builder: (_) =>
+                                      QuoteEditPage(quoteId: quote.id),
                                 ),
                               );
                             },

@@ -1,10 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import 'package:atgevosystem/core/utils/timestamp_helper.dart';
+
 import '../../inventory/services/inventory_service.dart';
 import '../models/grn_model.dart';
 import 'purchase_order_service.dart';
 
-class GRNService {
+class GRNService with FirestoreTimestamps {
   GRNService._(this._firestore);
 
   factory GRNService({FirebaseFirestore? firestore}) {
@@ -22,9 +24,7 @@ class GRNService {
       _firestore.collection('grn');
 
   Future<String> addGRN(Map<String, dynamic> data) async {
-    final payload = Map<String, dynamic>.from(data)
-      ..['created_at'] = FieldValue.serverTimestamp()
-      ..['updated_at'] = FieldValue.serverTimestamp();
+    final payload = withCreateTimestamps(data);
 
     final docRef = await _collection.add(payload);
     final grnId = docRef.id;

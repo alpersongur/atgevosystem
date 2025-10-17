@@ -34,9 +34,7 @@ class _ProductionDetailPageState extends State<ProductionDetailPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Üretim Talimatı Detayı'),
-      ),
+      appBar: AppBar(title: const Text('Üretim Talimatı Detayı')),
       body: StreamBuilder<ProductionOrderModel?>(
         stream: ProductionService.instance.watchOrder(widget.orderId),
         builder: (context, snapshot) {
@@ -80,9 +78,8 @@ class _ProductionDetailPageState extends State<ProductionDetailPage> {
                     onPressed: () {
                       Navigator.of(context).push(
                         MaterialPageRoute(
-                          builder: (_) => ShipmentEditPage(
-                            initialOrderId: order.id,
-                          ),
+                          builder: (_) =>
+                              ShipmentEditPage(initialOrderId: order.id),
                         ),
                       );
                     },
@@ -98,8 +95,9 @@ class _ProductionDetailPageState extends State<ProductionDetailPage> {
 
           return LayoutBuilder(
             builder: (context, constraints) {
-              final device =
-                  ResponsiveBreakpoints.sizeForWidth(constraints.maxWidth);
+              final device = ResponsiveBreakpoints.sizeForWidth(
+                constraints.maxWidth,
+              );
               if (device == DeviceSize.phone) {
                 return Column(
                   children: [
@@ -118,8 +116,9 @@ class _ProductionDetailPageState extends State<ProductionDetailPage> {
   }
 
   Widget _buildInfoCard(ProductionOrderModel order, DateFormat dateFormat) {
-    final startText =
-        order.startDate != null ? dateFormat.format(order.startDate!) : '—';
+    final startText = order.startDate != null
+        ? dateFormat.format(order.startDate!)
+        : '—';
     final etaText = order.estimatedCompletion != null
         ? dateFormat.format(order.estimatedCompletion!)
         : '—';
@@ -136,7 +135,10 @@ class _ProductionDetailPageState extends State<ProductionDetailPage> {
             ),
             const SizedBox(height: 12),
             _DetailRow(label: 'Teklif No', value: order.quoteId),
-            _DetailRow(label: 'Durum', valueWidget: ProductionStatusChip(status: order.status)),
+            _DetailRow(
+              label: 'Durum',
+              valueWidget: ProductionStatusChip(status: order.status),
+            ),
             _DetailRow(label: 'Başlangıç Tarihi', value: startText),
             _DetailRow(label: 'Tahmini Bitiş', value: etaText),
             if ((order.notes ?? '').isNotEmpty)
@@ -149,8 +151,8 @@ class _ProductionDetailPageState extends State<ProductionDetailPage> {
 
   Widget _buildMobileQuickActions(ProductionOrderModel order) {
     final canStart = order.status == 'waiting';
-    final canComplete = order.status == 'in_progress' ||
-        order.status == 'quality_check';
+    final canComplete =
+        order.status == 'in_progress' || order.status == 'quality_check';
 
     return SafeArea(
       top: false,
@@ -211,7 +213,10 @@ class _ProductionDetailPageState extends State<ProductionDetailPage> {
               items: const [
                 DropdownMenuItem(value: 'waiting', child: Text('Beklemede')),
                 DropdownMenuItem(value: 'in_progress', child: Text('Üretimde')),
-                DropdownMenuItem(value: 'quality_check', child: Text('Kalite Kontrol')),
+                DropdownMenuItem(
+                  value: 'quality_check',
+                  child: Text('Kalite Kontrol'),
+                ),
                 DropdownMenuItem(value: 'completed', child: Text('Tamamlandı')),
                 DropdownMenuItem(value: 'shipped', child: Text('Sevk Edildi')),
               ],
@@ -221,7 +226,8 @@ class _ProductionDetailPageState extends State<ProductionDetailPage> {
             FilledButton(
               onPressed: _isUpdating || _selectedStatus == null
                   ? null
-                  : () => _updateStatus(order.id, order.status, _selectedStatus!),
+                  : () =>
+                        _updateStatus(order.id, order.status, _selectedStatus!),
               child: _isUpdating
                   ? const SizedBox(
                       width: 20,
@@ -242,7 +248,8 @@ class _ProductionDetailPageState extends State<ProductionDetailPage> {
         : StreamBuilder<InventoryItemModel?>(
             stream: InventoryService.instance.watchItem(order.inventoryItemId!),
             builder: (context, inventorySnapshot) {
-              if (inventorySnapshot.connectionState == ConnectionState.waiting) {
+              if (inventorySnapshot.connectionState ==
+                  ConnectionState.waiting) {
                 return const Card(
                   child: Padding(
                     padding: EdgeInsets.all(16),
@@ -361,7 +368,11 @@ class _ProductionDetailPageState extends State<ProductionDetailPage> {
     );
   }
 
-  Future<void> _updateStatus(String id, String previousStatus, String newStatus) async {
+  Future<void> _updateStatus(
+    String id,
+    String previousStatus,
+    String newStatus,
+  ) async {
     setState(() => _isUpdating = true);
     try {
       await ProductionService.instance.updateOrderStatus(id, newStatus);
@@ -380,14 +391,14 @@ class _ProductionDetailPageState extends State<ProductionDetailPage> {
         }
       }
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Durum güncellendi.')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Durum güncellendi.')));
     } catch (error) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Durum güncellenemedi: $error')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Durum güncellenemedi: $error')));
     } finally {
       if (mounted) {
         setState(() => _isUpdating = false);
@@ -402,8 +413,10 @@ class _DetailRow extends StatelessWidget {
     this.value,
     this.valueWidget,
     this.multiline = false,
-  }) : assert(value != null || valueWidget != null,
-            'Either value or valueWidget must be provided');
+  }) : assert(
+         value != null || valueWidget != null,
+         'Either value or valueWidget must be provided',
+       );
 
   final String label;
   final String? value;
@@ -415,21 +428,23 @@ class _DetailRow extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
-        crossAxisAlignment:
-            multiline ? CrossAxisAlignment.start : CrossAxisAlignment.center,
+        crossAxisAlignment: multiline
+            ? CrossAxisAlignment.start
+            : CrossAxisAlignment.center,
         children: [
           SizedBox(
             width: 140,
             child: Text(
               label,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
             ),
           ),
           const SizedBox(width: 12),
           Expanded(
-            child: valueWidget ??
+            child:
+                valueWidget ??
                 Text(
                   value ?? '',
                   style: Theme.of(context).textTheme.bodyMedium,

@@ -13,7 +13,8 @@ class SuperadminDashboardPage extends StatefulWidget {
   static const routeName = '/superadmin/dashboard';
 
   @override
-  State<SuperadminDashboardPage> createState() => _SuperadminDashboardPageState();
+  State<SuperadminDashboardPage> createState() =>
+      _SuperadminDashboardPageState();
 }
 
 class _SuperadminDashboardPageState extends State<SuperadminDashboardPage> {
@@ -29,7 +30,9 @@ class _SuperadminDashboardPageState extends State<SuperadminDashboardPage> {
   void initState() {
     super.initState();
     _loadKpis();
-    _modulesSubscription = ModuleService.instance.getModules().listen((snapshot) {
+    _modulesSubscription = ModuleService.instance.getModules().listen((
+      snapshot,
+    ) {
       setState(() {
         _modules = snapshot.docs;
       });
@@ -135,12 +138,14 @@ class _SuperadminDashboardPageState extends State<SuperadminDashboardPage> {
           label: const Text('Kullanıcı Yönetimi'),
         ),
         FilledButton.icon(
-          onPressed: () => Navigator.of(context).pushNamed('/admin/permissions'),
+          onPressed: () =>
+              Navigator.of(context).pushNamed('/admin/permissions'),
           icon: const Icon(Icons.security),
           label: const Text('İzinler'),
         ),
         FilledButton.icon(
-          onPressed: () => Navigator.of(context).pushNamed('/superadmin/modules'),
+          onPressed: () =>
+              Navigator.of(context).pushNamed('/superadmin/modules'),
           icon: const Icon(Icons.apps),
           label: const Text('Modüller'),
         ),
@@ -177,17 +182,20 @@ class _SuperadminDashboardPageState extends State<SuperadminDashboardPage> {
                   final description = data['description'] as String? ?? '';
                   final isActive = data['active'] == true;
 
-                  return DataRow(cells: [
-                    DataCell(Text(name)),
-                    DataCell(Text(code)),
-                    DataCell(Text(description)),
-                    DataCell(
-                      Switch(
-                        value: isActive,
-                        onChanged: (value) => ModuleService.instance.updateModuleStatus(doc.id, value),
+                  return DataRow(
+                    cells: [
+                      DataCell(Text(name)),
+                      DataCell(Text(code)),
+                      DataCell(Text(description)),
+                      DataCell(
+                        Switch(
+                          value: isActive,
+                          onChanged: (value) => ModuleService.instance
+                              .updateModuleStatus(doc.id, value),
+                        ),
                       ),
-                    ),
-                  ]);
+                    ],
+                  );
                 }).toList(),
               ),
             ),
@@ -207,7 +215,10 @@ class _SuperadminDashboardPageState extends State<SuperadminDashboardPage> {
       );
     }
 
-    final total = _roleDistribution.values.fold<int>(0, (acc, value) => acc + value);
+    final total = _roleDistribution.values.fold<int>(
+      0,
+      (acc, value) => acc + value,
+    );
     int colorIndex = 0;
     final colors = [
       Colors.indigo,
@@ -268,7 +279,9 @@ class _SuperadminDashboardPageState extends State<SuperadminDashboardPage> {
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
-            const Text('Bu bölüm, her modül için rol bazlı izinleri özetlemek üzere geliştirilebilir.'),
+            const Text(
+              'Bu bölüm, her modül için rol bazlı izinleri özetlemek üzere geliştirilebilir.',
+            ),
           ],
         ),
       ),
@@ -320,7 +333,8 @@ class _SuperadminDashboardPageState extends State<SuperadminDashboardPage> {
                 const SizedBox(height: 16),
                 ...docs.map((doc) {
                   final data = doc.data();
-                  final message = data['message'] as String? ?? 'Log mesajı yok';
+                  final message =
+                      data['message'] as String? ?? 'Log mesajı yok';
                   final timestamp = data['timestamp'];
                   DateTime? time;
                   if (timestamp is Timestamp) {
@@ -334,7 +348,7 @@ class _SuperadminDashboardPageState extends State<SuperadminDashboardPage> {
                     title: Text(message),
                     subtitle: Text(formatted),
                   );
-                })
+                }),
               ],
             ),
           ),
@@ -345,10 +359,7 @@ class _SuperadminDashboardPageState extends State<SuperadminDashboardPage> {
 }
 
 class _KpiCard extends StatelessWidget {
-  const _KpiCard({
-    required this.title,
-    required this.value,
-  });
+  const _KpiCard({required this.title, required this.value});
 
   final String title;
   final String value;
@@ -371,7 +382,10 @@ class _KpiCard extends StatelessWidget {
               const SizedBox(height: 8),
               Text(
                 value,
-                style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ],
           ),

@@ -1,9 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-import '../models/payment_model.dart';
-import 'invoice_service.dart';
+import 'package:atgevosystem/core/utils/timestamp_helper.dart';
 
-class PaymentService {
+import '../models/payment_model.dart';
+
+class PaymentService with FirestoreTimestamps {
   PaymentService._(this._firestore);
 
   factory PaymentService({FirebaseFirestore? firestore}) {
@@ -64,9 +65,7 @@ class PaymentService {
       throw ArgumentError('invoice_id is required');
     }
 
-    final payload = Map<String, dynamic>.from(data)
-      ..['created_at'] = FieldValue.serverTimestamp()
-      ..['updated_at'] = FieldValue.serverTimestamp();
+    final payload = withCreateTimestamps(data);
     final docRef = await _collection.add(payload);
 
     await _recalculateInvoiceBalance(invoiceId);
@@ -80,8 +79,7 @@ class PaymentService {
       throw StateError('Payment not found');
     }
 
-    final payload = Map<String, dynamic>.from(data)
-      ..['updated_at'] = FieldValue.serverTimestamp();
+    final payload = withUpdateTimestamp(data);
 
     await _collection.doc(id).update(payload);
     await _recalculateInvoiceBalance(payment.invoiceId);
@@ -97,32 +95,40 @@ class PaymentService {
   }
 
   Future<void> _recalculateInvoiceBalance(String invoiceId) async {
-    final invoice = await InvoiceService.instance.getInvoiceById(invoiceId);
-    if (invoice == null) return;
+    final invoiceRef = _firestore.collection('invoices').doc(invoiceId);
 
-    final paymentsSnapshot = await _collection
-        .where('invoice_id', isEqualTo: invoiceId)
-        .get();
+    await _firestore.runTransaction((transaction) async {
+      final invoiceSnapshot = await transaction.get(invoiceRef);
+      if (!invoiceSnapshot.exists) return;
 
-    final totalPaid = paymentsSnapshot.docs.fold<double>(
-      0,
-      (runningTotal, doc) =>
-          runningTotal + ((doc.data()['amount'] as num?)?.toDouble() ?? 0),
-    );
+      final invoiceData = invoiceSnapshot.data() ?? <String, dynamic>{};
+      final grandTotal =
+          (invoiceData['grand_total'] as num?)?.toDouble() ?? 0.0;
 
-    final remaining = invoice.grandTotal - totalPaid;
-    String newStatus;
-    if (remaining <= 0) {
-      newStatus = 'paid';
-    } else if (remaining >= invoice.grandTotal) {
-      newStatus = 'unpaid';
-    } else {
-      newStatus = 'partial';
-    }
+      final paymentsSnapshot = await _collection
+          .where('invoice_id', isEqualTo: invoiceId)
+          .get();
 
-    await InvoiceService.instance.updateInvoice(invoiceId, {
-      'status': newStatus,
-      'updated_at': FieldValue.serverTimestamp(),
+      final totalPaid = paymentsSnapshot.docs.fold<double>(
+        0,
+        (runningTotal, doc) =>
+            runningTotal + ((doc.data()['amount'] as num?)?.toDouble() ?? 0),
+      );
+
+      final remaining = grandTotal - totalPaid;
+      String newStatus;
+      if (remaining <= 0) {
+        newStatus = 'paid';
+      } else if (remaining >= grandTotal) {
+        newStatus = 'unpaid';
+      } else {
+        newStatus = 'partial';
+      }
+
+      transaction.update(
+        invoiceRef,
+        withUpdateTimestamp({'status': newStatus}),
+      );
     });
   }
 }

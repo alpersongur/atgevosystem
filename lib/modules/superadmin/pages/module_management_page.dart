@@ -58,7 +58,7 @@ class ModuleManagementPage extends StatelessWidget {
                     final description = descriptionController.text.trim();
                     if (name.isEmpty || code.isEmpty) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Ad ve kod zorunludur')),  
+                        const SnackBar(content: Text('Ad ve kod zorunludur')),
                       );
                       return;
                     }
@@ -101,7 +101,9 @@ class ModuleManagementPage extends StatelessWidget {
         builder: (context, snapshot) {
           if (snapshot.hasError) {
             return Center(
-              child: Text('Modüller yüklenirken hata oluştu\n${snapshot.error}'),
+              child: Text(
+                'Modüller yüklenirken hata oluştu\n${snapshot.error}',
+              ),
             );
           }
 
@@ -117,7 +119,7 @@ class ModuleManagementPage extends StatelessWidget {
           return ListView.separated(
             padding: const EdgeInsets.all(16),
             itemCount: docs.length,
-            separatorBuilder: (_, __) => const SizedBox(height: 12),
+            separatorBuilder: (context, _) => const SizedBox(height: 12),
             itemBuilder: (context, index) {
               final doc = docs[index];
               final data = doc.data();

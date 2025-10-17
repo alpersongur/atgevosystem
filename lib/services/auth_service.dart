@@ -47,9 +47,7 @@ class AuthService {
     _cachedDepartment = null;
   }
 
-  Future<DocumentSnapshot<Map<String, dynamic>>?> getUserProfile(
-    String uid,
-  ) {
+  Future<DocumentSnapshot<Map<String, dynamic>>?> getUserProfile(String uid) {
     return _firestore.collection('users').doc(uid).get();
   }
 }

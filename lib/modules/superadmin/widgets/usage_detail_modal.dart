@@ -9,7 +9,8 @@ class UsageDetailModal extends StatelessWidget {
     required this.logs,
   });
 
-  final Map<String, Map<String, num>> dailyStats; // date -> {read, write, delete}
+  final Map<String, Map<String, num>>
+  dailyStats; // date -> {read, write, delete}
   final Map<String, num> moduleDistribution; // module -> usage count
   final List<Map<String, dynamic>> logs; // {message, timestamp}
 
@@ -22,11 +23,17 @@ class UsageDetailModal extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text('Günlük İşlem Grafiği', style: Theme.of(context).textTheme.titleMedium),
+            Text(
+              'Günlük İşlem Grafiği',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
             const SizedBox(height: 12),
             SizedBox(height: 220, child: _buildLineChart()),
             const SizedBox(height: 24),
-            Text('Modül Kullanım Dağılımı', style: Theme.of(context).textTheme.titleMedium),
+            Text(
+              'Modül Kullanım Dağılımı',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
             const SizedBox(height: 12),
             SizedBox(height: 220, child: _buildPieChart()),
             const SizedBox(height: 24),
@@ -89,7 +96,11 @@ class UsageDetailModal extends StatelessWidget {
           rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
           topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
         ),
-        gridData: FlGridData(show: true, horizontalInterval: 1, verticalInterval: 1),
+        gridData: FlGridData(
+          show: true,
+          horizontalInterval: 1,
+          verticalInterval: 1,
+        ),
         lineBarsData: [
           LineChartBarData(
             spots: readSpots,
@@ -124,7 +135,10 @@ class UsageDetailModal extends StatelessWidget {
       return const Center(child: Text('Modül dağılımı bulunmuyor.'));
     }
 
-    final total = moduleDistribution.values.fold<num>(0, (sum, value) => sum + value);
+    final total = moduleDistribution.values.fold<num>(
+      0,
+      (sum, value) => sum + value,
+    );
     if (total == 0) {
       return const Center(child: Text('Modül dağılımı bulunmuyor.'));
     }
@@ -153,11 +167,7 @@ class UsageDetailModal extends StatelessWidget {
     }).toList();
 
     return PieChart(
-      PieChartData(
-        sections: sections,
-        centerSpaceRadius: 40,
-        sectionsSpace: 2,
-      ),
+      PieChartData(sections: sections, centerSpaceRadius: 40, sectionsSpace: 2),
     );
   }
 

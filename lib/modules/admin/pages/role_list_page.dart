@@ -81,7 +81,7 @@ class _RoleListPageState extends State<RoleListPage> {
                 return ListView.separated(
                   padding: const EdgeInsets.fromLTRB(16, 0, 16, 88),
                   itemCount: filtered.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 12),
+                  separatorBuilder: (_, index) => const SizedBox(height: 12),
                   itemBuilder: (_, index) {
                     final role = filtered[index];
                     return RoleCard(

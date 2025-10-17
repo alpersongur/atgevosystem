@@ -46,17 +46,13 @@ class _LoginPageState extends State<LoginPage> {
 
       Navigator.of(context).pushReplacementNamed(
         '/main',
-        arguments: {
-          'user': user,
-          'role': role,
-          'department': department,
-        },
+        arguments: {'user': user, 'role': role, 'department': department},
       );
     } catch (error) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Giriş başarısız: $error')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Giriş başarısız: $error')));
     } finally {
       if (mounted) {
         setState(() => _isLoading = false);
@@ -86,17 +82,14 @@ class _LoginPageState extends State<LoginPage> {
                   const SizedBox(height: 24),
                   TextFormField(
                     controller: _emailController,
-                    decoration: const InputDecoration(
-                      labelText: 'E-posta',
-                    ),
+                    decoration: const InputDecoration(labelText: 'E-posta'),
                     keyboardType: TextInputType.emailAddress,
                     validator: (value) {
                       final text = value?.trim() ?? '';
                       if (text.isEmpty) {
                         return 'E-posta zorunludur';
                       }
-                      final emailRegex =
-                          RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
+                      final emailRegex = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
                       if (!emailRegex.hasMatch(text)) {
                         return 'Geçerli bir e-posta girin';
                       }
@@ -106,9 +99,7 @@ class _LoginPageState extends State<LoginPage> {
                   const SizedBox(height: 16),
                   TextFormField(
                     controller: _passwordController,
-                    decoration: const InputDecoration(
-                      labelText: 'Şifre',
-                    ),
+                    decoration: const InputDecoration(labelText: 'Şifre'),
                     obscureText: true,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -131,8 +122,9 @@ class _LoginPageState extends State<LoginPage> {
                               height: 24,
                               child: CircularProgressIndicator(
                                 strokeWidth: 2,
-                                valueColor:
-                                    AlwaysStoppedAnimation<Color>(Colors.white),
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  Colors.white,
+                                ),
                               ),
                             )
                           : const Text('Giriş Yap'),

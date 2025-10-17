@@ -171,7 +171,7 @@ class _PaymentListPageState extends State<PaymentListPage> {
                         return ListView.separated(
                           padding: const EdgeInsets.fromLTRB(16, 0, 16, 80),
                           itemCount: filtered.length,
-                          separatorBuilder: (_, __) =>
+                          separatorBuilder: (context, _) =>
                               const SizedBox(height: 12),
                           itemBuilder: (context, index) {
                             final payment = filtered[index];

@@ -85,5 +85,4 @@ class DefaultFirebaseOptions {
     storageBucket: 'atgevosystem.firebasestorage.app',
     measurementId: 'G-WG03TDMMDK',
   );
-
 }

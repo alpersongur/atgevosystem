@@ -70,9 +70,9 @@ class _InventoryEditPageState extends State<InventoryEditPage> {
       _status = item.status;
     } catch (error) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Kayıt yüklenemedi: $error')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Kayıt yüklenemedi: $error')));
       Navigator.of(context).pop();
     } finally {
       if (mounted) {
@@ -106,17 +106,19 @@ class _InventoryEditPageState extends State<InventoryEditPage> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(widget.isEditing
-              ? 'Envanter kaydı güncellendi.'
-              : 'Envanter kaydı eklendi.'),
+          content: Text(
+            widget.isEditing
+                ? 'Envanter kaydı güncellendi.'
+                : 'Envanter kaydı eklendi.',
+          ),
         ),
       );
       Navigator.of(context).pop();
     } catch (error) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Kayıt başarısız: $error')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Kayıt başarısız: $error')));
     } finally {
       if (mounted) {
         setState(() => _isSaving = false);
@@ -128,7 +130,9 @@ class _InventoryEditPageState extends State<InventoryEditPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.isEditing ? 'Envanter Kaydını Düzenle' : 'Envanter Kaydı Ekle'),
+        title: Text(
+          widget.isEditing ? 'Envanter Kaydını Düzenle' : 'Envanter Kaydı Ekle',
+        ),
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -165,9 +169,13 @@ class _InventoryEditPageState extends State<InventoryEditPage> {
                     const SizedBox(height: 16),
                     TextFormField(
                       controller: _quantityController,
-                      decoration: const InputDecoration(labelText: 'Stok Miktarı'),
-                      keyboardType:
-                          const TextInputType.numberWithOptions(decimal: false, signed: false),
+                      decoration: const InputDecoration(
+                        labelText: 'Stok Miktarı',
+                      ),
+                      keyboardType: const TextInputType.numberWithOptions(
+                        decimal: false,
+                        signed: false,
+                      ),
                       textInputAction: TextInputAction.next,
                       validator: (value) {
                         final parsed = int.tryParse(value?.trim() ?? '');
@@ -192,9 +200,13 @@ class _InventoryEditPageState extends State<InventoryEditPage> {
                     const SizedBox(height: 16),
                     TextFormField(
                       controller: _minStockController,
-                      decoration: const InputDecoration(labelText: 'Minimum Stok'),
-                      keyboardType:
-                          const TextInputType.numberWithOptions(decimal: false, signed: false),
+                      decoration: const InputDecoration(
+                        labelText: 'Minimum Stok',
+                      ),
+                      keyboardType: const TextInputType.numberWithOptions(
+                        decimal: false,
+                        signed: false,
+                      ),
                       textInputAction: TextInputAction.next,
                       validator: (value) {
                         final parsed = int.tryParse(value?.trim() ?? '');
@@ -210,7 +222,10 @@ class _InventoryEditPageState extends State<InventoryEditPage> {
                       decoration: const InputDecoration(labelText: 'Durum'),
                       items: const [
                         DropdownMenuItem(value: 'active', child: Text('Aktif')),
-                        DropdownMenuItem(value: 'inactive', child: Text('Pasif')),
+                        DropdownMenuItem(
+                          value: 'inactive',
+                          child: Text('Pasif'),
+                        ),
                       ],
                       onChanged: (value) {
                         if (value != null) {

@@ -8,8 +8,8 @@ class TrendChartWidget extends StatelessWidget {
     required this.series,
     this.height = 240,
     this.valueSuffix = '',
-  })  : _isLineChart = true,
-        barGroups = const [];
+  }) : _isLineChart = true,
+       barGroups = const [];
 
   const TrendChartWidget.bar({
     super.key,
@@ -17,8 +17,8 @@ class TrendChartWidget extends StatelessWidget {
     required this.barGroups,
     this.height = 240,
     this.valueSuffix = '',
-  })  : _isLineChart = false,
-        series = const [];
+  }) : _isLineChart = false,
+       series = const [];
 
   final List<String> labels;
   final List<FlSpot> series;
@@ -29,9 +29,7 @@ class TrendChartWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _isLineChart
-        ? _buildLineChart(context)
-        : _buildBarChart(context);
+    return _isLineChart ? _buildLineChart(context) : _buildBarChart(context);
   }
 
   Widget _buildLineChart(BuildContext context) {
@@ -79,8 +77,12 @@ class TrendChartWidget extends StatelessWidget {
                 },
               ),
             ),
-            topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            topTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            rightTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
           ),
           borderData: FlBorderData(show: false),
           lineBarsData: [
@@ -145,8 +147,12 @@ class TrendChartWidget extends StatelessWidget {
                 },
               ),
             ),
-            topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            topTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            rightTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
           ),
           borderData: FlBorderData(show: false),
         ),

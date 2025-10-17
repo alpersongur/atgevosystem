@@ -83,6 +83,7 @@ exports.collectUsageData = onSchedule("every 6 hours", async () => {
     });
 
 exports.collectMetrics = onSchedule("every 6 hours", async () => monitoring.collectMetricsTask());
+exports.summarizeMetrics = onSchedule({schedule: "0 3 * * *", timeZone: "Europe/Istanbul"}, async () => monitoring.summarizeMetricsTask());
 exports.getSystemMetrics = functions.https.onCall(async () => monitoring.getSystemMetricsCallable());
 
 /**

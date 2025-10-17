@@ -1,8 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import 'package:atgevosystem/core/utils/timestamp_helper.dart';
+
 import '../models/user_model.dart';
 
-class UserService {
+class UserService with FirestoreTimestamps {
   UserService._(this._firestore);
 
   factory UserService({FirebaseFirestore? firestore}) {
@@ -41,37 +43,29 @@ class UserService {
   }
 
   Future<void> updateUserRole(String uid, String role) {
-    return _collection.doc(uid).update({
-      'role': role,
-      'updated_at': FieldValue.serverTimestamp(),
-    });
+    return _collection.doc(uid).update(withUpdateTimestamp({'role': role}));
   }
 
   Future<void> toggleUserActive(String uid, bool isActive) {
-    return _collection.doc(uid).update({
-      'is_active': isActive,
-      'updated_at': FieldValue.serverTimestamp(),
-    });
+    return _collection
+        .doc(uid)
+        .update(withUpdateTimestamp({'is_active': isActive}));
   }
 
   Future<void> assignModules(String uid, List<String> modules) {
-    return _collection.doc(uid).update({
-      'modules': modules,
-      'updated_at': FieldValue.serverTimestamp(),
-    });
+    return _collection
+        .doc(uid)
+        .update(withUpdateTimestamp({'modules': modules}));
   }
 
   Future<void> updateUser(String uid, Map<String, dynamic> data) {
-    return _collection.doc(uid).update({
-      ...data,
-      'updated_at': FieldValue.serverTimestamp(),
-    });
+    return _collection.doc(uid).update(withUpdateTimestamp(data));
   }
 
   Future<void> addUser(Map<String, dynamic> data) async {
     final uid = (data['uid'] as String? ?? '').trim();
     final docRef = uid.isNotEmpty ? _collection.doc(uid) : _collection.doc();
-    final payload = {
+    final basePayload = {
       'uid': uid.isNotEmpty ? uid : docRef.id,
       'email': (data['email'] as String? ?? '').trim(),
       'display_name': (data['display_name'] as String? ?? '').trim(),
@@ -80,10 +74,11 @@ class UserService {
       'modules': (data['modules'] as List<dynamic>? ?? const [])
           .whereType<String>()
           .toList(growable: false),
-      'created_at': FieldValue.serverTimestamp(),
-      'updated_at': FieldValue.serverTimestamp(),
     };
-    await docRef.set(payload, SetOptions(merge: true));
+    await docRef.set(
+      withCreateTimestamps(basePayload),
+      SetOptions(merge: true),
+    );
   }
 
   Future<void> deactivateUser(String uid) {

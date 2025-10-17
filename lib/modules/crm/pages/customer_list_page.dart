@@ -25,9 +25,7 @@ class _CustomerListPageState extends State<CustomerListPage> {
     final stream = _service.watchCustomers();
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Müşteri Yönetimi'),
-      ),
+      appBar: AppBar(title: const Text('Müşteri Yönetimi')),
       body: Column(
         children: [
           Padding(
@@ -41,8 +39,7 @@ class _CustomerListPageState extends State<CustomerListPage> {
               },
               trailing: FilledButton.icon(
                 onPressed: () {
-                  Navigator.of(context)
-                      .pushNamed(CustomerEditPage.createRoute);
+                  Navigator.of(context).pushNamed(CustomerEditPage.createRoute);
                 },
                 icon: const Icon(Icons.add),
                 label: const Text('Yeni Müşteri'),
@@ -70,10 +67,10 @@ class _CustomerListPageState extends State<CustomerListPage> {
                 final filtered = _searchQuery.trim().isEmpty
                     ? customers
                     : customers
-                        .where(
-                          (customer) => customer.matchesSearch(_searchQuery),
-                        )
-                        .toList(growable: false);
+                          .where(
+                            (customer) => customer.matchesSearch(_searchQuery),
+                          )
+                          .toList(growable: false);
 
                 if (filtered.isEmpty) {
                   return const Center(
@@ -84,7 +81,7 @@ class _CustomerListPageState extends State<CustomerListPage> {
                 return ListView.separated(
                   padding: const EdgeInsets.fromLTRB(16, 0, 16, 80),
                   itemCount: filtered.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 8),
+                  separatorBuilder: (context, _) => const SizedBox(height: 8),
                   itemBuilder: (context, index) {
                     final customer = filtered[index];
                     return Material(
@@ -95,21 +92,21 @@ class _CustomerListPageState extends State<CustomerListPage> {
                           final messenger = ScaffoldMessenger.of(context);
                           Navigator.of(context)
                               .push<bool>(
-                            MaterialPageRoute(
-                              builder: (_) => CustomerDetailPage(
-                                customerId: customer.id,
-                              ),
-                            ),
-                          )
-                              .then((deleted) {
-                            if (deleted == true && mounted) {
-                              messenger.showSnackBar(
-                                const SnackBar(
-                                  content: Text('Müşteri silindi'),
+                                MaterialPageRoute(
+                                  builder: (_) => CustomerDetailPage(
+                                    customerId: customer.id,
+                                  ),
                                 ),
-                              );
-                            }
-                          });
+                              )
+                              .then((deleted) {
+                                if (deleted == true && mounted) {
+                                  messenger.showSnackBar(
+                                    const SnackBar(
+                                      content: Text('Müşteri silindi'),
+                                    ),
+                                  );
+                                }
+                              });
                         },
                         child: CustomerCard(
                           customer: customer,
@@ -146,7 +143,8 @@ class _CustomerListPageState extends State<CustomerListPage> {
     BuildContext context,
     CustomerModel customer,
   ) async {
-    final confirmed = await showDialog<bool>(
+    final confirmed =
+        await showDialog<bool>(
           context: context,
           builder: (ctx) => AlertDialog(
             title: const Text('Müşteri Sil'),
@@ -172,9 +170,9 @@ class _CustomerListPageState extends State<CustomerListPage> {
     try {
       await _service.deleteCustomer(customer.id);
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Müşteri silindi')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Müşteri silindi')));
     } catch (error) {
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(

@@ -71,8 +71,9 @@ class _PredictiveDashboardPageState extends State<PredictiveDashboardPage> {
 
           return LayoutBuilder(
             builder: (context, constraints) {
-              final device =
-                  ResponsiveBreakpoints.sizeForWidth(constraints.maxWidth);
+              final device = ResponsiveBreakpoints.sizeForWidth(
+                constraints.maxWidth,
+              );
               final isPhone = device == DeviceSize.phone;
 
               return SingleChildScrollView(
@@ -82,30 +83,27 @@ class _PredictiveDashboardPageState extends State<PredictiveDashboardPage> {
                   children: [
                     Text(
                       'Özet',
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleLarge
-                          ?.copyWith(fontWeight: FontWeight.w600),
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                     const SizedBox(height: 16),
                     _buildSummaryCards(result, isPhone),
                     const SizedBox(height: 24),
                     Text(
                       'Satış Tahmini',
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleLarge
-                          ?.copyWith(fontWeight: FontWeight.w600),
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                     const SizedBox(height: 12),
                     _buildSalesForecastChart(result.salesForecast),
                     const SizedBox(height: 24),
                     Text(
                       'Üretim Yükü Tahmini',
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleLarge
-                          ?.copyWith(fontWeight: FontWeight.w600),
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                     const SizedBox(height: 12),
                     _buildProductionForecastChart(result.productionForecast),
@@ -119,10 +117,7 @@ class _PredictiveDashboardPageState extends State<PredictiveDashboardPage> {
     );
   }
 
-  Widget _buildSummaryCards(
-    PredictiveAnalyticsResult result,
-    bool isPhone,
-  ) {
+  Widget _buildSummaryCards(PredictiveAnalyticsResult result, bool isPhone) {
     final nextSales = _currencyFormat.format(
       result.salesForecast.nextMonthEstimate,
     );
@@ -156,10 +151,12 @@ class _PredictiveDashboardPageState extends State<PredictiveDashboardPage> {
     if (isPhone) {
       return Column(
         children: cards
-            .map((card) => Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: card,
-                ))
+            .map(
+              (card) => Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: card,
+              ),
+            )
             .toList(growable: false),
       );
     }
@@ -180,15 +177,15 @@ class _PredictiveDashboardPageState extends State<PredictiveDashboardPage> {
 
   Widget _buildSalesForecastChart(SalesForecast forecast) {
     if (forecast.history.isEmpty) {
-      return const _ChartPlaceholder(message: 'Yeterli satış verisi bulunamadı.');
+      return const _ChartPlaceholder(
+        message: 'Yeterli satış verisi bulunamadı.',
+      );
     }
 
     final labels = [
       ...forecast.history,
       ...forecast.forecast,
-    ]
-        .map((point) => _monthFormat.format(point.period))
-        .toList(growable: false);
+    ].map((point) => _monthFormat.format(point.period)).toList(growable: false);
 
     final historySpots = <FlSpot>[];
     final forecastSpots = <FlSpot>[];
@@ -213,15 +210,15 @@ class _PredictiveDashboardPageState extends State<PredictiveDashboardPage> {
 
   Widget _buildProductionForecastChart(ProductionForecast forecast) {
     if (forecast.history.isEmpty) {
-      return const _ChartPlaceholder(message: 'Yeterli üretim verisi bulunamadı.');
+      return const _ChartPlaceholder(
+        message: 'Yeterli üretim verisi bulunamadı.',
+      );
     }
 
     final labels = [
       ...forecast.history,
       ...forecast.forecast,
-    ]
-        .map((point) => _monthFormat.format(point.period))
-        .toList(growable: false);
+    ].map((point) => _monthFormat.format(point.period)).toList(growable: false);
 
     final historySpots = <FlSpot>[];
     final forecastSpots = <FlSpot>[];
@@ -282,18 +279,17 @@ class _QuickInfoCard extends StatelessWidget {
                   Text(
                     title,
                     style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .onSurface
-                              .withValues(alpha: 0.7),
-                        ),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.7),
+                    ),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     subtitle,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ],
               ),
@@ -348,16 +344,13 @@ class _ForecastChart extends StatelessWidget {
     ];
     if (intervals.isNotEmpty && forecastSpots.isNotEmpty) {
       final upperLine = LineChartBarData(
-        spots: List<FlSpot>.generate(
-          forecastSpots.length,
-          (index) {
-            final spot = forecastSpots[index];
-            final interval = intervals.length > index
-                ? intervals[index]
-                : ForecastInterval(lower: spot.y * 0.9, upper: spot.y * 1.1);
-            return FlSpot(spot.x, interval.upper);
-          },
-        ),
+        spots: List<FlSpot>.generate(forecastSpots.length, (index) {
+          final spot = forecastSpots[index];
+          final interval = intervals.length > index
+              ? intervals[index]
+              : ForecastInterval(lower: spot.y * 0.9, upper: spot.y * 1.1);
+          return FlSpot(spot.x, interval.upper);
+        }),
         isCurved: true,
         color: Colors.indigo.withValues(alpha: 0.3),
         barWidth: 1.5,
@@ -365,16 +358,13 @@ class _ForecastChart extends StatelessWidget {
         dotData: const FlDotData(show: false),
       );
       final lowerLine = LineChartBarData(
-        spots: List<FlSpot>.generate(
-          forecastSpots.length,
-          (index) {
-            final spot = forecastSpots[index];
-            final interval = intervals.length > index
-                ? intervals[index]
-                : ForecastInterval(lower: spot.y * 0.9, upper: spot.y * 1.1);
-            return FlSpot(spot.x, interval.lower);
-          },
-        ),
+        spots: List<FlSpot>.generate(forecastSpots.length, (index) {
+          final spot = forecastSpots[index];
+          final interval = intervals.length > index
+              ? intervals[index]
+              : ForecastInterval(lower: spot.y * 0.9, upper: spot.y * 1.1);
+          return FlSpot(spot.x, interval.lower);
+        }),
         isCurved: true,
         color: Colors.indigo.withValues(alpha: 0.3),
         barWidth: 1.5,
@@ -441,8 +431,9 @@ class _ForecastChart extends StatelessWidget {
               getTooltipItems: (touchedSpots) {
                 return touchedSpots.map((spot) {
                   final index = spot.x.toInt();
-                  final label =
-                      index >= 0 && index < labels.length ? labels[index] : '';
+                  final label = index >= 0 && index < labels.length
+                      ? labels[index]
+                      : '';
                   return LineTooltipItem(
                     '$label\n${spot.y.toStringAsFixed(1)}$valueSuffix',
                     theme.textTheme.bodyMedium ??
@@ -474,10 +465,9 @@ class _ChartPlaceholder extends StatelessWidget {
       child: Center(
         child: Text(
           message,
-          style: Theme.of(context)
-              .textTheme
-              .bodyMedium
-              ?.copyWith(color: Colors.grey.shade600),
+          style: Theme.of(
+            context,
+          ).textTheme.bodyMedium?.copyWith(color: Colors.grey.shade600),
         ),
       ),
     );

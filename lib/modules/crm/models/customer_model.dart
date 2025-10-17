@@ -130,14 +130,14 @@ class CustomerInput {
     String? city,
     String? taxNumber,
     String? notes,
-  })  : companyName = companyName.trim(),
-        contactPerson = _normalize(contactPerson),
-        email = _normalize(email),
-        phone = _normalize(phone),
-        address = _normalize(address),
-        city = _normalize(city),
-        taxNumber = _normalize(taxNumber),
-        notes = _normalize(notes);
+  }) : companyName = companyName.trim(),
+       contactPerson = _normalize(contactPerson),
+       email = _normalize(email),
+       phone = _normalize(phone),
+       address = _normalize(address),
+       city = _normalize(city),
+       taxNumber = _normalize(taxNumber),
+       notes = _normalize(notes);
 
   final String companyName;
   final String? contactPerson;

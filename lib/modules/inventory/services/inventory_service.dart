@@ -1,8 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import 'package:atgevosystem/core/utils/timestamp_helper.dart';
+
 import '../models/inventory_item_model.dart';
 
-class InventoryService {
+class InventoryService with FirestoreTimestamps {
   InventoryService._(this._firestore);
 
   factory InventoryService({FirebaseFirestore? firestore}) {
@@ -12,8 +14,9 @@ class InventoryService {
     return InventoryService._(firestore);
   }
 
-  static final InventoryService instance =
-      InventoryService._(FirebaseFirestore.instance);
+  static final InventoryService instance = InventoryService._(
+    FirebaseFirestore.instance,
+  );
 
   final FirebaseFirestore _firestore;
 
@@ -45,16 +48,13 @@ class InventoryService {
   }
 
   Future<String> addItem(Map<String, dynamic> data) async {
-    final payload = Map<String, dynamic>.from(data)
-      ..['created_at'] = FieldValue.serverTimestamp()
-      ..['updated_at'] = FieldValue.serverTimestamp();
+    final payload = withCreateTimestamps(data);
     final docRef = await _collection.add(payload);
     return docRef.id;
   }
 
   Future<void> updateItem(String id, Map<String, dynamic> data) {
-    final payload = Map<String, dynamic>.from(data)
-      ..['updated_at'] = FieldValue.serverTimestamp();
+    final payload = withUpdateTimestamp(data);
     return _collection.doc(id).update(payload);
   }
 
@@ -62,11 +62,7 @@ class InventoryService {
     return _collection.doc(id).delete();
   }
 
-  Future<void> adjustStock(
-    String id,
-    int amount,
-    String operation,
-  ) async {
+  Future<void> adjustStock(String id, int amount, String operation) async {
     if (amount <= 0) {
       throw ArgumentError('amount must be greater than zero');
     }
@@ -86,10 +82,10 @@ class InventoryService {
         throw StateError('Stok miktarı sıfırın altına düşemez.');
       }
 
-      transaction.update(docRef, {
-        'quantity': newQuantity,
-        'updated_at': FieldValue.serverTimestamp(),
-      });
+      transaction.update(
+        docRef,
+        withUpdateTimestamp({'quantity': newQuantity}),
+      );
     });
   }
 }

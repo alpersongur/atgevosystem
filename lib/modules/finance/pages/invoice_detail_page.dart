@@ -429,7 +429,8 @@ class _InvoiceDetailViewState extends State<_InvoiceDetailView> {
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
                       itemCount: payments.length,
-                      separatorBuilder: (_, __) => const SizedBox(height: 12),
+                      separatorBuilder: (context, _) =>
+                          const SizedBox(height: 12),
                       itemBuilder: (context, index) {
                         final payment = payments[index];
                         return PaymentCard(

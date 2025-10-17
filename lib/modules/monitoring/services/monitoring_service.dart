@@ -71,8 +71,7 @@ class MonitoringRealtimeMetrics {
       storageMb: (data['storage_mb'] as num?)?.toDouble() ?? 0,
       functionsErrors: (data['errors'] as num?)?.toDouble() ?? 0,
       activeUsers: (data['active_users'] as num?)?.toDouble() ?? 0,
-      hostingStatus: (data['hosting_status'] as String? ?? 'Bilinmiyor')
-          .trim(),
+      hostingStatus: (data['hosting_status'] as String? ?? 'Bilinmiyor').trim(),
       generatedAt: _timestampToDate(data['timestamp']) ?? DateTime.now(),
     );
   }
@@ -88,10 +87,7 @@ class MonitoringRealtimeMetrics {
 }
 
 class MonitoringService {
-  MonitoringService._(
-    this._firestore,
-    this._functions,
-  );
+  MonitoringService._(this._firestore, this._functions);
 
   factory MonitoringService({
     FirebaseFirestore? firestore,
@@ -176,12 +172,8 @@ class MonitoringService {
         .snapshots()
         .map(
           (snapshot) => snapshot.docs
-              .map((doc) => {
-                    'id': doc.id,
-                    ...doc.data(),
-                  })
+              .map((doc) => {'id': doc.id, ...doc.data()})
               .toList(growable: false),
         );
   }
-
 }

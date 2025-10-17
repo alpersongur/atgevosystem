@@ -1,10 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import 'package:atgevosystem/core/utils/timestamp_helper.dart';
+
 import '../../inventory/services/inventory_service.dart';
 import '../../production/services/production_service.dart';
 import '../models/shipment_model.dart';
 
-class ShipmentService {
+class ShipmentService with FirestoreTimestamps {
   ShipmentService._(this._firestore);
 
   factory ShipmentService({FirebaseFirestore? firestore}) {
@@ -14,8 +16,9 @@ class ShipmentService {
     return ShipmentService._(firestore);
   }
 
-  static final ShipmentService instance =
-      ShipmentService._(FirebaseFirestore.instance);
+  static final ShipmentService instance = ShipmentService._(
+    FirebaseFirestore.instance,
+  );
 
   final FirebaseFirestore _firestore;
 
@@ -47,16 +50,13 @@ class ShipmentService {
   }
 
   Future<String> addShipment(Map<String, dynamic> data) async {
-    final payload = Map<String, dynamic>.from(data)
-      ..['created_at'] = FieldValue.serverTimestamp()
-      ..['updated_at'] = FieldValue.serverTimestamp();
+    final payload = withCreateTimestamps(data);
     final docRef = await _collection.add(payload);
     return docRef.id;
   }
 
   Future<void> updateShipment(String id, Map<String, dynamic> data) {
-    final payload = Map<String, dynamic>.from(data)
-      ..['updated_at'] = FieldValue.serverTimestamp();
+    final payload = withUpdateTimestamp(data);
     return _collection.doc(id).update(payload);
   }
 
@@ -65,12 +65,12 @@ class ShipmentService {
   }
 
   Future<void> updateStatus(String id, String newStatus) {
-    return _collection.doc(id).update({
+    final payload = {
       'status': newStatus,
-      'updated_at': FieldValue.serverTimestamp(),
       if (newStatus == 'delivered')
         'delivery_date': FieldValue.serverTimestamp(),
-    });
+    };
+    return _collection.doc(id).update(withUpdateTimestamp(payload));
   }
 
   Future<void> createShipmentForOrder(String orderId) async {
@@ -109,10 +109,6 @@ class ShipmentService {
   Future<void> adjustInventoryForDelivery(ShipmentModel shipment) async {
     final inventoryId = shipment.inventoryItemId;
     if (inventoryId == null) return;
-    await InventoryService.instance.adjustStock(
-      inventoryId,
-      1,
-      'decrease',
-    );
+    await InventoryService.instance.adjustStock(inventoryId, 1, 'decrease');
   }
 }

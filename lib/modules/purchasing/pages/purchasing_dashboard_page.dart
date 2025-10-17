@@ -251,8 +251,7 @@ class _PurchasingDashboardPageState extends State<PurchasingDashboardPage> {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final device =
-            ResponsiveBreakpoints.sizeForWidth(constraints.maxWidth);
+        final device = ResponsiveBreakpoints.sizeForWidth(constraints.maxWidth);
 
         final header = Text(
           'Tablolar',
@@ -278,13 +277,13 @@ class _PurchasingDashboardPageState extends State<PurchasingDashboardPage> {
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
                         itemCount: delayedOrders.length,
-                        separatorBuilder: (_, __) =>
+                        separatorBuilder: (context, _) =>
                             const Divider(height: 1),
                         itemBuilder: (context, index) {
                           final order = delayedOrders[index];
                           final supplier =
                               data.supplierNames[order.supplierId] ??
-                                  order.supplierId;
+                              order.supplierId;
                           final expected = order.expectedDate != null
                               ? _dateFormat.format(order.expectedDate!)
                               : '—';
@@ -312,26 +311,26 @@ class _PurchasingDashboardPageState extends State<PurchasingDashboardPage> {
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
                         itemCount: recentBills.length,
-                        separatorBuilder: (_, __) =>
+                        separatorBuilder: (context, _) =>
                             const Divider(height: 1),
                         itemBuilder: (context, index) {
                           final bill = recentBills[index];
                           final supplier =
                               data.supplierNames[bill.supplierId] ??
-                                  bill.supplierId;
+                              bill.supplierId;
                           final date = bill.issueDate != null
                               ? _dateFormat.format(bill.issueDate!)
                               : '—';
                           return ListTile(
                             leading: const Icon(Icons.receipt_long_outlined),
                             title: Text(bill.billNo),
-                            subtitle: Text('Tedarikçi: $supplier\nTarih: $date'),
+                            subtitle: Text(
+                              'Tedarikçi: $supplier\nTarih: $date',
+                            ),
                             isThreeLine: true,
                             trailing: Text(
                               _currencyFormat.format(bill.grandTotal),
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleMedium
+                              style: Theme.of(context).textTheme.titleMedium
                                   ?.copyWith(fontWeight: FontWeight.w600),
                             ),
                           );
@@ -423,9 +422,7 @@ class _PurchasingDashboardPageState extends State<PurchasingDashboardPage> {
                                   DataCell(
                                     Text(
                                       bill.issueDate != null
-                                          ? _dateFormat.format(
-                                              bill.issueDate!,
-                                            )
+                                          ? _dateFormat.format(bill.issueDate!)
                                           : '—',
                                     ),
                                   ),

@@ -107,7 +107,8 @@ class _POListPageState extends State<POListPage> {
                     return ListView.separated(
                       padding: const EdgeInsets.fromLTRB(16, 0, 16, 88),
                       itemCount: filtered.length,
-                      separatorBuilder: (_, __) => const SizedBox(height: 12),
+                      separatorBuilder: (context, _) =>
+                          const SizedBox(height: 12),
                       itemBuilder: (_, index) {
                         final order = filtered[index];
                         return PurchaseOrderCard(

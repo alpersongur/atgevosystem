@@ -22,14 +22,8 @@ class RoleManager {
       '/leads',
       '/leads/form',
     ],
-    'production': [
-      '/main',
-      '/crm/dashboard',
-    ],
-    'accounting': [
-      '/main',
-      '/crm/dashboard',
-    ],
+    'production': ['/main', '/crm/dashboard'],
+    'accounting': ['/main', '/crm/dashboard'],
   };
 
   static bool canAccess(String role, String route) {

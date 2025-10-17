@@ -40,22 +40,19 @@ class _CompanyAnalyticsPageState extends State<CompanyAnalyticsPage> {
       appBar: AppBar(
         title: const Text('Şirket Analitikleri'),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: _loadData,
-          ),
+          IconButton(icon: const Icon(Icons.refresh), onPressed: _loadData),
         ],
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _companies.isEmpty
-              ? const Center(child: Text('Analiz edilecek şirket bulunmuyor.'))
-              : Column(
-                  children: [
-                    Expanded(child: _buildDataTable(context)),
-                    _buildSummarySection(),
-                  ],
-                ),
+          ? const Center(child: Text('Analiz edilecek şirket bulunmuyor.'))
+          : Column(
+              children: [
+                Expanded(child: _buildDataTable(context)),
+                _buildSummarySection(),
+              ],
+            ),
     );
   }
 
@@ -74,18 +71,20 @@ class _CompanyAnalyticsPageState extends State<CompanyAnalyticsPage> {
       final modules = usage['modules'] ?? '-';
       final lastUpdated = usage['updated_at'] ?? '-';
 
-      return DataRow(cells: [
-        DataCell(Text(company['name']?.toString() ?? 'Adsız')),
-        DataCell(Text(users.toString())),
-        DataCell(Text(modules.toString())),
-        DataCell(Text(lastUpdated.toString())),
-        DataCell(
-          TextButton(
-            onPressed: () => _openDetailModal(context, company),
-            child: const Text('Detay'),
+      return DataRow(
+        cells: [
+          DataCell(Text(company['name']?.toString() ?? 'Adsız')),
+          DataCell(Text(users.toString())),
+          DataCell(Text(modules.toString())),
+          DataCell(Text(lastUpdated.toString())),
+          DataCell(
+            TextButton(
+              onPressed: () => _openDetailModal(context, company),
+              child: const Text('Detay'),
+            ),
           ),
-        ),
-      ]);
+        ],
+      );
     }).toList();
 
     return SingleChildScrollView(
@@ -119,7 +118,10 @@ class _CompanyAnalyticsPageState extends State<CompanyAnalyticsPage> {
     );
   }
 
-  Future<void> _openDetailModal(BuildContext context, Map<String, dynamic> company) async {
+  Future<void> _openDetailModal(
+    BuildContext context,
+    Map<String, dynamic> company,
+  ) async {
     final usage = Map<String, dynamic>.from(company['usage'] as Map? ?? {});
     showModalBottomSheet(
       context: context,
@@ -147,7 +149,7 @@ class _CompanyAnalyticsPageState extends State<CompanyAnalyticsPage> {
                   Navigator.of(context).pop();
                 },
                 child: const Text('Kapat'),
-              )
+              ),
             ],
           ),
         );

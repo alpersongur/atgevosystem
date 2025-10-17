@@ -19,11 +19,12 @@ class CompanyDetailPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Şirket Detayı'),
-      ),
+      appBar: AppBar(title: const Text('Şirket Detayı')),
       body: StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
-        stream: FirebaseFirestore.instance.collection('companies').doc(companyId).snapshots(),
+        stream: FirebaseFirestore.instance
+            .collection('companies')
+            .doc(companyId)
+            .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
             return Center(
@@ -54,7 +55,10 @@ class CompanyDetailPage extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(name, style: Theme.of(context).textTheme.headlineSmall),
+                        Text(
+                          name,
+                          style: Theme.of(context).textTheme.headlineSmall,
+                        ),
                         const SizedBox(height: 8),
                         Text('Project ID: $projectId'),
                         Text('Sahip E-posta: $ownerEmail'),
@@ -70,7 +74,13 @@ class CompanyDetailPage extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Modüller', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                        const Text(
+                          'Modüller',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                         const SizedBox(height: 8),
                         if (modules.isEmpty)
                           const Text('Modül tanımlı değil.')
@@ -79,9 +89,10 @@ class CompanyDetailPage extends StatelessWidget {
                             spacing: 8,
                             runSpacing: 8,
                             children: modules
-                                .map((module) => Chip(
-                                      label: Text(module.toUpperCase()),
-                                    ))
+                                .map(
+                                  (module) =>
+                                      Chip(label: Text(module.toUpperCase())),
+                                )
                                 .toList(),
                           ),
                       ],
@@ -95,7 +106,13 @@ class CompanyDetailPage extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Kullanım İstatistikleri', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                        const Text(
+                          'Kullanım İstatistikleri',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                         const SizedBox(height: 8),
                         if (usage.isEmpty)
                           const Text('Henüz kullanım verisi bulunmuyor.')
@@ -123,10 +140,14 @@ class CompanyDetailPage extends StatelessWidget {
                     OutlinedButton.icon(
                       onPressed: active
                           ? () async {
-                              await CompanyService.instance.deactivateCompany(companyId);
+                              await CompanyService.instance.deactivateCompany(
+                                companyId,
+                              );
                               if (context.mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text('Şirket pasif edildi')),
+                                  const SnackBar(
+                                    content: Text('Şirket pasif edildi'),
+                                  ),
                                 );
                               }
                             }
@@ -137,18 +158,23 @@ class CompanyDetailPage extends StatelessWidget {
                     const SizedBox(width: 16),
                     OutlinedButton.icon(
                       onPressed: () async {
-                        final confirm = await showDialog<bool>(
+                        final confirm =
+                            await showDialog<bool>(
                               context: context,
                               builder: (ctx) => AlertDialog(
                                 title: const Text('Şirketi Sil'),
-                                content: const Text('Şirketi silmek istediğinize emin misiniz? Bu işlem geri alınamaz.'),
+                                content: const Text(
+                                  'Şirketi silmek istediğinize emin misiniz? Bu işlem geri alınamaz.',
+                                ),
                                 actions: [
                                   TextButton(
-                                    onPressed: () => Navigator.of(ctx).pop(false),
+                                    onPressed: () =>
+                                        Navigator.of(ctx).pop(false),
                                     child: const Text('Vazgeç'),
                                   ),
                                   FilledButton(
-                                    onPressed: () => Navigator.of(ctx).pop(true),
+                                    onPressed: () =>
+                                        Navigator.of(ctx).pop(true),
                                     child: const Text('Sil'),
                                   ),
                                 ],
@@ -156,7 +182,9 @@ class CompanyDetailPage extends StatelessWidget {
                             ) ??
                             false;
                         if (confirm) {
-                          await CompanyService.instance.deleteCompany(companyId);
+                          await CompanyService.instance.deleteCompany(
+                            companyId,
+                          );
                           if (context.mounted) {
                             Navigator.of(context).pop();
                             ScaffoldMessenger.of(context).showSnackBar(
@@ -183,7 +211,7 @@ class CompanyDetailPage extends StatelessWidget {
     if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Şirket paneli açılamadı.')),  
+          const SnackBar(content: Text('Şirket paneli açılamadı.')),
         );
       }
     }

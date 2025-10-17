@@ -47,7 +47,7 @@ class ActivityLogList extends StatelessWidget {
           itemCount: logs.length,
           physics: const NeverScrollableScrollPhysics(),
           shrinkWrap: true,
-          separatorBuilder: (_, __) => const Divider(height: 1),
+          separatorBuilder: (context, _) => const Divider(height: 1),
           itemBuilder: (context, index) {
             final log = logs[index];
             final subtitleParts = <String>[];

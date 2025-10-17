@@ -268,8 +268,7 @@ class _FinanceDashboardPageState extends State<FinanceDashboardPage> {
   Widget _buildTablesSection(_DashboardData data) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final device =
-            ResponsiveBreakpoints.sizeForWidth(constraints.maxWidth);
+        final device = ResponsiveBreakpoints.sizeForWidth(constraints.maxWidth);
 
         final header = Text(
           'Tablolar',
@@ -295,11 +294,12 @@ class _FinanceDashboardPageState extends State<FinanceDashboardPage> {
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
                         itemCount: data.topCustomers.length,
-                        separatorBuilder: (_, __) =>
+                        separatorBuilder: (context, _) =>
                             const Divider(height: 1),
                         itemBuilder: (context, index) {
                           final customer = data.topCustomers[index];
-                          final name = customer.customerName ??
+                          final name =
+                              customer.customerName ??
                               data.customerNames[customer.customerId] ??
                               customer.customerId;
                           return ListTile(
@@ -324,13 +324,13 @@ class _FinanceDashboardPageState extends State<FinanceDashboardPage> {
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
                         itemCount: data.overdueInvoices.length,
-                        separatorBuilder: (_, __) =>
+                        separatorBuilder: (context, _) =>
                             const Divider(height: 1),
                         itemBuilder: (context, index) {
                           final invoice = data.overdueInvoices[index];
                           final customer =
                               data.customerNames[invoice.customerId] ??
-                                  invoice.customerId;
+                              invoice.customerId;
                           final issue = invoice.issueDate != null
                               ? _dateFormat.format(invoice.issueDate!)
                               : '—';
@@ -346,9 +346,7 @@ class _FinanceDashboardPageState extends State<FinanceDashboardPage> {
                             isThreeLine: true,
                             trailing: Text(
                               _currencyFormat.format(invoice.grandTotal),
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleMedium
+                              style: Theme.of(context).textTheme.titleMedium
                                   ?.copyWith(fontWeight: FontWeight.w600),
                             ),
                           );
@@ -385,8 +383,8 @@ class _FinanceDashboardPageState extends State<FinanceDashboardPage> {
                                   DataCell(
                                     Text(
                                       customer.customerName ??
-                                          data.customerNames[
-                                              customer.customerId] ??
+                                          data.customerNames[customer
+                                              .customerId] ??
                                           customer.customerId,
                                     ),
                                   ),
@@ -444,21 +442,18 @@ class _FinanceDashboardPageState extends State<FinanceDashboardPage> {
                                   DataCell(
                                     Text(
                                       invoice.dueDate != null
-                                          ? _dateFormat.format(
-                                              invoice.dueDate!,
-                                            )
+                                          ? _dateFormat.format(invoice.dueDate!)
                                           : '—',
                                     ),
                                   ),
                                   DataCell(
                                     Text(
-                                      _currencyFormat
-                                          .format(invoice.grandTotal),
+                                      _currencyFormat.format(
+                                        invoice.grandTotal,
+                                      ),
                                     ),
                                   ),
-                                  DataCell(
-                                    Text(invoice.status.toUpperCase()),
-                                  ),
+                                  DataCell(Text(invoice.status.toUpperCase())),
                                 ],
                               ),
                             )

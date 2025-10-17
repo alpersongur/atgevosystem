@@ -15,8 +15,7 @@ class ResponsiveBreakpoints {
     return sizeForWidth(width);
   }
 
-  static bool isPhone(BuildContext context) =>
-      of(context) == DeviceSize.phone;
+  static bool isPhone(BuildContext context) => of(context) == DeviceSize.phone;
 
   static bool isTablet(BuildContext context) =>
       of(context) == DeviceSize.tablet;

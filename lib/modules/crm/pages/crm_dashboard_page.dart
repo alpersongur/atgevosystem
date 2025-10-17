@@ -14,9 +14,7 @@ class CrmDashboardPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('CRM Dashboard'),
-      ),
+      appBar: AppBar(title: const Text('CRM Dashboard')),
       body: StreamBuilder<List<CustomerModel>>(
         stream: CustomerService().getCustomers(),
         builder: (context, snapshot) {
@@ -47,8 +45,8 @@ class CrmDashboardPage extends StatelessWidget {
                 Text(
                   'CRM Dashboard',
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 const SizedBox(height: 20),
                 _SummaryMetrics(metrics: metrics),
@@ -118,18 +116,17 @@ class _SummaryMetrics extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final maxWidth = constraints.maxWidth;
-        final cardWidth =
-            maxWidth > 900 ? (maxWidth - 48) / 4 : (maxWidth - 24) / 2;
+        final cardWidth = maxWidth > 900
+            ? (maxWidth - 48) / 4
+            : (maxWidth - 24) / 2;
 
         return Wrap(
           spacing: 16,
           runSpacing: 16,
           children: cards
               .map(
-                (card) => SizedBox(
-                  width: cardWidth.clamp(220, 360),
-                  child: card,
-                ),
+                (card) =>
+                    SizedBox(width: cardWidth.clamp(220, 360), child: card),
               )
               .toList(),
         );
@@ -139,11 +136,7 @@ class _SummaryMetrics extends StatelessWidget {
 }
 
 class _SummaryCard extends StatelessWidget {
-  const _SummaryCard({
-    required this.title,
-    required this.value,
-    this.unit,
-  });
+  const _SummaryCard({required this.title, required this.value, this.unit});
 
   final String title;
   final String value;
@@ -161,8 +154,8 @@ class _SummaryCard extends StatelessWidget {
             Text(
               title,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
             ),
             const SizedBox(height: 12),
             Row(
@@ -172,14 +165,11 @@ class _SummaryCard extends StatelessWidget {
                 Text(
                   value,
                   style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 if (unit != null)
-                  Text(
-                    unit!,
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
+                  Text(unit!, style: Theme.of(context).textTheme.bodySmall),
               ],
             ),
           ],
@@ -205,33 +195,25 @@ class _CustomerTypePieChart extends StatelessWidget {
       PieChartSectionData(
         color: Colors.indigo,
         value: metrics.corporateCustomers.toDouble(),
-        title:
-            'Kurumsal\n${metrics.corporateShare.toStringAsFixed(0)}%',
+        title: 'Kurumsal\n${metrics.corporateShare.toStringAsFixed(0)}%',
         radius: 90,
-        titleStyle: Theme.of(context)
-            .textTheme
-            .bodySmall
-            ?.copyWith(color: Colors.white),
+        titleStyle: Theme.of(
+          context,
+        ).textTheme.bodySmall?.copyWith(color: Colors.white),
       ),
       PieChartSectionData(
         color: Colors.teal,
         value: metrics.individualCustomers.toDouble(),
-        title:
-            'Bireysel\n${metrics.individualShare.toStringAsFixed(0)}%',
+        title: 'Bireysel\n${metrics.individualShare.toStringAsFixed(0)}%',
         radius: 90,
-        titleStyle: Theme.of(context)
-            .textTheme
-            .bodySmall
-            ?.copyWith(color: Colors.white),
+        titleStyle: Theme.of(
+          context,
+        ).textTheme.bodySmall?.copyWith(color: Colors.white),
       ),
     ];
 
     return PieChart(
-      PieChartData(
-        sections: sections,
-        sectionsSpace: 4,
-        centerSpaceRadius: 40,
-      ),
+      PieChartData(sections: sections, sectionsSpace: 4, centerSpaceRadius: 40),
     );
   }
 }
@@ -252,7 +234,8 @@ class _NewCustomersBarChart extends StatelessWidget {
 
     return BarChart(
       BarChartData(
-        maxY: (values.isEmpty ? 0 : values.reduce((a, b) => a > b ? a : b))
+        maxY:
+            (values.isEmpty ? 0 : values.reduce((a, b) => a > b ? a : b))
                 .toDouble() +
             1,
         barGroups: [
@@ -294,9 +277,12 @@ class _NewCustomersBarChart extends StatelessWidget {
               getTitlesWidget: (value, _) => Text(value.toInt().toString()),
             ),
           ),
-          topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          rightTitles:
-              const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          topTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
+          rightTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
         ),
         gridData: FlGridData(show: true, horizontalInterval: 1),
         borderData: FlBorderData(show: false),
@@ -327,7 +313,8 @@ class _CustomerGrowthLineChart extends StatelessWidget {
     return LineChart(
       LineChartData(
         minY: 0,
-        maxY: (cumulative.isEmpty
+        maxY:
+            (cumulative.isEmpty
                     ? 0
                     : cumulative.reduce((a, b) => a > b ? a : b))
                 .toDouble() +
@@ -357,14 +344,14 @@ class _CustomerGrowthLineChart extends StatelessWidget {
               getTitlesWidget: (value, _) => Text(value.toInt().toString()),
             ),
           ),
-          topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          rightTitles:
-              const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          topTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
+          rightTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
         ),
-        gridData: FlGridData(
-          show: true,
-          horizontalInterval: 1,
-        ),
+        gridData: FlGridData(show: true, horizontalInterval: 1),
         borderData: FlBorderData(show: false),
         lineBarsData: [
           LineChartBarData(
@@ -401,12 +388,8 @@ class _RecentCustomersSection extends StatelessWidget {
       );
     }
 
-    final sorted = customers
-        .where((c) => c.createdAt != null)
-        .toList()
-      ..sort(
-        (a, b) => b.createdAt!.compareTo(a.createdAt!),
-      );
+    final sorted = customers.where((c) => c.createdAt != null).toList()
+      ..sort((a, b) => b.createdAt!.compareTo(a.createdAt!));
 
     final recent = sorted.take(5).toList();
     final dateFormat = DateFormat('dd.MM.yyyy');
@@ -426,8 +409,7 @@ class _RecentCustomersSection extends StatelessWidget {
               onTap: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(
-                    builder: (_) =>
-                        CustomerDetailPage(customerId: customer.id),
+                    builder: (_) => CustomerDetailPage(customerId: customer.id),
                   ),
                 );
               },
@@ -439,10 +421,7 @@ class _RecentCustomersSection extends StatelessWidget {
 }
 
 class _SectionCard extends StatelessWidget {
-  const _SectionCard({
-    required this.title,
-    required this.child,
-  });
+  const _SectionCard({required this.title, required this.child});
 
   final String title;
   final Widget child;
@@ -458,9 +437,9 @@ class _SectionCard extends StatelessWidget {
           children: [
             Text(
               title,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 16),
             child,

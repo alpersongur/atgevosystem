@@ -6,10 +6,7 @@ import '../../services/customer_service.dart';
 import '../services/quote_service.dart';
 
 class QuoteEditPage extends StatefulWidget {
-  const QuoteEditPage({
-    super.key,
-    this.quoteId,
-  });
+  const QuoteEditPage({super.key, this.quoteId});
 
   static const createRoute = '/crm/quotes/add';
   static const editRoute = '/crm/quotes/edit';
@@ -62,14 +59,13 @@ class _QuoteEditPageState extends State<QuoteEditPage> {
   Future<void> _loadQuote() async {
     setState(() => _isLoading = true);
     try {
-      final quote =
-          await QuoteService().getQuoteById(widget.quoteId ?? '');
+      final quote = await QuoteService().getQuoteById(widget.quoteId ?? '');
       if (!mounted) return;
 
       if (quote == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Teklif bulunamadı.')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Teklif bulunamadı.')));
         Navigator.of(context).pop();
         return;
       }
@@ -83,8 +79,9 @@ class _QuoteEditPageState extends State<QuoteEditPage> {
       _selectedCurrency = quote.currency;
       _validUntil = quote.validUntil;
       if (_validUntil != null) {
-        _validUntilController.text =
-            DateFormat('dd.MM.yyyy').format(_validUntil!);
+        _validUntilController.text = DateFormat(
+          'dd.MM.yyyy',
+        ).format(_validUntil!);
       }
     } catch (error) {
       if (!mounted) return;
@@ -117,8 +114,7 @@ class _QuoteEditPageState extends State<QuoteEditPage> {
     if (picked != null) {
       setState(() {
         _validUntil = picked;
-        _validUntilController.text =
-            DateFormat('dd.MM.yyyy').format(picked);
+        _validUntilController.text = DateFormat('dd.MM.yyyy').format(picked);
       });
     }
   }
@@ -128,18 +124,16 @@ class _QuoteEditPageState extends State<QuoteEditPage> {
     if (form == null) return;
     if (!form.validate()) return;
     if (_selectedCustomerId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Lütfen müşteri seçin.')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Lütfen müşteri seçin.')));
       return;
     }
 
     setState(() => _isSaving = true);
 
-    final amount = double.tryParse(
-          _amountController.text.replaceAll(',', '.'),
-        ) ??
-        0;
+    final amount =
+        double.tryParse(_amountController.text.replaceAll(',', '.')) ?? 0;
 
     final payload = <String, dynamic>{
       'customer_id': _selectedCustomerId,
@@ -161,9 +155,9 @@ class _QuoteEditPageState extends State<QuoteEditPage> {
         await QuoteService().addQuote(payload);
       }
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Teklif kaydedildi')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Teklif kaydedildi')));
       Navigator.of(context).pop(true);
     } catch (error) {
       if (!mounted) return;
@@ -225,10 +219,13 @@ class _QuoteEditPageState extends State<QuoteEditPage> {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         DropdownButtonFormField<String>(
-                          key: ValueKey('customer-${_selectedCustomerId ?? ''}'),
+                          key: ValueKey(
+                            'customer-${_selectedCustomerId ?? ''}',
+                          ),
                           initialValue: _selectedCustomerId,
-                          decoration:
-                              const InputDecoration(labelText: 'Müşteri'),
+                          decoration: const InputDecoration(
+                            labelText: 'Müşteri',
+                          ),
                           items: customers
                               .map(
                                 (customer) => DropdownMenuItem(
@@ -257,8 +254,9 @@ class _QuoteEditPageState extends State<QuoteEditPage> {
                         const SizedBox(height: 16),
                         TextFormField(
                           controller: _titleController,
-                          decoration:
-                              const InputDecoration(labelText: 'Başlık'),
+                          decoration: const InputDecoration(
+                            labelText: 'Başlık',
+                          ),
                           textInputAction: TextInputAction.next,
                           validator: (value) {
                             if (value == null || value.trim().isEmpty) {
@@ -274,16 +272,18 @@ class _QuoteEditPageState extends State<QuoteEditPage> {
                             labelText: 'Tutar',
                             prefixIcon: Icon(Icons.numbers_outlined),
                           ),
-                          keyboardType:
-                              const TextInputType.numberWithOptions(decimal: true),
+                          keyboardType: const TextInputType.numberWithOptions(
+                            decimal: true,
+                          ),
                           textInputAction: TextInputAction.next,
                           validator: (value) {
                             final text = value?.trim() ?? '';
                             if (text.isEmpty) {
                               return 'Tutar zorunludur';
                             }
-                            final parsed =
-                                double.tryParse(text.replaceAll(',', '.'));
+                            final parsed = double.tryParse(
+                              text.replaceAll(',', '.'),
+                            );
                             if (parsed == null || parsed < 0) {
                               return 'Geçerli bir tutar girin';
                             }
@@ -294,21 +294,13 @@ class _QuoteEditPageState extends State<QuoteEditPage> {
                         DropdownButtonFormField<String>(
                           key: ValueKey('currency-$_selectedCurrency'),
                           initialValue: _selectedCurrency,
-                          decoration:
-                              const InputDecoration(labelText: 'Para Birimi'),
+                          decoration: const InputDecoration(
+                            labelText: 'Para Birimi',
+                          ),
                           items: const [
-                            DropdownMenuItem(
-                              value: 'TRY',
-                              child: Text('TRY'),
-                            ),
-                            DropdownMenuItem(
-                              value: 'USD',
-                              child: Text('USD'),
-                            ),
-                            DropdownMenuItem(
-                              value: 'EUR',
-                              child: Text('EUR'),
-                            ),
+                            DropdownMenuItem(value: 'TRY', child: Text('TRY')),
+                            DropdownMenuItem(value: 'USD', child: Text('USD')),
+                            DropdownMenuItem(value: 'EUR', child: Text('EUR')),
                           ],
                           onChanged: (value) {
                             if (value != null) {
@@ -320,8 +312,7 @@ class _QuoteEditPageState extends State<QuoteEditPage> {
                         DropdownButtonFormField<String>(
                           key: ValueKey('status-$_selectedStatus'),
                           initialValue: _selectedStatus,
-                          decoration:
-                              const InputDecoration(labelText: 'Durum'),
+                          decoration: const InputDecoration(labelText: 'Durum'),
                           items: const [
                             DropdownMenuItem(
                               value: 'pending',
@@ -362,8 +353,9 @@ class _QuoteEditPageState extends State<QuoteEditPage> {
                         const SizedBox(height: 16),
                         TextFormField(
                           controller: _notesController,
-                          decoration:
-                              const InputDecoration(labelText: 'Notlar'),
+                          decoration: const InputDecoration(
+                            labelText: 'Notlar',
+                          ),
                           textInputAction: TextInputAction.newline,
                           maxLines: 4,
                         ),
@@ -374,8 +366,9 @@ class _QuoteEditPageState extends State<QuoteEditPage> {
                               ? const SizedBox(
                                   width: 20,
                                   height: 20,
-                                  child:
-                                      CircularProgressIndicator(strokeWidth: 2),
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
                                 )
                               : const Text('Kaydet'),
                         ),

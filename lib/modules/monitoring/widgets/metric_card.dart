@@ -23,9 +23,7 @@ class MetricCard extends StatelessWidget {
         ? warningValue! >= threshold!
         : false;
 
-    final color = warning
-        ? Colors.redAccent
-        : theme.colorScheme.primary;
+    final color = warning ? Colors.redAccent : theme.colorScheme.primary;
 
     return Card(
       child: Padding(

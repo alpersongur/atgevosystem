@@ -18,8 +18,9 @@ class ProductionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dateFormat = DateFormat('dd.MM.yyyy');
-    final startText =
-        order.startDate != null ? dateFormat.format(order.startDate!) : '—';
+    final startText = order.startDate != null
+        ? dateFormat.format(order.startDate!)
+        : '—';
     final etaText = order.estimatedCompletion != null
         ? dateFormat.format(order.estimatedCompletion!)
         : '—';
@@ -44,14 +45,9 @@ class ProductionCard extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(
                       'Durum: ${_statusLabel(order.status)}',
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodyMedium
-                          ?.copyWith(
-                            color: Theme.of(context)
-                                .colorScheme
-                                .onSurfaceVariant,
-                          ),
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
                     ),
                     const SizedBox(height: 8),
                     Wrap(
@@ -97,9 +93,9 @@ class ProductionStatusChip extends StatelessWidget {
       child: Text(
         info.label,
         style: Theme.of(context).textTheme.labelSmall?.copyWith(
-              color: info.foreground,
-              fontWeight: FontWeight.w600,
-            ),
+          color: info.foreground,
+          fontWeight: FontWeight.w600,
+        ),
       ),
     );
   }

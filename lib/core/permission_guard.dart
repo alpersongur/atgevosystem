@@ -16,8 +16,7 @@ class PermissionGuard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final hasPermission =
-        PermissionService.instance.can(module, action);
+    final hasPermission = PermissionService.instance.can(module, action);
 
     if (!hasPermission) {
       return const SizedBox.shrink();

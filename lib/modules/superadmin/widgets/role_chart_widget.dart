@@ -2,10 +2,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
 class RoleChartWidget extends StatelessWidget {
-  const RoleChartWidget({
-    super.key,
-    required this.roleDistribution,
-  });
+  const RoleChartWidget({super.key, required this.roleDistribution});
 
   final Map<String, int> roleDistribution;
 
@@ -20,7 +17,10 @@ class RoleChartWidget extends StatelessWidget {
       );
     }
 
-    final total = roleDistribution.values.fold<int>(0, (acc, value) => acc + value);
+    final total = roleDistribution.values.fold<int>(
+      0,
+      (acc, value) => acc + value,
+    );
     final colors = [
       Colors.indigo,
       Colors.teal,

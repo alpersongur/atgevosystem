@@ -52,14 +52,12 @@ class NotificationListPage extends StatelessWidget {
           }
           final items = snapshot.data ?? const <SystemNotification>[];
           if (items.isEmpty) {
-            return const Center(
-              child: Text('Yeni bildirim yok.'),
-            );
+            return const Center(child: Text('Yeni bildirim yok.'));
           }
           return ListView.separated(
             padding: const EdgeInsets.all(16),
             itemCount: items.length,
-            separatorBuilder: (_, __) => const Divider(height: 1),
+            separatorBuilder: (context, _) => const Divider(height: 1),
             itemBuilder: (context, index) {
               final notification = items[index];
               final isUnread = !notification.read;
@@ -71,8 +69,8 @@ class NotificationListPage extends StatelessWidget {
                 title: Text(
                   notification.title,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: isUnread ? FontWeight.bold : FontWeight.w500,
-                      ),
+                    fontWeight: isUnread ? FontWeight.bold : FontWeight.w500,
+                  ),
                 ),
                 subtitle: Text(notification.message),
                 trailing: isUnread
@@ -90,8 +88,9 @@ class NotificationListPage extends StatelessWidget {
                   if (notification.target.isEmpty) return;
                   if (!context.mounted) return;
                   try {
-                    await Navigator.of(context)
-                        .pushNamed(notification.target.trim());
+                    await Navigator.of(
+                      context,
+                    ).pushNamed(notification.target.trim());
                   } catch (_) {
                     if (!context.mounted) return;
                     ScaffoldMessenger.of(context).showSnackBar(

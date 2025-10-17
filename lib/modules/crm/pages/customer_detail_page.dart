@@ -7,12 +7,9 @@ import 'customer_edit_page.dart';
 import '../../../services/auth_service.dart';
 
 class CustomerDetailPage extends StatelessWidget {
-  CustomerDetailPage({
-    super.key,
-    this.customer,
-    String? customerId,
-  })  : customerId = customer?.id ?? customerId,
-        _customerFuture = _resolveCustomer(customer, customerId);
+  CustomerDetailPage({super.key, this.customer, String? customerId})
+    : customerId = customer?.id ?? customerId,
+      _customerFuture = _resolveCustomer(customer, customerId);
 
   static const routeName = '/crm/customers/detail';
 
@@ -34,9 +31,7 @@ class CustomerDetailPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Müşteri Detayı'),
-      ),
+      appBar: AppBar(title: const Text('Müşteri Detayı')),
       body: FutureBuilder<CustomerModel?>(
         future: _customerFuture,
         builder: (context, snapshot) {
@@ -97,10 +92,7 @@ class _CustomerDetailContent extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _DetailRow(
-                    label: 'Şirket Adı',
-                    value: customer.companyName,
-                  ),
+                  _DetailRow(label: 'Şirket Adı', value: customer.companyName),
                   _DetailRow(
                     label: 'Yetkili Kişi',
                     value: _displayValue(customer.contactPerson),
@@ -134,17 +126,15 @@ class _CustomerDetailContent extends StatelessWidget {
                   const SizedBox(height: 12),
                   Text(
                     'Oluşturulma: $createdAt',
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodySmall
-                        ?.copyWith(color: Colors.grey[600]),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
                   ),
                   Text(
                     'Son Güncelleme: $updatedAt',
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodySmall
-                        ?.copyWith(color: Colors.grey[600]),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
                   ),
                 ],
               ),
@@ -183,19 +173,20 @@ class _CustomerDetailContent extends StatelessWidget {
   void _handleEdit(BuildContext context) {
     Navigator.of(context)
         .push<bool>(
-      MaterialPageRoute(
-        builder: (_) => CustomerEditPage(customerId: customer.id),
-      ),
-    )
+          MaterialPageRoute(
+            builder: (_) => CustomerEditPage(customerId: customer.id),
+          ),
+        )
         .then((updated) {
-      if (updated == true && context.mounted) {
-        Navigator.of(context).pop(true);
-      }
-    });
+          if (updated == true && context.mounted) {
+            Navigator.of(context).pop(true);
+          }
+        });
   }
 
   Future<void> _handleDelete(BuildContext context) async {
-    final confirmed = await showDialog<bool>(
+    final confirmed =
+        await showDialog<bool>(
           context: context,
           builder: (ctx) => AlertDialog(
             title: const Text('Müşteri Sil'),
@@ -257,24 +248,22 @@ class _DetailRow extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
-        crossAxisAlignment:
-            multiline ? CrossAxisAlignment.start : CrossAxisAlignment.center,
+        crossAxisAlignment: multiline
+            ? CrossAxisAlignment.start
+            : CrossAxisAlignment.center,
         children: [
           SizedBox(
             width: 140,
             child: Text(
               label,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
             ),
           ),
           const SizedBox(width: 12),
           Expanded(
-            child: Text(
-              value,
-              style: Theme.of(context).textTheme.bodyLarge,
-            ),
+            child: Text(value, style: Theme.of(context).textTheme.bodyLarge),
           ),
         ],
       ),

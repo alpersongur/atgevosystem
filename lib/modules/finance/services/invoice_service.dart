@@ -1,8 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import 'package:atgevosystem/core/utils/timestamp_helper.dart';
+
 import '../models/invoice_model.dart';
 
-class InvoiceService {
+class InvoiceService with FirestoreTimestamps {
   InvoiceService._(this._firestore);
 
   factory InvoiceService({FirebaseFirestore? firestore}) {
@@ -46,16 +48,13 @@ class InvoiceService {
   }
 
   Future<String> addInvoice(Map<String, dynamic> data) async {
-    final payload = Map<String, dynamic>.from(data)
-      ..['created_at'] = FieldValue.serverTimestamp()
-      ..['updated_at'] = FieldValue.serverTimestamp();
+    final payload = withCreateTimestamps(data);
     final docRef = await _collection.add(payload);
     return docRef.id;
   }
 
   Future<void> updateInvoice(String id, Map<String, dynamic> data) {
-    final payload = Map<String, dynamic>.from(data)
-      ..['updated_at'] = FieldValue.serverTimestamp();
+    final payload = withUpdateTimestamp(data);
     return _collection.doc(id).update(payload);
   }
 
@@ -64,16 +63,12 @@ class InvoiceService {
   }
 
   Future<void> markStatus(String id, String status) {
-    return _collection.doc(id).update({
-      'status': status,
-      'updated_at': FieldValue.serverTimestamp(),
-    });
+    return _collection.doc(id).update(withUpdateTimestamp({'status': status}));
   }
 
   Future<void> attachPdf(String id, String url) {
-    return _collection.doc(id).update({
-      'attachment_url': url,
-      'updated_at': FieldValue.serverTimestamp(),
-    });
+    return _collection
+        .doc(id)
+        .update(withUpdateTimestamp({'attachment_url': url}));
   }
 }

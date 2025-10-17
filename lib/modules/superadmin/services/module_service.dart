@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class ModuleService {
+import 'package:atgevosystem/core/utils/timestamp_helper.dart';
+
+class ModuleService with FirestoreTimestamps {
   ModuleService._();
 
   static final ModuleService instance = ModuleService._();
@@ -13,17 +15,13 @@ class ModuleService {
   }
 
   Future<void> updateModuleStatus(String moduleId, bool active) {
-    return _modulesCollection.doc(moduleId).update({
-      'active': active,
-      'updated_at': FieldValue.serverTimestamp(),
-    });
+    return _modulesCollection
+        .doc(moduleId)
+        .update(withUpdateTimestamp({'active': active}));
   }
 
   Future<void> addModule(Map<String, dynamic> moduleData) {
-    return _modulesCollection.add({
-      ...moduleData,
-      'created_at': FieldValue.serverTimestamp(),
-      'active': moduleData['active'] ?? true,
-    });
+    final payload = {...moduleData, 'active': moduleData['active'] ?? true};
+    return _modulesCollection.add(withCreateTimestamps(payload));
   }
 }

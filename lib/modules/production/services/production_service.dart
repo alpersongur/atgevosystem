@@ -1,8 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import 'package:atgevosystem/core/utils/timestamp_helper.dart';
+
 import '../models/production_order_model.dart';
 
-class ProductionService {
+class ProductionService with FirestoreTimestamps {
   ProductionService._(this._firestore);
 
   factory ProductionService({FirebaseFirestore? firestore}) {
@@ -12,8 +14,9 @@ class ProductionService {
     return ProductionService._(firestore);
   }
 
-  static final ProductionService instance =
-      ProductionService._(FirebaseFirestore.instance);
+  static final ProductionService instance = ProductionService._(
+    FirebaseFirestore.instance,
+  );
 
   final FirebaseFirestore _firestore;
 
@@ -21,18 +24,14 @@ class ProductionService {
       _firestore.collection('production_orders');
 
   Future<String> addOrder(Map<String, dynamic> data) async {
-    final payload = Map<String, dynamic>.from(data);
-    payload['created_at'] = FieldValue.serverTimestamp();
-    payload['updated_at'] = FieldValue.serverTimestamp();
+    final payload = withCreateTimestamps(data);
     final docRef = await _collection.add(payload);
     return docRef.id;
   }
 
   Future<void> updateOrderStatus(String id, String newStatus) {
-    return _collection.doc(id).update({
-      'status': newStatus,
-      'updated_at': FieldValue.serverTimestamp(),
-    });
+    final payload = withUpdateTimestamp({'status': newStatus});
+    return _collection.doc(id).update(payload);
   }
 
   Stream<List<ProductionOrderModel>> getOrdersStream() {

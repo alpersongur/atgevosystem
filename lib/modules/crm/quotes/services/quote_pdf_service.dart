@@ -54,8 +54,10 @@ class QuotePdfService {
     required DateTime createdAt,
   }) async {
     final doc = pw.Document();
-    final currencyFormat =
-        NumberFormat.currency(symbol: 'TL', decimalDigits: 2);
+    final currencyFormat = NumberFormat.currency(
+      symbol: 'TL',
+      decimalDigits: 2,
+    );
     final dateFormat = DateFormat('dd.MM.yyyy');
 
     final customerName = customer['name'] as String? ?? 'Müşteri';
@@ -63,16 +65,10 @@ class QuotePdfService {
     final customerPhone = customer['phone'] as String? ?? '-';
     final customerAddress = customer['address'] as String? ?? '-';
 
-    final tableHeaders = <String>[
-      'Ürün',
-      'Adet',
-      'Birim Fiyat',
-      'Ara Toplam',
-    ];
+    final tableHeaders = <String>['Ürün', 'Adet', 'Birim Fiyat', 'Ara Toplam'];
 
     final tableData = products.map((product) {
-      final quantity =
-          (product['quantity'] as num?)?.toDouble() ?? 0;
+      final quantity = (product['quantity'] as num?)?.toDouble() ?? 0;
       final price = (product['price'] as num?)?.toDouble() ?? 0;
       final lineTotal = quantity * price;
 
@@ -168,12 +164,30 @@ class QuotePdfService {
             style: pw.TextStyle(font: bold, fontSize: 14),
           ),
           pw.SizedBox(height: 8),
-          pw.Text('Şirket: ${customer.companyName}', style: pw.TextStyle(font: regular)),
-          pw.Text('Yetkili: ${customer.contactPerson ?? '-'}', style: pw.TextStyle(font: regular)),
-          pw.Text('E-posta: ${customer.email ?? '-'}', style: pw.TextStyle(font: regular)),
-          pw.Text('Telefon: ${customer.phone ?? '-'}', style: pw.TextStyle(font: regular)),
-          pw.Text('Adres: ${customer.address ?? '-'}', style: pw.TextStyle(font: regular)),
-          pw.Text('Şehir: ${customer.city ?? '-'}', style: pw.TextStyle(font: regular)),
+          pw.Text(
+            'Şirket: ${customer.companyName}',
+            style: pw.TextStyle(font: regular),
+          ),
+          pw.Text(
+            'Yetkili: ${customer.contactPerson ?? '-'}',
+            style: pw.TextStyle(font: regular),
+          ),
+          pw.Text(
+            'E-posta: ${customer.email ?? '-'}',
+            style: pw.TextStyle(font: regular),
+          ),
+          pw.Text(
+            'Telefon: ${customer.phone ?? '-'}',
+            style: pw.TextStyle(font: regular),
+          ),
+          pw.Text(
+            'Adres: ${customer.address ?? '-'}',
+            style: pw.TextStyle(font: regular),
+          ),
+          pw.Text(
+            'Şehir: ${customer.city ?? '-'}',
+            style: pw.TextStyle(font: regular),
+          ),
         ],
       ),
     );
@@ -219,10 +233,7 @@ class QuotePdfService {
           ),
           if ((quote.notes ?? '').isNotEmpty) ...[
             pw.SizedBox(height: 12),
-            pw.Text(
-              'Notlar',
-              style: pw.TextStyle(font: bold, fontSize: 12),
-            ),
+            pw.Text('Notlar', style: pw.TextStyle(font: bold, fontSize: 12)),
             pw.SizedBox(height: 4),
             pw.Text(
               quote.notes!,
@@ -289,15 +300,9 @@ class QuotePdfService {
       children: [
         pw.Text(
           'ATG ERP Sistemleri',
-          style: pw.TextStyle(
-            fontSize: 22,
-            fontWeight: pw.FontWeight.bold,
-          ),
+          style: pw.TextStyle(fontSize: 22, fontWeight: pw.FontWeight.bold),
         ),
-        pw.Text(
-          'Teklif Dokümanı',
-          style: pw.TextStyle(fontSize: 16),
-        ),
+        pw.Text('Teklif Dokümanı', style: pw.TextStyle(fontSize: 16)),
         pw.SizedBox(height: 8),
         pw.Text('Teklif No: $quoteId'),
         pw.Text('Oluşturma Tarihi: ${dateFormat.format(createdAt)}'),
@@ -323,10 +328,7 @@ class QuotePdfService {
         children: [
           pw.Text(
             'Müşteri Bilgileri',
-            style: pw.TextStyle(
-              fontSize: 14,
-              fontWeight: pw.FontWeight.bold,
-            ),
+            style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold),
           ),
           pw.SizedBox(height: 8),
           pw.Text('Ad Soyad: $customerName'),
@@ -338,28 +340,15 @@ class QuotePdfService {
     );
   }
 
-  pw.Widget _legacyItemsTable(
-    List<String> headers,
-    List<List<String>> data,
-  ) {
+  pw.Widget _legacyItemsTable(List<String> headers, List<List<String>> data) {
     return pw.TableHelper.fromTextArray(
       headers: headers,
       data: data,
-      headerStyle: pw.TextStyle(
-        fontWeight: pw.FontWeight.bold,
-      ),
-      headerDecoration: const pw.BoxDecoration(
-        color: PdfColors.grey300,
-      ),
-      border: pw.TableBorder.all(
-        color: PdfColors.grey300,
-        width: 0.5,
-      ),
+      headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+      headerDecoration: const pw.BoxDecoration(color: PdfColors.grey300),
+      border: pw.TableBorder.all(color: PdfColors.grey300, width: 0.5),
       cellAlignment: pw.Alignment.centerLeft,
-      cellPadding: const pw.EdgeInsets.symmetric(
-        vertical: 8,
-        horizontal: 4,
-      ),
+      cellPadding: const pw.EdgeInsets.symmetric(vertical: 8, horizontal: 4),
     );
   }
 
@@ -373,10 +362,7 @@ class QuotePdfService {
         ),
         child: pw.Text(
           'Genel Toplam: ${currencyFormat.format(total)}',
-          style: pw.TextStyle(
-            fontSize: 14,
-            fontWeight: pw.FontWeight.bold,
-          ),
+          style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold),
         ),
       ),
     );
@@ -390,10 +376,7 @@ class QuotePdfService {
         pw.SizedBox(height: 40),
         pw.SizedBox(
           width: 150,
-          child: pw.Divider(
-            color: PdfColors.grey400,
-            thickness: 1,
-          ),
+          child: pw.Divider(color: PdfColors.grey400, thickness: 1),
         ),
       ],
     );

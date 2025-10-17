@@ -3,12 +3,7 @@ import 'package:flutter/material.dart';
 import '../models/inventory_item_model.dart';
 
 class InventoryCard extends StatelessWidget {
-  const InventoryCard({
-    super.key,
-    required this.item,
-    this.onTap,
-    this.onEdit,
-  });
+  const InventoryCard({super.key, required this.item, this.onTap, this.onEdit});
 
   final InventoryItemModel item;
   final VoidCallback? onTap;
@@ -103,9 +98,9 @@ class _StatusChip extends StatelessWidget {
       child: Text(
         info.label,
         style: Theme.of(context).textTheme.labelSmall?.copyWith(
-              color: info.foreground,
-              fontWeight: FontWeight.w600,
-            ),
+          color: info.foreground,
+          fontWeight: FontWeight.w600,
+        ),
       ),
     );
   }

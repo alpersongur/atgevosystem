@@ -2,10 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class LogsWidget extends StatelessWidget {
-  const LogsWidget({
-    super.key,
-    required this.stream,
-  });
+  const LogsWidget({super.key, required this.stream});
 
   final Stream<QuerySnapshot<Map<String, dynamic>>> stream;
 
@@ -55,7 +52,8 @@ class LogsWidget extends StatelessWidget {
                 const SizedBox(height: 16),
                 ...docs.map((doc) {
                   final data = doc.data();
-                  final message = data['message'] as String? ?? 'Log mesajı yok';
+                  final message =
+                      data['message'] as String? ?? 'Log mesajı yok';
                   final timestamp = data['timestamp'];
                   DateTime? time;
                   if (timestamp is Timestamp) {
@@ -69,7 +67,7 @@ class LogsWidget extends StatelessWidget {
                     title: Text(message),
                     subtitle: Text(formatted),
                   );
-                })
+                }),
               ],
             ),
           ),

@@ -19,9 +19,7 @@ class ProductionDashboardPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Üretim Takip Paneli'),
-      ),
+      appBar: AppBar(title: const Text('Üretim Takip Paneli')),
       body: StreamBuilder<List<ProductionOrderModel>>(
         stream: ProductionService.instance.getOrdersStream(),
         builder: (context, snapshot) {
@@ -52,8 +50,8 @@ class ProductionDashboardPage extends StatelessWidget {
                 Text(
                   'Üretim Takip Paneli',
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 const SizedBox(height: 24),
                 _StatusSummary(metrics: metrics),
@@ -116,10 +114,10 @@ class _StatusSummary extends StatelessWidget {
         final cardsPerRow = maxWidth > 1100
             ? 5
             : maxWidth > 900
-                ? 4
-                : maxWidth > 600
-                    ? 3
-                    : 2;
+            ? 4
+            : maxWidth > 600
+            ? 3
+            : 2;
         final cardWidth = (maxWidth - (16 * (cardsPerRow - 1))) / cardsPerRow;
 
         return Wrap(
@@ -127,10 +125,8 @@ class _StatusSummary extends StatelessWidget {
           runSpacing: 16,
           children: cards
               .map(
-                (card) => SizedBox(
-                  width: cardWidth.clamp(200, 280),
-                  child: card,
-                ),
+                (card) =>
+                    SizedBox(width: cardWidth.clamp(200, 280), child: card),
               )
               .toList(),
         );
@@ -171,9 +167,7 @@ class _ChartSection extends StatelessWidget {
           ),
         ];
 
-        return isWide
-            ? Row(children: children)
-            : Column(children: children);
+        return isWide ? Row(children: children) : Column(children: children);
       },
     );
   }
@@ -220,11 +214,7 @@ class _StatusPieChart extends StatelessWidget {
     ].where((section) => section.value > 0).toList();
 
     return PieChart(
-      PieChartData(
-        sections: sections,
-        sectionsSpace: 2,
-        centerSpaceRadius: 32,
-      ),
+      PieChartData(sections: sections, sectionsSpace: 2, centerSpaceRadius: 32),
     );
   }
 
@@ -263,8 +253,16 @@ class _CompletionBarChart extends StatelessWidget {
     return BarChart(
       BarChartData(
         groupsSpace: 16,
-        maxY: (bars.map((e) => e.completed > e.inProgress ? e.completed : e.inProgress)
-                    .fold<int>(0, (prev, element) => element > prev ? element : prev)
+        maxY:
+            (bars
+                .map(
+                  (e) =>
+                      e.completed > e.inProgress ? e.completed : e.inProgress,
+                )
+                .fold<int>(
+                  0,
+                  (prev, element) => element > prev ? element : prev,
+                )
                 .toDouble()) +
             1,
         titlesData: FlTitlesData(
@@ -291,10 +289,12 @@ class _CompletionBarChart extends StatelessWidget {
               getTitlesWidget: (value, _) => Text(value.toInt().toString()),
             ),
           ),
-          rightTitles:
-              const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          topTitles:
-              const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          rightTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
+          topTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
         ),
         barGroups: [
           for (var i = 0; i < bars.length; i++)
@@ -342,8 +342,9 @@ class _RecentOrdersSection extends StatelessWidget {
 
     final sorted = List.of(orders)
       ..sort(
-        (a, b) => (b.updatedAt ?? b.createdAt ?? DateTime.now())
-            .compareTo(a.updatedAt ?? a.createdAt ?? DateTime.now()),
+        (a, b) => (b.updatedAt ?? b.createdAt ?? DateTime.now()).compareTo(
+          a.updatedAt ?? a.createdAt ?? DateTime.now(),
+        ),
       );
     final recent = sorted.take(10).toList(growable: false);
 
@@ -371,9 +372,7 @@ class _RecentOrdersSection extends StatelessWidget {
                   for (final order in recent)
                     ListTile(
                       leading: ProductionStatusChip(status: order.status),
-                      title: Text(
-                        quoteMap[order.quoteId] ?? order.quoteId,
-                      ),
+                      title: Text(quoteMap[order.quoteId] ?? order.quoteId),
                       subtitle: Text(
                         '${customerMap[order.customerId] ?? 'Müşteri'} • ${dateFormat.format(order.updatedAt ?? order.createdAt ?? DateTime.now())}',
                       ),
@@ -422,17 +421,17 @@ class _SummaryCard extends StatelessWidget {
             Text(
               label,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: accent,
-                    fontWeight: FontWeight.w600,
-                  ),
+                color: accent,
+                fontWeight: FontWeight.w600,
+              ),
             ),
             const SizedBox(height: 12),
             Text(
               value,
               style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                    color: accent,
-                    fontWeight: FontWeight.bold,
-                  ),
+                color: accent,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ],
         ),
@@ -457,9 +456,9 @@ class _SectionCard extends StatelessWidget {
           children: [
             Text(
               title,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 16),
             child,
@@ -494,11 +493,16 @@ class _DashboardMetrics {
     final weekStart = DateTime(now.year, now.month, now.day - now.weekday + 1);
     final trendBuckets = List.generate(
       7,
-      (index) => DateTime(weekStart.year, weekStart.month, weekStart.day + index),
+      (index) =>
+          DateTime(weekStart.year, weekStart.month, weekStart.day + index),
     );
     final trendData = [
       for (final day in trendBuckets)
-        _TrendPoint(label: DateFormat('E', 'tr_TR').format(day), completed: 0, inProgress: 0),
+        _TrendPoint(
+          label: DateFormat('E', 'tr_TR').format(day),
+          completed: 0,
+          inProgress: 0,
+        ),
     ];
 
     for (final order in orders) {
@@ -554,8 +558,8 @@ class _TrendPoint {
   final int inProgress;
 
   _TrendPoint copyWith({int? completed, int? inProgress}) => _TrendPoint(
-        label: label,
-        completed: completed ?? this.completed,
-        inProgress: inProgress ?? this.inProgress,
-      );
+    label: label,
+    completed: completed ?? this.completed,
+    inProgress: inProgress ?? this.inProgress,
+  );
 }

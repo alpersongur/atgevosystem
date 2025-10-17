@@ -41,16 +41,15 @@ class ShipmentCard extends StatelessWidget {
                     Text(
                       shipment.shipmentNo,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.w600,
-                          ),
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       customerName ?? 'Müşteri: ${shipment.customerId}',
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodySmall
-                          ?.copyWith(color: Colors.grey.shade700),
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Colors.grey.shade700,
+                      ),
                     ),
                     const SizedBox(height: 8),
                     Wrap(
@@ -58,7 +57,9 @@ class ShipmentCard extends StatelessWidget {
                       crossAxisAlignment: WrapCrossAlignment.center,
                       children: [
                         ShipmentStatusChip(status: shipment.status),
-                        Text('Taşıyıcı: ${shipment.carrier.isEmpty ? '-' : shipment.carrier}'),
+                        Text(
+                          'Taşıyıcı: ${shipment.carrier.isEmpty ? '-' : shipment.carrier}',
+                        ),
                         Text('Çıkış: $departureText'),
                       ],
                     ),

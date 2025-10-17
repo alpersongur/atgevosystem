@@ -18,9 +18,7 @@ class InventoryDetailPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Envanter Detayı'),
-      ),
+      appBar: AppBar(title: const Text('Envanter Detayı')),
       body: StreamBuilder<InventoryItemModel?>(
         stream: InventoryService.instance.watchItem(itemId),
         builder: (context, snapshot) {
@@ -143,31 +141,26 @@ class _InventoryDetailContent extends StatelessWidget {
     if (amount == null) return;
 
     try {
-      await InventoryService.instance.adjustStock(
-        item.id,
-        amount,
-        operation,
-      );
+      await InventoryService.instance.adjustStock(item.id, amount, operation);
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            operation == 'increase'
-                ? 'Stok arttırıldı.'
-                : 'Stok azaltıldı.',
+            operation == 'increase' ? 'Stok arttırıldı.' : 'Stok azaltıldı.',
           ),
         ),
       );
     } catch (error) {
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Stok güncellenemedi: $error')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Stok güncellenemedi: $error')));
     }
   }
 
   Future<void> _deleteItem(BuildContext context) async {
-    final confirm = await showDialog<bool>(
+    final confirm =
+        await showDialog<bool>(
           context: context,
           builder: (ctx) => AlertDialog(
             title: const Text('Envanter Kaydını Sil'),
@@ -194,23 +187,20 @@ class _InventoryDetailContent extends StatelessWidget {
       await InventoryService.instance.deleteItem(item.id);
       if (!context.mounted) return;
       Navigator.of(context).pop();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Envanter kaydı silindi.')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Envanter kaydı silindi.')));
     } catch (error) {
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Silme işlemi başarısız: $error')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Silme işlemi başarısız: $error')));
     }
   }
 }
 
 class _DetailRow extends StatelessWidget {
-  const _DetailRow({
-    required this.label,
-    required this.value,
-  });
+  const _DetailRow({required this.label, required this.value});
 
   final String label;
   final String value;
@@ -226,17 +216,14 @@ class _DetailRow extends StatelessWidget {
             width: 140,
             child: Text(
               label,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
             ),
           ),
           const SizedBox(width: 12),
           Expanded(
-            child: Text(
-              value,
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
+            child: Text(value, style: Theme.of(context).textTheme.bodyMedium),
           ),
         ],
       ),

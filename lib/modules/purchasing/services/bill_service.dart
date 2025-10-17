@@ -1,8 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import 'package:atgevosystem/core/utils/timestamp_helper.dart';
+
 import '../models/bill_model.dart';
 
-class BillService {
+class BillService with FirestoreTimestamps {
   BillService._(this._firestore);
 
   factory BillService({FirebaseFirestore? firestore}) {
@@ -44,16 +46,13 @@ class BillService {
   }
 
   Future<String> addBill(Map<String, dynamic> data) async {
-    final payload = Map<String, dynamic>.from(data)
-      ..['created_at'] = FieldValue.serverTimestamp()
-      ..['updated_at'] = FieldValue.serverTimestamp();
+    final payload = withCreateTimestamps(data);
     final ref = await _collection.add(payload);
     return ref.id;
   }
 
   Future<void> updateBill(String id, Map<String, dynamic> data) {
-    final payload = Map<String, dynamic>.from(data)
-      ..['updated_at'] = FieldValue.serverTimestamp();
+    final payload = withUpdateTimestamp(data);
     return _collection.doc(id).update(payload);
   }
 
@@ -62,9 +61,6 @@ class BillService {
   }
 
   Future<void> markBillStatus(String id, String status) {
-    return _collection.doc(id).update({
-      'status': status,
-      'updated_at': FieldValue.serverTimestamp(),
-    });
+    return _collection.doc(id).update(withUpdateTimestamp({'status': status}));
   }
 }

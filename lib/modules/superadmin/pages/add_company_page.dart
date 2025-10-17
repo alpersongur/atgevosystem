@@ -45,7 +45,9 @@ class _AddCompanyPageState extends State<AddCompanyPage> {
           .map((entry) => entry.key)
           .toList();
 
-      await FirebaseProjectService.instance.createFirebaseProject(_nameController.text.trim());
+      await FirebaseProjectService.instance.createFirebaseProject(
+        _nameController.text.trim(),
+      );
 
       if (!mounted) return;
       Navigator.of(context).pop({
@@ -54,13 +56,13 @@ class _AddCompanyPageState extends State<AddCompanyPage> {
         'modules': selectedModules,
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Şirket oluşturma talebi gönderildi.')),  
+        const SnackBar(content: Text('Şirket oluşturma talebi gönderildi.')),
       );
     } catch (error) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Şirket oluşturulamadı: $error')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Şirket oluşturulamadı: $error')));
     } finally {
       if (mounted) {
         setState(() => _isSubmitting = false);
@@ -71,9 +73,7 @@ class _AddCompanyPageState extends State<AddCompanyPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Yeni Şirket'),
-      ),
+      appBar: AppBar(title: const Text('Yeni Şirket')),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16),
@@ -135,7 +135,7 @@ class _AddCompanyPageState extends State<AddCompanyPage> {
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
                       : const Text('Oluştur'),
-                )
+                ),
               ],
             ),
           ),

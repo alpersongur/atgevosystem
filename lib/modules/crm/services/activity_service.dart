@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class ActivityService {
+import 'package:atgevosystem/core/utils/timestamp_helper.dart';
+
+class ActivityService with FirestoreTimestamps {
   ActivityService._();
 
   static final ActivityService instance = ActivityService._();
@@ -21,12 +23,10 @@ class ActivityService {
       throw ArgumentError('type alanı zorunludur');
     }
 
-    final payload = <String, dynamic>{
+    final payload = withCreateTimestamps({
       ...data,
       'timestamp': FieldValue.serverTimestamp(),
-      'created_at': FieldValue.serverTimestamp(),
-      'updated_at': FieldValue.serverTimestamp(),
-    };
+    });
 
     return _activitiesCollection.add(payload);
   }

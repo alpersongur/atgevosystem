@@ -3,10 +3,12 @@ import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
+import 'package:atgevosystem/core/utils/timestamp_helper.dart';
+
 import '../models/quote_model.dart';
 import 'quote_pdf_service.dart';
 
-class QuoteService {
+class QuoteService with FirestoreTimestamps {
   QuoteService._(this._firestore, this._storage);
 
   factory QuoteService({
@@ -80,7 +82,7 @@ class QuoteService {
     Map<String, dynamic> data, {
     required bool isUpdate,
   }) {
-    final payload = Map<String, dynamic>.from(data);
+    var payload = Map<String, dynamic>.from(data);
 
     // Normalize valid_until
     final validUntil = payload['valid_until'];
@@ -88,8 +90,7 @@ class QuoteService {
       payload['valid_until'] = Timestamp.fromDate(validUntil);
     } else if (validUntil is String && validUntil.isNotEmpty) {
       try {
-        payload['valid_until'] =
-            Timestamp.fromDate(DateTime.parse(validUntil));
+        payload['valid_until'] = Timestamp.fromDate(DateTime.parse(validUntil));
       } catch (_) {
         payload['valid_until'] = validUntil;
       }
@@ -97,10 +98,9 @@ class QuoteService {
       payload.remove('valid_until');
     }
 
-    payload['updated_at'] = FieldValue.serverTimestamp();
-    if (!isUpdate) {
-      payload['created_at'] = FieldValue.serverTimestamp();
-    }
+    payload = isUpdate
+        ? withUpdateTimestamp(payload)
+        : withCreateTimestamps(payload);
 
     return payload;
   }
@@ -122,14 +122,14 @@ class QuoteService {
 
     final products = (productsRaw as List)
         .map<Map<String, dynamic>>(
-          (item) => Map<String, dynamic>.from(
-            item as Map<dynamic, dynamic>,
-          ),
+          (item) => Map<String, dynamic>.from(item as Map<dynamic, dynamic>),
         )
         .toList(growable: false);
 
-    final customerDoc =
-        await _firestore.collection('customers').doc(customerId).get();
+    final customerDoc = await _firestore
+        .collection('customers')
+        .doc(customerId)
+        .get();
     final customerData = customerDoc.data();
 
     if (customerData == null) return;
@@ -150,12 +150,12 @@ class QuoteService {
     });
   }
 
-  Future<String> _uploadQuotePdf(
-    String quoteId,
-    Uint8List pdfBytes,
-  ) async {
-    final storageRef =
-        _storage.ref().child('quotes').child(quoteId).child('offer.pdf');
+  Future<String> _uploadQuotePdf(String quoteId, Uint8List pdfBytes) async {
+    final storageRef = _storage
+        .ref()
+        .child('quotes')
+        .child(quoteId)
+        .child('offer.pdf');
     await storageRef.putData(
       pdfBytes,
       SettableMetadata(contentType: 'application/pdf'),
@@ -164,8 +164,11 @@ class QuoteService {
   }
 
   Future<void> _deleteStoredPdf(String quoteId) async {
-    final ref =
-        _storage.ref().child('quotes').child(quoteId).child('offer.pdf');
+    final ref = _storage
+        .ref()
+        .child('quotes')
+        .child(quoteId)
+        .child('offer.pdf');
     try {
       await ref.delete();
     } on FirebaseException catch (error) {

@@ -17,9 +17,9 @@ class ShipmentStatusChip extends StatelessWidget {
       child: Text(
         info.label,
         style: Theme.of(context).textTheme.labelSmall?.copyWith(
-              color: info.foreground,
-              fontWeight: FontWeight.w600,
-            ),
+          color: info.foreground,
+          fontWeight: FontWeight.w600,
+        ),
       ),
     );
   }

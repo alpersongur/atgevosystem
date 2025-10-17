@@ -89,7 +89,9 @@ class _MainPageState extends State<MainPage> {
               return IconButton(
                 tooltip: 'Bildirimler',
                 onPressed: () {
-                  Navigator.of(context).pushNamed(NotificationListPage.routeName);
+                  Navigator.of(
+                    context,
+                  ).pushNamed(NotificationListPage.routeName);
                 },
                 icon: Stack(
                   clipBehavior: Clip.none,
@@ -105,7 +107,10 @@ class _MainPageState extends State<MainPage> {
                             color: Colors.redAccent,
                             borderRadius: BorderRadius.circular(999),
                           ),
-                          constraints: const BoxConstraints(minWidth: 18, minHeight: 18),
+                          constraints: const BoxConstraints(
+                            minWidth: 18,
+                            minHeight: 18,
+                          ),
                           child: Text(
                             count > 9 ? '9+' : '$count',
                             textAlign: TextAlign.center,
@@ -160,8 +165,9 @@ class _MainPageState extends State<MainPage> {
                   title: const Text('🔮 Tahmin Paneli'),
                   onTap: () {
                     Navigator.of(context).pop();
-                    Navigator.of(context)
-                        .pushNamed(PredictiveDashboardPage.routeName);
+                    Navigator.of(
+                      context,
+                    ).pushNamed(PredictiveDashboardPage.routeName);
                   },
                 ),
               ListTile(
@@ -332,8 +338,9 @@ class _MainPageState extends State<MainPage> {
                   title: const Text('System Health'),
                   onTap: () {
                     Navigator.of(context).pop();
-                    Navigator.of(context)
-                        .pushNamed(MonitoringDashboardPage.routeName);
+                    Navigator.of(
+                      context,
+                    ).pushNamed(MonitoringDashboardPage.routeName);
                   },
                 ),
               if (isSuperAdmin)

@@ -78,8 +78,9 @@ class AnalyticsService {
     return AnalyticsService._(firestore);
   }
 
-  static final AnalyticsService instance =
-      AnalyticsService._(FirebaseFirestore.instance);
+  static final AnalyticsService instance = AnalyticsService._(
+    FirebaseFirestore.instance,
+  );
 
   final FirebaseFirestore _firestore;
 
@@ -114,6 +115,7 @@ class AnalyticsService {
         .collection('quotes')
         .where('created_at', isGreaterThanOrEqualTo: Timestamp.fromDate(start))
         .where('created_at', isLessThanOrEqualTo: Timestamp.fromDate(end))
+        .orderBy('created_at')
         .get();
 
     final totals = <DateTime, double>{};
@@ -121,15 +123,15 @@ class AnalyticsService {
       final data = doc.data();
       final createdAt = _toDate(data['created_at']);
       if (createdAt == null) continue;
-      final amount = (data['amount'] as num?)?.toDouble() ??
+      final amount =
+          (data['amount'] as num?)?.toDouble() ??
           (data['grand_total'] as num?)?.toDouble() ??
           0.0;
       final monthKey = DateTime(createdAt.year, createdAt.month);
       totals[monthKey] = (totals[monthKey] ?? 0) + amount;
     }
 
-    final sortedKeys = totals.keys.toList()
-      ..sort((a, b) => a.compareTo(b));
+    final sortedKeys = totals.keys.toList()..sort((a, b) => a.compareTo(b));
     return sortedKeys
         .map((date) => TimeSeriesPoint(period: date, value: totals[date]!))
         .toList(growable: false);
@@ -143,12 +145,14 @@ class AnalyticsService {
         .collection('production_orders')
         .where('created_at', isGreaterThanOrEqualTo: Timestamp.fromDate(start))
         .where('created_at', isLessThanOrEqualTo: Timestamp.fromDate(end))
+        .orderBy('created_at')
         .get();
 
     final counts = <DateTime, double>{};
     for (final doc in snapshot.docs) {
       final data = doc.data();
-      final createdAt = _toDate(data['created_at']) ??
+      final createdAt =
+          _toDate(data['created_at']) ??
           _toDate(data['start_date']) ??
           _toDate(data['startDate']);
       if (createdAt == null) continue;
@@ -156,8 +160,7 @@ class AnalyticsService {
       counts[monthKey] = (counts[monthKey] ?? 0) + 1;
     }
 
-    final sortedKeys = counts.keys.toList()
-      ..sort((a, b) => a.compareTo(b));
+    final sortedKeys = counts.keys.toList()..sort((a, b) => a.compareTo(b));
     return sortedKeys
         .map((date) => TimeSeriesPoint(period: date, value: counts[date]!))
         .toList(growable: false);
@@ -187,8 +190,10 @@ class AnalyticsService {
     final upper = forecastValue + stdDev;
     final lower = max(0, forecastValue - stdDev).toDouble();
 
-    final nextMonth =
-        DateTime(sortedHistory.last.period.year, sortedHistory.last.period.month + 1);
+    final nextMonth = DateTime(
+      sortedHistory.last.period.year,
+      sortedHistory.last.period.month + 1,
+    );
 
     return SalesForecast(
       history: sortedHistory,
@@ -231,9 +236,7 @@ class AnalyticsService {
 
     return ProductionForecast(
       history: sortedHistory,
-      forecast: [
-        TimeSeriesPoint(period: nextPeriod, value: forecastValue),
-      ],
+      forecast: [TimeSeriesPoint(period: nextPeriod, value: forecastValue)],
       intervals: [
         ForecastInterval(
           lower: max(0, forecastValue - stdDev).toDouble(),
@@ -311,9 +314,8 @@ class AnalyticsService {
   double _standardDeviation(List<double> values) {
     if (values.length < 2) return values.isEmpty ? 0 : values.first * 0.1;
     final mean = values.reduce((a, b) => a + b) / values.length;
-    final variance = values
-        .map((value) => pow(value - mean, 2))
-        .reduce((a, b) => a + b) /
+    final variance =
+        values.map((value) => pow(value - mean, 2)).reduce((a, b) => a + b) /
         (values.length - 1);
     return sqrt(variance);
   }

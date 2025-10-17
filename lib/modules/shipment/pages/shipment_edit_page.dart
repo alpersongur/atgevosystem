@@ -62,8 +62,9 @@ class _ShipmentEditPageState extends State<ShipmentEditPage> {
   Future<void> _loadShipment() async {
     setState(() => _isLoading = true);
     try {
-      final shipment =
-          await ShipmentService.instance.getShipmentById(widget.shipmentId!);
+      final shipment = await ShipmentService.instance.getShipmentById(
+        widget.shipmentId!,
+      );
       if (!mounted) return;
       if (shipment == null) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -84,14 +85,15 @@ class _ShipmentEditPageState extends State<ShipmentEditPage> {
       _status = shipment.status;
       if (shipment.departureDate != null) {
         _departureDate = shipment.departureDate;
-        _departureDateController.text =
-            DateFormat('dd.MM.yyyy').format(shipment.departureDate!);
+        _departureDateController.text = DateFormat(
+          'dd.MM.yyyy',
+        ).format(shipment.departureDate!);
       }
     } catch (error) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Sevkiyat yüklenemedi: $error')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Sevkiyat yüklenemedi: $error')));
       Navigator.of(context).pop();
     } finally {
       if (mounted) {
@@ -119,7 +121,9 @@ class _ShipmentEditPageState extends State<ShipmentEditPage> {
     if (!(_formKey.currentState?.validate() ?? false)) return;
     if (_selectedOrderId == null || _selectedCustomerId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Lütfen üretim talimatı ve müşteri seçin.')),
+        const SnackBar(
+          content: Text('Lütfen üretim talimatı ve müşteri seçin.'),
+        ),
       );
       return;
     }
@@ -143,7 +147,10 @@ class _ShipmentEditPageState extends State<ShipmentEditPage> {
 
     try {
       if (widget.isEditing) {
-        await ShipmentService.instance.updateShipment(widget.shipmentId!, payload);
+        await ShipmentService.instance.updateShipment(
+          widget.shipmentId!,
+          payload,
+        );
       } else {
         await ShipmentService.instance.addShipment(payload);
         if (_inventoryItemId != null && _status == 'delivered') {
@@ -157,17 +164,19 @@ class _ShipmentEditPageState extends State<ShipmentEditPage> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(widget.isEditing
-              ? 'Sevkiyat güncellendi.'
-              : 'Sevkiyat oluşturuldu.'),
+          content: Text(
+            widget.isEditing
+                ? 'Sevkiyat güncellendi.'
+                : 'Sevkiyat oluşturuldu.',
+          ),
         ),
       );
       Navigator.of(context).pop();
     } catch (error) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Kayıt başarısız: $error')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Kayıt başarısız: $error')));
     } finally {
       if (mounted) {
         setState(() => _isSaving = false);
@@ -191,16 +200,18 @@ class _ShipmentEditPageState extends State<ShipmentEditPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.isEditing ? 'Sevkiyatı Düzenle' : 'Sevkiyat Oluştur'),
+        title: Text(
+          widget.isEditing ? 'Sevkiyatı Düzenle' : 'Sevkiyat Oluştur',
+        ),
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : StreamBuilder<List<ProductionOrderModel>>(
-              stream: ProductionService.instance
-                  .getOrdersStream()
-                  .map((orders) => orders
-                      .where((order) => order.status == 'completed')
-                      .toList()),
+              stream: ProductionService.instance.getOrdersStream().map(
+                (orders) => orders
+                    .where((order) => order.status == 'completed')
+                    .toList(),
+              ),
               builder: (context, orderSnapshot) {
                 if (orderSnapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
@@ -211,7 +222,9 @@ class _ShipmentEditPageState extends State<ShipmentEditPage> {
                   return const Center(
                     child: Padding(
                       padding: EdgeInsets.all(24),
-                      child: Text('Sevkiyat oluşturmak için tamamlanmış bir üretim talimatı bulunmuyor.'),
+                      child: Text(
+                        'Sevkiyat oluşturmak için tamamlanmış bir üretim talimatı bulunmuyor.',
+                      ),
                     ),
                   );
                 }
@@ -242,7 +255,9 @@ class _ShipmentEditPageState extends State<ShipmentEditPage> {
                             DropdownButtonFormField<String>(
                               key: ValueKey('order-${_selectedOrderId ?? ''}'),
                               initialValue: _selectedOrderId,
-                              decoration: const InputDecoration(labelText: 'Üretim Talimatı'),
+                              decoration: const InputDecoration(
+                                labelText: 'Üretim Talimatı',
+                              ),
                               items: orders
                                   .map<DropdownMenuItem<String>>(
                                     (order) => DropdownMenuItem<String>(
@@ -262,9 +277,13 @@ class _ShipmentEditPageState extends State<ShipmentEditPage> {
                             ),
                             const SizedBox(height: 16),
                             DropdownButtonFormField<String>(
-                              key: ValueKey('customer-${_selectedCustomerId ?? ''}'),
+                              key: ValueKey(
+                                'customer-${_selectedCustomerId ?? ''}',
+                              ),
                               initialValue: _selectedCustomerId,
-                              decoration: const InputDecoration(labelText: 'Müşteri'),
+                              decoration: const InputDecoration(
+                                labelText: 'Müşteri',
+                              ),
                               items: customers.entries
                                   .map<DropdownMenuItem<String>>(
                                     (entry) => DropdownMenuItem<String>(
@@ -273,12 +292,15 @@ class _ShipmentEditPageState extends State<ShipmentEditPage> {
                                     ),
                                   )
                                   .toList(),
-                              onChanged: (value) => setState(() => _selectedCustomerId = value),
+                              onChanged: (value) =>
+                                  setState(() => _selectedCustomerId = value),
                             ),
                             const SizedBox(height: 16),
                             TextFormField(
                               controller: _shipmentNoController,
-                              decoration: const InputDecoration(labelText: 'Sevkiyat No'),
+                              decoration: const InputDecoration(
+                                labelText: 'Sevkiyat No',
+                              ),
                               validator: (value) {
                                 if (value == null || value.trim().isEmpty) {
                                   return 'Sevkiyat numarası zorunludur';
@@ -289,26 +311,43 @@ class _ShipmentEditPageState extends State<ShipmentEditPage> {
                             const SizedBox(height: 16),
                             TextFormField(
                               controller: _carrierController,
-                              decoration: const InputDecoration(labelText: 'Taşıyıcı'),
+                              decoration: const InputDecoration(
+                                labelText: 'Taşıyıcı',
+                              ),
                             ),
                             const SizedBox(height: 16),
                             TextFormField(
                               controller: _vehiclePlateController,
-                              decoration: const InputDecoration(labelText: 'Araç Plakası'),
+                              decoration: const InputDecoration(
+                                labelText: 'Araç Plakası',
+                              ),
                             ),
                             const SizedBox(height: 16),
                             TextFormField(
                               controller: _driverNameController,
-                              decoration: const InputDecoration(labelText: 'Sürücü Adı'),
+                              decoration: const InputDecoration(
+                                labelText: 'Sürücü Adı',
+                              ),
                             ),
                             const SizedBox(height: 16),
                             DropdownButtonFormField<String>(
                               initialValue: _status,
-                              decoration: const InputDecoration(labelText: 'Durum'),
+                              decoration: const InputDecoration(
+                                labelText: 'Durum',
+                              ),
                               items: const [
-                                DropdownMenuItem(value: 'preparing', child: Text('Hazırlanıyor')),
-                                DropdownMenuItem(value: 'on_the_way', child: Text('Yolda')),
-                                DropdownMenuItem(value: 'delivered', child: Text('Teslim Edildi')),
+                                DropdownMenuItem(
+                                  value: 'preparing',
+                                  child: Text('Hazırlanıyor'),
+                                ),
+                                DropdownMenuItem(
+                                  value: 'on_the_way',
+                                  child: Text('Yolda'),
+                                ),
+                                DropdownMenuItem(
+                                  value: 'delivered',
+                                  child: Text('Teslim Edildi'),
+                                ),
                               ],
                               onChanged: (value) {
                                 if (value != null) {
@@ -332,7 +371,9 @@ class _ShipmentEditPageState extends State<ShipmentEditPage> {
                             const SizedBox(height: 16),
                             TextFormField(
                               controller: _notesController,
-                              decoration: const InputDecoration(labelText: 'Notlar'),
+                              decoration: const InputDecoration(
+                                labelText: 'Notlar',
+                              ),
                               maxLines: 4,
                             ),
                             const SizedBox(height: 24),
@@ -342,7 +383,9 @@ class _ShipmentEditPageState extends State<ShipmentEditPage> {
                                   ? const SizedBox(
                                       width: 20,
                                       height: 20,
-                                      child: CircularProgressIndicator(strokeWidth: 2),
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                      ),
                                     )
                                   : const Text('Kaydet'),
                             ),

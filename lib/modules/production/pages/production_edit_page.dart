@@ -19,6 +19,49 @@ class ProductionEditPage extends StatefulWidget {
   State<ProductionEditPage> createState() => _ProductionEditPageState();
 }
 
+class _ProductionFormData {
+  const _ProductionFormData({
+    required this.quotes,
+    required this.customers,
+    required this.inventoryItems,
+  });
+
+  final List<QuoteModel> quotes;
+  final List<CustomerModel> customers;
+  final List<InventoryItemModel> inventoryItems;
+}
+
+class _ProductionFormMessage extends StatelessWidget {
+  const _ProductionFormMessage({required this.message, this.onRetry});
+
+  final String message;
+  final Future<void> Function()? onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(message, textAlign: TextAlign.center),
+            if (onRetry != null) ...[
+              const SizedBox(height: 12),
+              FilledButton(
+                onPressed: () {
+                  onRetry?.call();
+                },
+                child: const Text('Tekrar dene'),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class _ProductionEditPageState extends State<ProductionEditPage> {
   final _formKey = GlobalKey<FormState>();
   final _notesController = TextEditingController();
@@ -31,6 +74,13 @@ class _ProductionEditPageState extends State<ProductionEditPage> {
   String? _selectedCustomerId;
   String? _selectedInventoryItemId;
   bool _isSaving = false;
+  late Future<_ProductionFormData> _formDataFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _formDataFuture = _loadFormData();
+  }
 
   @override
   void dispose() {
@@ -103,9 +153,9 @@ class _ProductionEditPageState extends State<ProductionEditPage> {
       Navigator.of(context).pop();
     } catch (error) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Talimat oluşturulamadı: $error')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Talimat oluşturulamadı: $error')));
     } finally {
       if (mounted) {
         setState(() => _isSaving = false);
@@ -113,177 +163,232 @@ class _ProductionEditPageState extends State<ProductionEditPage> {
     }
   }
 
+  Future<_ProductionFormData> _loadFormData() async {
+    final quotesFuture = QuoteService().getQuotes().first;
+    final customersFuture = CustomerService.instance.getCustomers().first;
+    final inventoryFuture = InventoryService.instance
+        .getInventoryStream()
+        .first;
+
+    final quotes = await quotesFuture;
+    final customers = await customersFuture;
+    final inventoryItems = await inventoryFuture;
+
+    final approvedQuotes = quotes
+        .where((quote) => quote.status == 'approved')
+        .toList(growable: false);
+
+    return _ProductionFormData(
+      quotes: approvedQuotes,
+      customers: customers,
+      inventoryItems: inventoryItems,
+    );
+  }
+
+  Future<void> _refreshFormData() async {
+    setState(() {
+      _formDataFuture = _loadFormData();
+    });
+    await _formDataFuture;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Yeni Üretim Talimatı'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            tooltip: 'Verileri yenile',
+            onPressed: _isSaving ? null : _refreshFormData,
+          ),
+        ],
       ),
-      body: StreamBuilder<List<QuoteModel>>(
-        stream: QuoteService().getQuotes(),
-        builder: (context, quoteSnapshot) {
-          if (quoteSnapshot.connectionState == ConnectionState.waiting) {
+      body: FutureBuilder<_ProductionFormData>(
+        future: _formDataFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
 
-          final quotes = (quoteSnapshot.data ?? [])
-              .where((quote) => quote.status == 'approved')
-              .toList();
-          if (quotes.isEmpty) {
-            return const Center(
-              child: Padding(
-                padding: EdgeInsets.all(24),
-                child: Text('Talimat oluşturmak için onaylı bir teklif bulunmalıdır.'),
-              ),
+          if (snapshot.hasError) {
+            return _ProductionFormMessage(
+              message: 'Veriler alınırken hata oluştu.',
+              onRetry: _refreshFormData,
             );
           }
 
+          final data = snapshot.data;
+          if (data == null) {
+            return _ProductionFormMessage(
+              message: 'Form verileri yüklenemedi.',
+              onRetry: _refreshFormData,
+            );
+          }
+
+          final quotes = data.quotes;
+          if (quotes.isEmpty) {
+            return const _ProductionFormMessage(
+              message:
+                  'Talimat oluşturmak için onaylı bir teklif bulunmalıdır.',
+            );
+          }
+
+          final customers = data.customers;
+          if (customers.isEmpty) {
+            return const _ProductionFormMessage(
+              message: 'Talimat oluşturmak için müşteri gereklidir.',
+            );
+          }
+
+          final inventoryItems = data.inventoryItems;
           _selectedQuoteId ??= quotes.first.id;
+          _selectedCustomerId ??= customers.first.id;
+          if (_selectedInventoryItemId == null && inventoryItems.isNotEmpty) {
+            _selectedInventoryItemId = inventoryItems.first.id;
+          }
 
-          return StreamBuilder<List<CustomerModel>>(
-            stream: CustomerService.instance.getCustomers(),
-            builder: (context, customerSnapshot) {
-              if (customerSnapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator());
-              }
-
-              final customers = customerSnapshot.data ?? [];
-              if (customers.isEmpty) {
-                return const Center(
-                  child: Padding(
-                    padding: EdgeInsets.all(24),
-                    child: Text('Talimat oluşturmak için müşteri gereklidir.'),
-                  ),
-                );
-              }
-
-              _selectedCustomerId ??= customers.first.id;
-
-              return StreamBuilder<List<InventoryItemModel>>(
-                stream: InventoryService.instance.getInventoryStream(),
-                builder: (context, inventorySnapshot) {
-                  final inventoryItems = inventorySnapshot.data ?? [];
-                  if (_selectedInventoryItemId == null && inventoryItems.isNotEmpty) {
-                    _selectedInventoryItemId = inventoryItems.first.id;
-                  }
-
-                  return SingleChildScrollView(
-                    padding: const EdgeInsets.all(16),
-                    child: Form(
-                      key: _formKey,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                      DropdownButtonFormField<String>(
-                        key: ValueKey('quote-${_selectedQuoteId ?? ''}'),
-                        initialValue: _selectedQuoteId,
-                        decoration: const InputDecoration(labelText: 'Teklif'),
-                        items: quotes
-                            .map(
-                              (quote) => DropdownMenuItem(
-                                value: quote.id,
-                                child: Text('${quote.quoteNumber} • ${quote.title}'),
+          return RefreshIndicator(
+            onRefresh: _refreshFormData,
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
+              physics: const AlwaysScrollableScrollPhysics(),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    DropdownButtonFormField<String>(
+                      key: ValueKey('quote-${_selectedQuoteId ?? ''}'),
+                      initialValue: _selectedQuoteId,
+                      decoration: const InputDecoration(labelText: 'Teklif'),
+                      items: quotes
+                          .map(
+                            (quote) => DropdownMenuItem(
+                              value: quote.id,
+                              child: Text(
+                                '${quote.quoteNumber} • ${quote.title}',
                               ),
-                            )
-                            .toList(),
-                        onChanged: (value) => setState(() => _selectedQuoteId = value),
+                            ),
+                          )
+                          .toList(growable: false),
+                      onChanged: (value) =>
+                          setState(() => _selectedQuoteId = value),
+                    ),
+                    const SizedBox(height: 16),
+                    DropdownButtonFormField<String>(
+                      key: ValueKey(
+                        'inventory-${_selectedInventoryItemId ?? ''}',
                       ),
-                      const SizedBox(height: 16),
-                      DropdownButtonFormField<String>(
-                        key: ValueKey('inventory-${_selectedInventoryItemId ?? ''}'),
-                        initialValue: _selectedInventoryItemId,
-                        decoration: const InputDecoration(
-                          labelText: 'Üretilen Ürün (Envanter Kaydı)',
+                      initialValue: _selectedInventoryItemId,
+                      decoration: const InputDecoration(
+                        labelText: 'Üretilen Ürün (Envanter Kaydı)',
+                      ),
+                      items: inventoryItems
+                          .map(
+                            (item) => DropdownMenuItem(
+                              value: item.id,
+                              child: Text(item.productName),
+                            ),
+                          )
+                          .toList(growable: false),
+                      onChanged: (value) =>
+                          setState(() => _selectedInventoryItemId = value),
+                    ),
+                    const SizedBox(height: 16),
+                    DropdownButtonFormField<String>(
+                      key: ValueKey('customer-${_selectedCustomerId ?? ''}'),
+                      initialValue: _selectedCustomerId,
+                      decoration: const InputDecoration(labelText: 'Müşteri'),
+                      items: customers
+                          .map(
+                            (customer) => DropdownMenuItem(
+                              value: customer.id,
+                              child: Text(customer.companyName),
+                            ),
+                          )
+                          .toList(growable: false),
+                      onChanged: (value) =>
+                          setState(() => _selectedCustomerId = value),
+                    ),
+                    const SizedBox(height: 16),
+                    DropdownButtonFormField<String>(
+                      key: ValueKey('status-${_selectedStatus ?? ''}'),
+                      initialValue: _selectedStatus,
+                      decoration: const InputDecoration(labelText: 'Durum'),
+                      items: const [
+                        DropdownMenuItem(
+                          value: 'waiting',
+                          child: Text('Beklemede'),
                         ),
-                        items: inventoryItems
-                            .map(
-                              (item) => DropdownMenuItem(
-                                value: item.id,
-                                child: Text(item.productName),
-                              ),
-                            )
-                            .toList(),
-                        onChanged: (value) => setState(() => _selectedInventoryItemId = value),
-                      ),
-                      const SizedBox(height: 16),
-                      DropdownButtonFormField<String>(
-                        key: ValueKey('customer-${_selectedCustomerId ?? ''}'),
-                        initialValue: _selectedCustomerId,
-                        decoration: const InputDecoration(labelText: 'Müşteri'),
-                        items: customers
-                            .map(
-                              (customer) => DropdownMenuItem(
-                                value: customer.id,
-                                child: Text(customer.companyName),
-                              ),
-                            )
-                            .toList(),
-                        onChanged: (value) => setState(() => _selectedCustomerId = value),
-                      ),
-                      const SizedBox(height: 16),
-                      DropdownButtonFormField<String>(
-                        key: ValueKey('status-${_selectedStatus ?? ''}'),
-                        initialValue: _selectedStatus,
-                        decoration: const InputDecoration(labelText: 'Durum'),
-                        items: const [
-                          DropdownMenuItem(value: 'waiting', child: Text('Beklemede')),
-                          DropdownMenuItem(value: 'in_progress', child: Text('Üretimde')),
-                          DropdownMenuItem(value: 'quality_check', child: Text('Kalite Kontrol')),
-                          DropdownMenuItem(value: 'completed', child: Text('Tamamlandı')),
-                          DropdownMenuItem(value: 'shipped', child: Text('Sevk Edildi')),
-                        ],
-                        onChanged: (value) => setState(() => _selectedStatus = value),
-                      ),
-                      const SizedBox(height: 16),
-                      TextFormField(
-                        controller: _startDateController,
-                        readOnly: true,
-                        decoration: InputDecoration(
-                          labelText: 'Başlangıç Tarihi',
-                          suffixIcon: IconButton(
-                            icon: const Icon(Icons.date_range_outlined),
-                            onPressed: _pickStartDate,
-                          ),
+                        DropdownMenuItem(
+                          value: 'in_progress',
+                          child: Text('Üretimde'),
                         ),
-                        onTap: _pickStartDate,
-                      ),
-                      const SizedBox(height: 16),
-                      TextFormField(
-                        controller: _estimatedDateController,
-                        readOnly: true,
-                        decoration: InputDecoration(
-                          labelText: 'Tahmini Bitiş',
-                          suffixIcon: IconButton(
-                            icon: const Icon(Icons.event_outlined),
-                            onPressed: _pickEstimatedDate,
-                          ),
+                        DropdownMenuItem(
+                          value: 'quality_check',
+                          child: Text('Kalite Kontrol'),
                         ),
-                        onTap: _pickEstimatedDate,
+                        DropdownMenuItem(
+                          value: 'completed',
+                          child: Text('Tamamlandı'),
+                        ),
+                        DropdownMenuItem(
+                          value: 'shipped',
+                          child: Text('Sevk Edildi'),
+                        ),
+                      ],
+                      onChanged: (value) =>
+                          setState(() => _selectedStatus = value),
+                    ),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: _startDateController,
+                      readOnly: true,
+                      decoration: InputDecoration(
+                        labelText: 'Başlangıç Tarihi',
+                        suffixIcon: IconButton(
+                          icon: const Icon(Icons.date_range_outlined),
+                          onPressed: _pickStartDate,
+                        ),
                       ),
-                      const SizedBox(height: 16),
-                      TextFormField(
-                        controller: _notesController,
-                        decoration: const InputDecoration(labelText: 'Notlar'),
-                        maxLines: 4,
+                      onTap: _pickStartDate,
+                    ),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: _estimatedDateController,
+                      readOnly: true,
+                      decoration: InputDecoration(
+                        labelText: 'Tahmini Bitiş',
+                        suffixIcon: IconButton(
+                          icon: const Icon(Icons.event_outlined),
+                          onPressed: _pickEstimatedDate,
+                        ),
                       ),
-                      const SizedBox(height: 24),
-                      FilledButton(
-                        onPressed: _isSaving ? null : _submit,
-                        child: _isSaving
-                            ? const SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: CircularProgressIndicator(strokeWidth: 2),
-                              )
-                            : const Text('Kaydet'),
-                      ),
-                    ],
-                  ),
+                      onTap: _pickEstimatedDate,
+                    ),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: _notesController,
+                      decoration: const InputDecoration(labelText: 'Notlar'),
+                      maxLines: 4,
+                    ),
+                    const SizedBox(height: 24),
+                    FilledButton(
+                      onPressed: _isSaving ? null : _submit,
+                      child: _isSaving
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Text('Kaydet'),
+                    ),
+                  ],
                 ),
-              );
-                },
-              );
-            },
+              ),
+            ),
           );
         },
       ),

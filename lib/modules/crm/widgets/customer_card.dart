@@ -21,10 +21,7 @@ class CustomerCard extends StatelessWidget {
     return Card(
       elevation: 1,
       child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(
-          vertical: 8,
-          horizontal: 16,
-        ),
+        contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
         title: Text(
           customer.companyName.isEmpty
               ? 'İsimsiz Müşteri'
@@ -43,15 +40,9 @@ class CustomerCard extends StatelessWidget {
                   style: const TextStyle(fontSize: 13),
                 ),
               if ((customer.email ?? '').isNotEmpty)
-                Text(
-                  customer.email!,
-                  style: const TextStyle(fontSize: 13),
-                ),
+                Text(customer.email!, style: const TextStyle(fontSize: 13)),
               if ((customer.phone ?? '').isNotEmpty)
-                Text(
-                  customer.phone!,
-                  style: const TextStyle(fontSize: 13),
-                ),
+                Text(customer.phone!, style: const TextStyle(fontSize: 13)),
               if ((customer.address ?? '').isNotEmpty)
                 Text(
                   customer.address!,

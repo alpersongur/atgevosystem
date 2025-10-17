@@ -26,7 +26,7 @@ class AppDrawer extends StatelessWidget {
 
     return Drawer(
       child: SafeArea(
-        child: Column(  
+        child: Column(
           children: [
             DrawerHeader(
               decoration: const BoxDecoration(color: Colors.indigo),
@@ -65,8 +65,9 @@ class AppDrawer extends StatelessWidget {
                   onPressed: () async {
                     await AuthService.instance.logout();
                     if (context.mounted) {
-                      Navigator.of(context)
-                          .pushNamedAndRemoveUntil('/login', (route) => false);
+                      Navigator.of(
+                        context,
+                      ).pushNamedAndRemoveUntil('/login', (route) => false);
                     }
                   },
                   icon: const Icon(Icons.logout),

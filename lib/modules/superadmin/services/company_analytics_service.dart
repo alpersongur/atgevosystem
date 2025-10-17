@@ -19,15 +19,14 @@ class CompanyAnalyticsService {
     final snapshot = await _firestore.collection('companies').get();
     return snapshot.docs.map((doc) {
       final data = doc.data();
-      return {
-        'id': doc.id,
-        'name': data['name'],
-        'usage': data['usage'] ?? {},
-      };
+      return {'id': doc.id, 'name': data['name'], 'usage': data['usage'] ?? {}};
     }).toList();
   }
 
-  Future<void> updateCompanyUsage(String companyId, Map<String, dynamic> usage) {
+  Future<void> updateCompanyUsage(
+    String companyId,
+    Map<String, dynamic> usage,
+  ) {
     return _firestore.collection('companies').doc(companyId).set({
       'usage': usage,
       'usage_updated_at': FieldValue.serverTimestamp(),
@@ -44,7 +43,8 @@ class CompanyAnalyticsService {
   }
 
   Future<void> triggerUsageRefresh(String companyId) {
-    return FirebaseProjectService.instance
-        .deployDefaultRules(companyId); // Placeholder for admin API call.
+    return FirebaseProjectService.instance.deployDefaultRules(
+      companyId,
+    ); // Placeholder for admin API call.
   }
 }

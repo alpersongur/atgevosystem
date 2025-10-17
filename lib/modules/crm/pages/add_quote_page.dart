@@ -59,8 +59,11 @@ class _AddQuotePageState extends State<AddQuotePage> {
   double get _total {
     double sum = 0;
     for (final product in _products) {
-      final qty = double.tryParse(product.qtyController.text.replaceAll(',', '.')) ?? 0;
-      final price = double.tryParse(product.priceController.text.replaceAll(',', '.')) ?? 0;
+      final qty =
+          double.tryParse(product.qtyController.text.replaceAll(',', '.')) ?? 0;
+      final price =
+          double.tryParse(product.priceController.text.replaceAll(',', '.')) ??
+          0;
       sum += qty * price;
     }
     return sum;
@@ -73,20 +76,25 @@ class _AddQuotePageState extends State<AddQuotePage> {
       return;
     }
     if (_selectedCustomerId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Lütfen bir müşteri seçin')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Lütfen bir müşteri seçin')));
       return;
     }
 
     setState(() => _isSaving = true);
 
     final products = _products
-        .map((p) => {
-              'name': p.nameController.text.trim(),
-              'quantity': double.tryParse(p.qtyController.text.replaceAll(',', '.')) ?? 0,
-              'price': double.tryParse(p.priceController.text.replaceAll(',', '.')) ?? 0,
-            })
+        .map(
+          (p) => {
+            'name': p.nameController.text.trim(),
+            'quantity':
+                double.tryParse(p.qtyController.text.replaceAll(',', '.')) ?? 0,
+            'price':
+                double.tryParse(p.priceController.text.replaceAll(',', '.')) ??
+                0,
+          },
+        )
         .toList();
 
     try {
@@ -107,9 +115,9 @@ class _AddQuotePageState extends State<AddQuotePage> {
         _selectedCustomerId = null;
       });
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Teklif kaydedildi')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Teklif kaydedildi')));
     } catch (error) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -125,9 +133,7 @@ class _AddQuotePageState extends State<AddQuotePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Yeni Teklif'),
-      ),
+      appBar: AppBar(title: const Text('Yeni Teklif')),
       body: StreamBuilder<List<CustomerModel>>(
         stream: CustomerService.instance.watchCustomers(),
         builder: (context, snapshot) {
@@ -230,9 +236,9 @@ class _AddQuotePageState extends State<AddQuotePage> {
 
 class _ProductEntry {
   _ProductEntry({required VoidCallback onChanged})
-      : nameController = TextEditingController(),
-        qtyController = TextEditingController(),
-        priceController = TextEditingController() {
+    : nameController = TextEditingController(),
+      qtyController = TextEditingController(),
+      priceController = TextEditingController() {
     nameController.addListener(onChanged);
     qtyController.addListener(onChanged);
     priceController.addListener(onChanged);
@@ -256,10 +262,7 @@ class _ProductEntry {
 }
 
 class _ProductRow extends StatelessWidget {
-  const _ProductRow({
-    required this.entry,
-    required this.onRemove,
-  });
+  const _ProductRow({required this.entry, required this.onRemove});
 
   final _ProductEntry entry;
   final VoidCallback onRemove;
@@ -290,11 +293,13 @@ class _ProductRow extends StatelessWidget {
                   child: TextFormField(
                     controller: entry.qtyController,
                     decoration: const InputDecoration(labelText: 'Adet'),
-                    keyboardType:
-                        const TextInputType.numberWithOptions(decimal: true),
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
                     validator: (value) {
-                      final number =
-                          double.tryParse((value ?? '').replaceAll(',', '.'));
+                      final number = double.tryParse(
+                        (value ?? '').replaceAll(',', '.'),
+                      );
                       if (number == null || number <= 0) {
                         return 'Geçerli bir adet girin';
                       }
@@ -307,11 +312,13 @@ class _ProductRow extends StatelessWidget {
                   child: TextFormField(
                     controller: entry.priceController,
                     decoration: const InputDecoration(labelText: 'Birim Fiyat'),
-                    keyboardType:
-                        const TextInputType.numberWithOptions(decimal: true),
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
                     validator: (value) {
-                      final number =
-                          double.tryParse((value ?? '').replaceAll(',', '.'));
+                      final number = double.tryParse(
+                        (value ?? '').replaceAll(',', '.'),
+                      );
                       if (number == null || number <= 0) {
                         return 'Geçerli bir fiyat girin';
                       }

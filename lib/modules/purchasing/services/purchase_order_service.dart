@@ -1,8 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import 'package:atgevosystem/core/utils/timestamp_helper.dart';
+
 import '../models/purchase_order_model.dart';
 
-class PurchaseOrderService {
+class PurchaseOrderService with FirestoreTimestamps {
   PurchaseOrderService._(this._firestore);
 
   factory PurchaseOrderService({FirebaseFirestore? firestore}) {
@@ -46,31 +48,24 @@ class PurchaseOrderService {
   }
 
   Future<String> addPO(Map<String, dynamic> data) async {
-    final payload = Map<String, dynamic>.from(data)
-      ..['created_at'] = FieldValue.serverTimestamp()
-      ..['updated_at'] = FieldValue.serverTimestamp();
+    final payload = withCreateTimestamps(data);
     final ref = await _collection.add(payload);
     return ref.id;
   }
 
   Future<void> updatePO(String id, Map<String, dynamic> data) {
-    final payload = Map<String, dynamic>.from(data)
-      ..['updated_at'] = FieldValue.serverTimestamp();
+    final payload = withUpdateTimestamp(data);
     return _collection.doc(id).update(payload);
   }
 
   Future<void> cancelPO(String id) {
-    return _collection.doc(id).update({
-      'status': 'canceled',
-      'updated_at': FieldValue.serverTimestamp(),
-    });
+    return _collection
+        .doc(id)
+        .update(withUpdateTimestamp({'status': 'canceled'}));
   }
 
   Future<void> updateStatus(String id, String status) {
-    return _collection.doc(id).update({
-      'status': status,
-      'updated_at': FieldValue.serverTimestamp(),
-    });
+    return _collection.doc(id).update(withUpdateTimestamp({'status': status}));
   }
 
   Future<void> deletePO(String id) {

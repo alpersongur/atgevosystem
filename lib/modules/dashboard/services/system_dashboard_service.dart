@@ -478,7 +478,8 @@ class SystemDashboardService {
   ) {
     return query
         .where(field, isGreaterThanOrEqualTo: Timestamp.fromDate(start))
-        .where(field, isLessThanOrEqualTo: Timestamp.fromDate(end));
+        .where(field, isLessThanOrEqualTo: Timestamp.fromDate(end))
+        .orderBy(field);
   }
 
   double? _extractUnitCost(Map<String, dynamic> data) {

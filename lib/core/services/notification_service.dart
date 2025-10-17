@@ -49,8 +49,9 @@ class NotificationService {
     return NotificationService._(firestore);
   }
 
-  static final NotificationService instance =
-      NotificationService._(FirebaseFirestore.instance);
+  static final NotificationService instance = NotificationService._(
+    FirebaseFirestore.instance,
+  );
 
   final FirebaseFirestore _firestore;
 
@@ -67,17 +68,17 @@ class NotificationService {
       query = query.where('read', isEqualTo: false);
     }
     return query.snapshots().map(
-          (snapshot) => snapshot.docs
-              .map(SystemNotification.fromDoc)
-              .toList(growable: false),
-        );
+      (snapshot) =>
+          snapshot.docs.map(SystemNotification.fromDoc).toList(growable: false),
+    );
   }
 
   Stream<int> streamUnreadCount() {
-    return _collection
-        .where('read', isEqualTo: false)
-        .snapshots()
-        .map((snapshot) => snapshot.docs.length);
+    final unreadQuery = _collection.where('read', isEqualTo: false);
+    return unreadQuery.snapshots().asyncMap((_) async {
+      final aggregate = await unreadQuery.count().get();
+      return aggregate.count ?? 0;
+    }).distinct();
   }
 
   Future<void> markAsRead(String id) async {

@@ -15,7 +15,8 @@ class MonitoringDashboardPage extends StatefulWidget {
   static const routeName = '/monitoring/dashboard';
 
   @override
-  State<MonitoringDashboardPage> createState() => _MonitoringDashboardPageState();
+  State<MonitoringDashboardPage> createState() =>
+      _MonitoringDashboardPageState();
 }
 
 class _MonitoringDashboardPageState extends State<MonitoringDashboardPage> {
@@ -84,30 +85,27 @@ class _MonitoringDashboardPageState extends State<MonitoringDashboardPage> {
               children: [
                 Text(
                   'Özet Metrikler',
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleLarge
-                      ?.copyWith(fontWeight: FontWeight.w700),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(height: 16),
                 _buildMetricGrid(data.metrics, isPhone),
                 const SizedBox(height: 32),
                 Text(
                   'Trendler',
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleLarge
-                      ?.copyWith(fontWeight: FontWeight.w700),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(height: 16),
                 _buildTrendSection(data.snapshots, isPhone),
                 const SizedBox(height: 32),
                 Text(
                   'Uyarılar',
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleLarge
-                      ?.copyWith(fontWeight: FontWeight.w700),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(height: 12),
                 Card(
@@ -119,17 +117,17 @@ class _MonitoringDashboardPageState extends State<MonitoringDashboardPage> {
                 const SizedBox(height: 32),
                 Text(
                   'Son Hata Kayıtları',
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleLarge
-                      ?.copyWith(fontWeight: FontWeight.w700),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(height: 12),
                 Card(
                   child: StreamBuilder<List<Map<String, dynamic>>>(
                     stream: _service.watchRecentErrors(limit: 10),
                     builder: (context, logSnapshot) {
-                      if (logSnapshot.connectionState == ConnectionState.waiting) {
+                      if (logSnapshot.connectionState ==
+                          ConnectionState.waiting) {
                         return const SizedBox(
                           height: 120,
                           child: Center(child: CircularProgressIndicator()),
@@ -146,7 +144,8 @@ class _MonitoringDashboardPageState extends State<MonitoringDashboardPage> {
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
                         itemCount: logs.length,
-                        separatorBuilder: (_, __) => const Divider(height: 1),
+                        separatorBuilder: (context, _) =>
+                            const Divider(height: 1),
                         itemBuilder: (context, index) {
                           final log = logs[index];
                           final message = log['message'] as String? ?? 'Hata';
@@ -155,10 +154,14 @@ class _MonitoringDashboardPageState extends State<MonitoringDashboardPage> {
                           final date = timestamp is Timestamp
                               ? timestamp.toDate()
                               : DateTime.tryParse(timestamp?.toString() ?? '');
-                          final dateLabel =
-                              date != null ? DateFormat('dd MMM HH:mm', 'tr_TR').format(date) : '-';
+                          final dateLabel = date != null
+                              ? DateFormat('dd MMM HH:mm', 'tr_TR').format(date)
+                              : '-';
                           return ListTile(
-                            leading: const Icon(Icons.error_outline, color: Colors.redAccent),
+                            leading: const Icon(
+                              Icons.error_outline,
+                              color: Colors.redAccent,
+                            ),
                             title: Text(message),
                             subtitle: Text('$module • $dateLabel'),
                           );
@@ -214,10 +217,12 @@ class _MonitoringDashboardPageState extends State<MonitoringDashboardPage> {
     if (isPhone) {
       return Column(
         children: cards
-            .map((card) => Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: card,
-                ))
+            .map(
+              (card) => Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: card,
+              ),
+            )
             .toList(),
       );
     }
@@ -225,14 +230,7 @@ class _MonitoringDashboardPageState extends State<MonitoringDashboardPage> {
     return Wrap(
       spacing: 16,
       runSpacing: 16,
-      children: cards
-          .map(
-            (card) => SizedBox(
-              width: 240,
-              child: card,
-            ),
-          )
-          .toList(),
+      children: cards.map((card) => SizedBox(width: 240, child: card)).toList(),
     );
   }
 
@@ -264,12 +262,7 @@ class _MonitoringDashboardPageState extends State<MonitoringDashboardPage> {
       errorBars.add(
         BarChartGroupData(
           x: i,
-          barRods: [
-            BarChartRodData(
-              toY: snap.errors,
-              color: Colors.redAccent,
-            ),
-          ],
+          barRods: [BarChartRodData(toY: snap.errors, color: Colors.redAccent)],
         ),
       );
     }
@@ -284,10 +277,9 @@ class _MonitoringDashboardPageState extends State<MonitoringDashboardPage> {
               children: [
                 Text(
                   'Firestore Reads',
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleMedium
-                      ?.copyWith(fontWeight: FontWeight.w600),
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
                 const SizedBox(height: 12),
                 TrendChartWidget.line(
@@ -308,16 +300,12 @@ class _MonitoringDashboardPageState extends State<MonitoringDashboardPage> {
               children: [
                 Text(
                   'Firestore Writes',
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleMedium
-                      ?.copyWith(fontWeight: FontWeight.w600),
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
                 const SizedBox(height: 12),
-                TrendChartWidget.line(
-                  labels: labels,
-                  series: writeSpots,
-                ),
+                TrendChartWidget.line(labels: labels, series: writeSpots),
               ],
             ),
           ),
@@ -331,16 +319,12 @@ class _MonitoringDashboardPageState extends State<MonitoringDashboardPage> {
               children: [
                 Text(
                   'Function Hata Trendleri',
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleMedium
-                      ?.copyWith(fontWeight: FontWeight.w600),
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
                 const SizedBox(height: 12),
-                TrendChartWidget.bar(
-                  labels: labels,
-                  barGroups: errorBars,
-                ),
+                TrendChartWidget.bar(labels: labels, barGroups: errorBars),
               ],
             ),
           ),
@@ -402,10 +386,7 @@ class _MonitoringDashboardPageState extends State<MonitoringDashboardPage> {
 }
 
 class _MonitoringData {
-  const _MonitoringData({
-    required this.metrics,
-    required this.snapshots,
-  });
+  const _MonitoringData({required this.metrics, required this.snapshots});
 
   final MonitoringRealtimeMetrics metrics;
   final List<MonitoringSnapshot> snapshots;

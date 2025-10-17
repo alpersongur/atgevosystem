@@ -1,8 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import 'package:atgevosystem/core/utils/timestamp_helper.dart';
+
 import '../models/role_model.dart';
 
-class RoleService {
+class RoleService with FirestoreTimestamps {
   RoleService._(this._firestore);
 
   factory RoleService({FirebaseFirestore? firestore}) {
@@ -37,16 +39,13 @@ class RoleService {
   }
 
   Future<String> addRole(Map<String, dynamic> data) async {
-    final payload = Map<String, dynamic>.from(data)
-      ..['created_at'] = FieldValue.serverTimestamp()
-      ..['updated_at'] = FieldValue.serverTimestamp();
+    final payload = withCreateTimestamps(data);
     final ref = await _collection.add(payload);
     return ref.id;
   }
 
   Future<void> updateRole(String id, Map<String, dynamic> data) {
-    final payload = Map<String, dynamic>.from(data)
-      ..['updated_at'] = FieldValue.serverTimestamp();
+    final payload = withUpdateTimestamp(data);
     return _collection.doc(id).update(payload);
   }
 

@@ -12,10 +12,7 @@ class LeadFormPage extends StatefulWidget {
 }
 
 class LeadFormPageArguments {
-  const LeadFormPageArguments({
-    this.leadId,
-    this.initialData,
-  });
+  const LeadFormPageArguments({this.leadId, this.initialData});
 
   final String? leadId;
   final Map<String, dynamic>? initialData;
@@ -110,9 +107,9 @@ class _LeadFormPageState extends State<LeadFormPage> {
         _notesController.clear();
         _assignedToController.clear();
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Lead kaydedildi')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Lead kaydedildi')));
         setState(() {});
       }
     } catch (error) {
@@ -132,9 +129,7 @@ class _LeadFormPageState extends State<LeadFormPage> {
     final title = _isEditing ? 'Lead Düzenle' : 'Lead Ekle';
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(title),
-      ),
+      appBar: AppBar(title: Text(title)),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16),
@@ -163,8 +158,9 @@ class _LeadFormPageState extends State<LeadFormPage> {
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _contactController,
-                  decoration:
-                      const InputDecoration(labelText: 'İletişim Bilgisi'),
+                  decoration: const InputDecoration(
+                    labelText: 'İletişim Bilgisi',
+                  ),
                   textInputAction: TextInputAction.next,
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
@@ -200,8 +196,9 @@ class _LeadFormPageState extends State<LeadFormPage> {
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _assignedToController,
-                  decoration:
-                      const InputDecoration(labelText: 'Sorumlu Kullanıcı'),
+                  decoration: const InputDecoration(
+                    labelText: 'Sorumlu Kullanıcı',
+                  ),
                   textInputAction: TextInputAction.done,
                 ),
                 const SizedBox(height: 24),

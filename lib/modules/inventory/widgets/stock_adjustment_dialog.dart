@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 
 class StockAdjustmentDialog extends StatefulWidget {
-  const StockAdjustmentDialog({
-    super.key,
-    required this.operation,
-  });
+  const StockAdjustmentDialog({super.key, required this.operation});
 
   final String operation; // increase or decrease
 
@@ -35,8 +32,10 @@ class _StockAdjustmentDialogState extends State<StockAdjustmentDialog> {
             labelText: 'Miktar',
             suffixText: 'adet',
           ),
-          keyboardType:
-              const TextInputType.numberWithOptions(decimal: false, signed: false),
+          keyboardType: const TextInputType.numberWithOptions(
+            decimal: false,
+            signed: false,
+          ),
           validator: (value) {
             final text = value?.trim() ?? '';
             if (text.isEmpty) {

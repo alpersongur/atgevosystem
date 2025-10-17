@@ -10,15 +10,15 @@ class CompanyListPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Şirketler'),
-      ),
+      appBar: AppBar(title: const Text('Şirketler')),
       body: StreamBuilder(
         stream: CompanyService.instance.getCompanies(),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
             return Center(
-              child: Text('Şirketler yüklenirken hata oluştu\n${snapshot.error}'),
+              child: Text(
+                'Şirketler yüklenirken hata oluştu\n${snapshot.error}',
+              ),
             );
           }
 
@@ -34,7 +34,7 @@ class CompanyListPage extends StatelessWidget {
           return ListView.separated(
             padding: const EdgeInsets.all(16),
             itemCount: docs.length,
-            separatorBuilder: (_, __) => const SizedBox(height: 12),
+            separatorBuilder: (context, _) => const SizedBox(height: 12),
             itemBuilder: (context, index) {
               final doc = docs[index];
               final data = doc.data();
@@ -50,7 +50,9 @@ class CompanyListPage extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text('Project ID: $projectId'),
-                      Text('Modüller: ${modules.isEmpty ? '-' : modules.join(', ')}'),
+                      Text(
+                        'Modüller: ${modules.isEmpty ? '-' : modules.join(', ')}',
+                      ),
                       Text('Durum: ${active ? 'Aktif' : 'Pasif'}'),
                     ],
                   ),
@@ -60,11 +62,15 @@ class CompanyListPage extends StatelessWidget {
                         case 'view':
                           // Gelecekte detay sayfasına yönlendirme
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Detay sayfası yakında.')),
+                            const SnackBar(
+                              content: Text('Detay sayfası yakında.'),
+                            ),
                           );
                           break;
                         case 'deactivate':
-                          await CompanyService.instance.deactivateCompany(doc.id);
+                          await CompanyService.instance.deactivateCompany(
+                            doc.id,
+                          );
                           if (context.mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(content: Text('$name pasif edildi')),
@@ -72,18 +78,23 @@ class CompanyListPage extends StatelessWidget {
                           }
                           break;
                         case 'delete':
-                          final confirm = await showDialog<bool>(
+                          final confirm =
+                              await showDialog<bool>(
                                 context: context,
                                 builder: (ctx) => AlertDialog(
                                   title: const Text('Şirketi Sil'),
-                                  content: Text('"$name" şirketini silmek istediğinize emin misiniz?'),
+                                  content: Text(
+                                    '"$name" şirketini silmek istediğinize emin misiniz?',
+                                  ),
                                   actions: [
                                     TextButton(
-                                      onPressed: () => Navigator.of(ctx).pop(false),
+                                      onPressed: () =>
+                                          Navigator.of(ctx).pop(false),
                                       child: const Text('Vazgeç'),
                                     ),
                                     FilledButton(
-                                      onPressed: () => Navigator.of(ctx).pop(true),
+                                      onPressed: () =>
+                                          Navigator.of(ctx).pop(true),
                                       child: const Text('Sil'),
                                     ),
                                   ],
@@ -103,7 +114,10 @@ class CompanyListPage extends StatelessWidget {
                     },
                     itemBuilder: (context) => const [
                       PopupMenuItem(value: 'view', child: Text('Görüntüle')),
-                      PopupMenuItem(value: 'deactivate', child: Text('Pasif Et')),
+                      PopupMenuItem(
+                        value: 'deactivate',
+                        child: Text('Pasif Et'),
+                      ),
                       PopupMenuItem(value: 'delete', child: Text('Sil')),
                     ],
                   ),

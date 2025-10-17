@@ -31,10 +31,9 @@ class PermissionService {
 
     final roleData = data[role];
     if (roleData is Map) {
-      _cache[module] = roleData.map((key, value) => MapEntry(
-            key.toString(),
-            value == true,
-          ));
+      _cache[module] = roleData.map(
+        (key, value) => MapEntry(key.toString(), value == true),
+      );
     } else {
       _cache[module] = {};
     }

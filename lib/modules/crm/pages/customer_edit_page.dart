@@ -4,10 +4,7 @@ import '../models/customer_model.dart';
 import '../services/customer_service.dart';
 
 class CustomerEditPage extends StatefulWidget {
-  const CustomerEditPage({
-    super.key,
-    this.customerId,
-  });
+  const CustomerEditPage({super.key, this.customerId});
 
   static const createRoute = '/crm/customers/add';
   static const editRoute = '/crm/customers/edit';
@@ -60,16 +57,13 @@ class _CustomerEditPageState extends State<CustomerEditPage> {
   Future<void> _loadCustomer() async {
     setState(() => _isLoading = true);
     try {
-      final customer =
-          await _service.fetchCustomer(widget.customerId ?? '');
+      final customer = await _service.fetchCustomer(widget.customerId ?? '');
       if (!mounted) return;
 
       if (customer == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Müşteri bulunamadı.'),
-          ),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Müşteri bulunamadı.')));
         Navigator.of(context).pop();
         return;
       }
@@ -84,9 +78,9 @@ class _CustomerEditPageState extends State<CustomerEditPage> {
       _notesController.text = customer.notes ?? '';
     } catch (error) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Veriler alınamadı: $error')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Veriler alınamadı: $error')));
       Navigator.of(context).pop();
     } finally {
       if (mounted) {
@@ -122,9 +116,9 @@ class _CustomerEditPageState extends State<CustomerEditPage> {
         await _service.createCustomer(input);
       }
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Müşteri kaydedildi')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Müşteri kaydedildi')));
       Navigator.of(context).pop(true);
     } catch (error) {
       if (!mounted) return;
@@ -156,8 +150,9 @@ class _CustomerEditPageState extends State<CustomerEditPage> {
                     children: [
                       TextFormField(
                         controller: _companyNameController,
-                        decoration:
-                            const InputDecoration(labelText: 'Şirket Adı'),
+                        decoration: const InputDecoration(
+                          labelText: 'Şirket Adı',
+                        ),
                         textInputAction: TextInputAction.next,
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
@@ -169,8 +164,9 @@ class _CustomerEditPageState extends State<CustomerEditPage> {
                       const SizedBox(height: 16),
                       TextFormField(
                         controller: _contactPersonController,
-                        decoration:
-                            const InputDecoration(labelText: 'Yetkili Kişi'),
+                        decoration: const InputDecoration(
+                          labelText: 'Yetkili Kişi',
+                        ),
                         textInputAction: TextInputAction.next,
                       ),
                       const SizedBox(height: 16),
@@ -184,8 +180,9 @@ class _CustomerEditPageState extends State<CustomerEditPage> {
                           if (text.isEmpty) {
                             return null;
                           }
-                          final emailRegex =
-                              RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
+                          final emailRegex = RegExp(
+                            r'^[^@\s]+@[^@\s]+\.[^@\s]+$',
+                          );
                           if (!emailRegex.hasMatch(text)) {
                             return 'Geçerli bir e-posta girin';
                           }
@@ -215,8 +212,9 @@ class _CustomerEditPageState extends State<CustomerEditPage> {
                       const SizedBox(height: 16),
                       TextFormField(
                         controller: _taxNumberController,
-                        decoration:
-                            const InputDecoration(labelText: 'Vergi Numarası'),
+                        decoration: const InputDecoration(
+                          labelText: 'Vergi Numarası',
+                        ),
                         textInputAction: TextInputAction.next,
                         keyboardType: TextInputType.number,
                       ),
@@ -234,7 +232,9 @@ class _CustomerEditPageState extends State<CustomerEditPage> {
                             ? const SizedBox(
                                 width: 20,
                                 height: 20,
-                                child: CircularProgressIndicator(strokeWidth: 2),
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
                               )
                             : const Text('Kaydet'),
                       ),

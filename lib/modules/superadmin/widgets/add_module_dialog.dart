@@ -46,9 +46,9 @@ class _AddModuleDialogState extends State<AddModuleDialog> {
       Navigator.of(context).pop(true);
     } catch (error) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Modül eklenemedi: $error')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Modül eklenemedi: $error')));
     } finally {
       if (mounted) {
         setState(() => _isSaving = false);
