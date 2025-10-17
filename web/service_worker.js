@@ -1,5 +1,5 @@
 /* eslint-disable no-restricted-globals */
-const CACHE_NAME = 'atgevo-shell-v1';
+const SHELL_CACHE_NAME = 'atgevo-shell-v1';
 const CORE_ASSETS = [
   '/',
   'index.html',
@@ -9,7 +9,7 @@ const CORE_ASSETS = [
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(CORE_ASSETS)),
+    caches.open(SHELL_CACHE_NAME).then((cache) => cache.addAll(CORE_ASSETS)),
   );
   self.skipWaiting();
 });
@@ -19,7 +19,7 @@ self.addEventListener('activate', (event) => {
     caches.keys().then((cacheNames) =>
       Promise.all(
         cacheNames
-            .filter((cacheName) => cacheName !== CACHE_NAME)
+            .filter((cacheName) => cacheName !== SHELL_CACHE_NAME)
             .map((cacheName) => caches.delete(cacheName)),
       )),
   );
@@ -38,7 +38,8 @@ self.addEventListener('fetch', (event) => {
           return networkResponse;
         }
         const responseClone = networkResponse.clone();
-        caches.open(CACHE_NAME).then((cache) => cache.put(request, responseClone));
+        caches.open(SHELL_CACHE_NAME)
+            .then((cache) => cache.put(request, responseClone));
         return networkResponse;
       });
     }),
