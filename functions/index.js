@@ -13,6 +13,9 @@ const {setGlobalOptions} = functions;
 const {onSchedule} = require("firebase-functions/v2/scheduler");
 const logger = require("firebase-functions/logger");
 const admin = require("firebase-admin");
+
+admin.initializeApp();
+
 const monitoring = require("./collectMetrics");
 const licenseChecks = require("./license_check");
 const aiAssistant = require("./ai_assistant");
@@ -22,8 +25,6 @@ const apiApp = require("./api");
 const reportCallable = require("./report_callable");
 const reportsScheduler = require("./reports_scheduler");
 const qaIngest = require("./qa_ingest");
-
-admin.initializeApp();
 const db = admin.firestore();
 const FieldValue = admin.firestore.FieldValue;
 

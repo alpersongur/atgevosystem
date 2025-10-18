@@ -22,6 +22,8 @@ class AuthGate extends StatelessWidget {
         }
 
         if (snapshot.hasData) {
+          final user = snapshot.data;
+          debugPrint('[AUTH] Logged in as: ${user?.email ?? user?.uid}');
           final authService = AuthService.instance;
           return StreamBuilder<UserProfileState?>(
             stream: authService.profileStream,
@@ -36,6 +38,7 @@ class AuthGate extends StatelessWidget {
 
               final profile = profileSnapshot.data;
               if (profile == null) {
+                debugPrint('[PROFILE] Profil bulunamadı, fallback ekrana yönlendiriliyor.');
                 return const _AuthProgressIndicator(
                   message: 'Rol bilgileriniz alınıyor...',
                 );

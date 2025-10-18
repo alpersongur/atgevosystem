@@ -6,23 +6,22 @@ service cloud.firestore {
       return request.auth != null && request.auth.token.role != null;
     }
 
+    function userRole() {
+      return request.auth.token.role;
+    }
+
     function isActiveUser() {
-      return request.auth.token.is_active == null ||
-             request.auth.token.is_active == true;
+      return request.auth == null ||
+        request.auth.token.is_active == null ||
+        request.auth.token.is_active == true;
     }
 
     function isCompanyActive() {
-      if (!isSignedIn()) {
-        return false;
-      }
-      return request.auth.token.company_id == null ||
+      return !isSignedIn() ||
+        request.auth.token.company_id == null ||
         get(
           /databases/$(database)/documents/companies/$(request.auth.token.company_id)
         ).data.status == "active";
-    }
-
-    function userRole() {
-      return request.auth.token.role;
     }
 
     function hasAnyRole(allowedRoles) {
@@ -34,6 +33,11 @@ service cloud.firestore {
 
     function isSuperAdmin() {
       return isSignedIn() && userRole() == 'superadmin';
+    }
+
+    match /users/{uid} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow write: if hasAnyRole(['superadmin', 'admin']);
     }
 
     match /{document=**} {

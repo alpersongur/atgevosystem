@@ -80,6 +80,7 @@ class AuthService {
 
   Future<UserCredential> login(String email, String password) async {
     await initialize();
+    debugPrint('[AUTH] Giriş deneniyor: $email');
 
     final credential = await _auth.signInWithEmailAndPassword(
       email: email,
@@ -88,12 +89,17 @@ class AuthService {
 
     final user = credential.user;
     if (user != null) {
+      debugPrint('[AUTH] Oturum açıldı: ${user.email ?? user.uid}');
       await user.reload();
       await user.getIdToken(true);
+
+      // Eski anahtarların temizlenmesi
+      await _prefs?.remove('userProfile');
       final cached = await _loadCachedProfile(user.uid);
       if (cached != null) {
         _updateProfile(cached, persist: false);
       }
+      debugPrint('[NAVIGATION] Ana sayfaya yönlendirme yapılıyor.');
     }
 
     return credential;
@@ -230,7 +236,9 @@ class AuthService {
       final options = GetOptions(
         source: serverOnly ? Source.server : Source.serverAndCache,
       );
-      return await _userDocRef(uid).get(options);
+      return await _userDocRef(uid)
+          .get(options)
+          .timeout(const Duration(seconds: 10));
     } catch (error, stackTrace) {
       debugPrint('Kullanıcı verisi alınırken hata oluştu: $error\n$stackTrace');
       return null;
@@ -362,6 +370,7 @@ class AuthService {
         'created_at': FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));
 
+      debugPrint('[PROFILE] Eksik profil otomatik oluşturuldu: ${user.email ?? user.uid}');
       return profile;
     } catch (error, stackTrace) {
       debugPrint('Profil bootstrap işlemi başarısız: $error\n$stackTrace');
