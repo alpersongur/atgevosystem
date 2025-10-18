@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import 'core/localization/tr_strings.dart';
@@ -18,7 +19,8 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final tenantService = TenantService.instance;
   await tenantService.initialize();
-  await initializeDateFormatting('tr_TR');
+  await initializeDateFormatting('tr_TR', null);
+  Intl.defaultLocale = 'tr_TR';
   bool useDemo = const bool.fromEnvironment('USE_DEMO', defaultValue: false);
   final firebaseOptions = useDemo
       ? demo_options.DefaultFirebaseOptions.currentPlatform
