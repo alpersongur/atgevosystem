@@ -246,7 +246,12 @@ class AuthService {
       debugPrint(
         'Uyarı: ${user.uid} için Firestore kullanıcı dokümanı bulunamadı.',
       );
-      _updateProfile(null);
+      final bootstrapProfile = await _bootstrapUserProfile(user);
+      if (bootstrapProfile != null) {
+        _updateProfile(bootstrapProfile);
+      } else {
+        _updateProfile(null);
+      }
       return;
     }
 
@@ -317,6 +322,49 @@ class AuthService {
       return UserProfileState.fromJson(decoded);
     } catch (error) {
       debugPrint('Önbellekten profil okunamadı: $error');
+      return null;
+    }
+  }
+
+  Future<UserProfileState?> _bootstrapUserProfile(User user) async {
+    try {
+      final tokenResult = await user.getIdTokenResult(true);
+      final claims = tokenResult.claims ?? const <String, dynamic>{};
+      final role = (claims['role'] as String?)?.trim();
+      final department = (claims['department'] as String?)?.trim();
+      final modulesClaim = claims['modules'];
+      final modules = modulesClaim is List
+          ? modulesClaim.whereType<String>().map((m) => m.trim()).toList()
+          : const <String>[];
+
+      final profile = UserProfileState(
+        uid: user.uid,
+        email: user.email,
+        displayName: user.displayName,
+        role: role,
+        department: department,
+        modules: modules,
+        isActive: true,
+        lastSyncedAt: DateTime.now(),
+        source: ProfileDataSource.api,
+      );
+
+      final docRef = _userDocRef(user.uid);
+      await docRef.set({
+        'uid': user.uid,
+        'email': user.email ?? '',
+        'display_name': user.displayName ?? '',
+        'role': role ?? 'user',
+        'department': department ?? '',
+        'modules': modules,
+        'is_active': true,
+        'updated_at': FieldValue.serverTimestamp(),
+        'created_at': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+
+      return profile;
+    } catch (error, stackTrace) {
+      debugPrint('Profil bootstrap işlemi başarısız: $error\n$stackTrace');
       return null;
     }
   }
