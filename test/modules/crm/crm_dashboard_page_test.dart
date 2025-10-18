@@ -36,6 +36,6 @@ void main() {
     await tester.pumpWidget(const MaterialApp(home: CrmDashboardPage()));
     await tester.pumpAndSettle(const Duration(milliseconds: 200));
 
-    expect(find.text('CRM Dashboard'), findsWidgets);
+    expect(find.text('CRM Kontrol Paneli'), findsWidgets);
   });
 }

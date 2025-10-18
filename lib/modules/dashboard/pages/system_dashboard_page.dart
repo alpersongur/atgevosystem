@@ -24,6 +24,7 @@ import 'package:atgevosystem/modules/licensing/models/license_model.dart';
 import 'package:atgevosystem/modules/licensing/services/license_service.dart';
 import 'package:atgevosystem/modules/tenant/services/tenant_service.dart';
 import 'package:atgevosystem/modules/licensing/pages/license_list_page.dart';
+import 'package:atgevosystem/core/utils/date_locale.dart';
 
 class SystemDashboardPage extends StatefulWidget {
   const SystemDashboardPage({super.key});
@@ -127,12 +128,7 @@ class _SystemDashboardPageState extends State<SystemDashboardPage> {
           background = theme.colorScheme.errorContainer;
           foreground = theme.colorScheme.onErrorContainer;
           icon = Icons.lock_clock_outlined;
-          final end = licenseEnd;
-          final endText = end != null
-              ? '${end.day.toString().padLeft(2, '0')}.'
-                    '${end.month.toString().padLeft(2, '0')}.'
-                    '${end.year}'
-              : '-';
+          final endText = DateLocale.fmtNullable(licenseEnd) ?? '-';
           title = 'Lisans süresi doldu';
           subtitle =
               'Son geçerlilik tarihi: $endText. Sistem yetkileri sınırlandı.';
@@ -606,10 +602,7 @@ class _SystemDashboardPageState extends State<SystemDashboardPage> {
   }
 
   String _formatDate(DateTime? value) {
-    if (value == null) return '-';
-    return '${value.day.toString().padLeft(2, '0')}.'
-        '${value.month.toString().padLeft(2, '0')}.'
-        '${value.year}';
+    return DateLocale.fmtNullable(value) ?? '-';
   }
 
   Widget _buildChartsSection(BuildContext context, DashboardSnapshot data) {
@@ -757,9 +750,10 @@ class _SystemDashboardPageState extends State<SystemDashboardPage> {
   }
 
   List<_KpiConfig> _buildKpiConfigs(Map<String, dynamic> summary) {
-    final numberFormatter = NumberFormat.decimalPattern('tr_TR');
+    final numberFormatter =
+        NumberFormat.decimalPattern(Intl.defaultLocale);
     final currencyFormatter = NumberFormat.currency(
-      locale: 'tr_TR',
+      locale: Intl.defaultLocale ?? 'tr_TR',
       symbol: '₺',
       decimalDigits: 0,
     );
@@ -894,10 +888,12 @@ class _SystemDashboardPageState extends State<SystemDashboardPage> {
     if (snapshot == null) return;
 
     final doc = pw.Document();
-    final dateFormatter = DateFormat('dd MMMM yyyy HH:mm', 'tr_TR');
-    final numberFormatter = NumberFormat.decimalPattern('tr_TR');
+    final dateFormatter =
+        DateFormat('dd MMMM yyyy HH:mm', Intl.defaultLocale);
+    final numberFormatter =
+        NumberFormat.decimalPattern(Intl.defaultLocale);
     final currencyFormatter = NumberFormat.currency(
-      locale: 'tr_TR',
+      locale: Intl.defaultLocale ?? 'tr_TR',
       symbol: '₺',
       decimalDigits: 2,
     );

@@ -19,9 +19,9 @@ class PredictiveDashboardPage extends StatefulWidget {
 class _PredictiveDashboardPageState extends State<PredictiveDashboardPage> {
   final AnalyticsService _service = AnalyticsService.instance;
   late Future<PredictiveAnalyticsResult> _future;
-  final DateFormat _monthFormat = DateFormat('MMM yy', 'tr_TR');
+  final DateFormat _monthFormat = DateFormat('MMM yy');
   final NumberFormat _currencyFormat = NumberFormat.currency(
-    locale: 'tr_TR',
+    locale: Intl.defaultLocale ?? 'tr_TR',
     symbol: '₺',
     decimalDigits: 0,
   );

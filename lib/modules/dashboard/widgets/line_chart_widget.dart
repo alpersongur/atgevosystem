@@ -102,7 +102,7 @@ class DashboardLineChart extends StatelessWidget {
                   final formatter =
                       valueFormatter ??
                       NumberFormat.compactCurrency(
-                        locale: 'tr_TR',
+                        locale: Intl.defaultLocale ?? 'tr_TR',
                         symbol: '₺',
                         decimalDigits: 0,
                       );
@@ -137,7 +137,7 @@ class DashboardLineChart extends StatelessWidget {
                       final formatter =
                           valueFormatter ??
                           NumberFormat.currency(
-                            locale: 'tr_TR',
+                            locale: Intl.defaultLocale ?? 'tr_TR',
                             symbol: '₺',
                             decimalDigits: 0,
                           );

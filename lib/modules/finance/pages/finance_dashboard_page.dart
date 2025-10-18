@@ -25,7 +25,7 @@ class FinanceDashboardPage extends StatefulWidget {
 class _FinanceDashboardPageState extends State<FinanceDashboardPage> {
   late Future<_DashboardData> _future;
   final NumberFormat _currencyFormat = NumberFormat.compactCurrency(
-    locale: 'tr_TR',
+    locale: Intl.defaultLocale ?? 'tr_TR',
     symbol: '₺',
   );
   final DateFormat _dateFormat = DateFormat('dd.MM.yyyy');
@@ -192,7 +192,7 @@ class _FinanceDashboardPageState extends State<FinanceDashboardPage> {
         title: 'DSO (Gün)',
         total: data.totalSummary.dso,
         last30: data.last30Summary.dso,
-        formatter: NumberFormat.decimalPattern('tr_TR'),
+        formatter: NumberFormat.decimalPattern(Intl.defaultLocale),
         suffix: ' gün',
       ),
     ];
@@ -708,7 +708,7 @@ class _FinanceDashboardPageState extends State<FinanceDashboardPage> {
       final year = int.parse(parts[0]);
       final month = int.parse(parts[1]);
       final date = DateTime(year, month);
-      return DateFormat('MMM yy', 'tr_TR').format(date);
+      return DateFormat('MMM yy').format(date);
     } catch (_) {
       return ym;
     }

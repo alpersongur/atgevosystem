@@ -3,6 +3,8 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../../../core/utils/date_locale.dart';
+
 import '../../../core/utils/responsive.dart';
 import '../../monitoring/models/monitoring_models.dart';
 import '../../monitoring/services/monitoring_service.dart';
@@ -23,7 +25,7 @@ class MonitoringDashboardPage extends StatefulWidget {
 class _MonitoringDashboardPageState extends State<MonitoringDashboardPage> {
   final MonitoringService _service = MonitoringService.instance;
   late Future<_MonitoringData> _future;
-  final DateFormat _dayFormat = DateFormat('dd MMM', 'tr_TR');
+  final DateFormat _dayFormat = DateFormat('dd MMM');
 
   @override
   void initState() {
@@ -155,9 +157,8 @@ class _MonitoringDashboardPageState extends State<MonitoringDashboardPage> {
                           final date = timestamp is Timestamp
                               ? timestamp.toDate()
                               : DateTime.tryParse(timestamp?.toString() ?? '');
-                          final dateLabel = date != null
-                              ? DateFormat('dd MMM HH:mm', 'tr_TR').format(date)
-                              : '-';
+                          final dateLabel =
+                              date != null ? DateLocale.fmt(date, 'dd MMM HH:mm') : '-';
                           return ListTile(
                             leading: const Icon(
                               Icons.error_outline,

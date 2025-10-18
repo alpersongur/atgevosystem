@@ -499,7 +499,7 @@ class _DashboardMetrics {
     final trendData = [
       for (final day in trendBuckets)
         _TrendPoint(
-          label: DateFormat('E', 'tr_TR').format(day),
+          label: DateFormat('E').format(day),
           completed: 0,
           inProgress: 0,
         ),

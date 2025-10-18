@@ -23,7 +23,7 @@ class PurchasingDashboardPage extends StatefulWidget {
 class _PurchasingDashboardPageState extends State<PurchasingDashboardPage> {
   late Future<_DashboardData> _future;
   final NumberFormat _currencyFormat = NumberFormat.compactCurrency(
-    locale: 'tr_TR',
+    locale: Intl.defaultLocale ?? 'tr_TR',
     symbol: '₺',
   );
   final DateFormat _dateFormat = DateFormat('dd.MM.yyyy');

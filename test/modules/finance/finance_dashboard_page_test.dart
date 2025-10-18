@@ -52,6 +52,6 @@ void main() {
     await tester.pumpWidget(const MaterialApp(home: FinanceDashboardPage()));
     await tester.pumpAndSettle(const Duration(milliseconds: 200));
 
-    expect(find.text('Finance Dashboard'), findsWidgets);
+    expect(find.text('Finans Kontrol Paneli'), findsWidgets);
   });
 }

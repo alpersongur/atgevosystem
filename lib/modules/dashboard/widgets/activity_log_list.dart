@@ -19,7 +19,7 @@ class ActivityLogList extends StatelessWidget {
   Widget build(BuildContext context) {
     final service = SystemDashboardService.instance;
     final stream = service.watchRecentSystemLogs(limit: limit);
-    final dateFormatter = DateFormat('dd MMM HH:mm', 'tr_TR');
+    final dateFormatter = DateFormat('dd MMM HH:mm');
 
     return StreamBuilder<List<SystemLogEntry>>(
       stream: stream,

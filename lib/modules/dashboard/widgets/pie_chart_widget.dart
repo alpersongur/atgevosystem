@@ -64,7 +64,7 @@ class DashboardPieChart extends StatelessWidget {
         _LegendItem(
           color: color,
           label:
-              '${entry.key}: ${NumberFormat.compact(locale: 'tr_TR').format(value)}',
+              '${entry.key}: ${NumberFormat.compact(locale: Intl.defaultLocale ?? 'tr_TR').format(value)}',
         ),
       );
       index++;

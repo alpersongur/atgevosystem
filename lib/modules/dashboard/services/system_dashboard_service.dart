@@ -424,8 +424,8 @@ class SystemDashboardService {
     DateTime reference,
   ) {
     final buckets = <_SeriesBucket>[];
-    final formatterMonthly = DateFormat('MMM yy', 'tr_TR');
-    final formatterDaily = DateFormat('dd MMM', 'tr_TR');
+    final formatterMonthly = DateFormat('MMM yy');
+    final formatterDaily = DateFormat('dd MMM');
 
     if (filter.isMonthlyRange) {
       final currentMonthStart = DateTime(reference.year, reference.month, 1);

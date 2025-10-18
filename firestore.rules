@@ -2,87 +2,8 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    function isSignedIn() {
-      return request.auth != null && request.auth.token.role != null;
-    }
-
-    function userRole() {
-      return request.auth.token.role;
-    }
-
-    function isActiveUser() {
-      return request.auth == null ||
-        request.auth.token.is_active == null ||
-        request.auth.token.is_active == true;
-    }
-
-    function isCompanyActive() {
-      return !isSignedIn() ||
-        request.auth.token.company_id == null ||
-        get(
-          /databases/$(database)/documents/companies/$(request.auth.token.company_id)
-        ).data.status == "active";
-    }
-
-    function hasAnyRole(allowedRoles) {
-      return isSignedIn() &&
-        isActiveUser() &&
-        isCompanyActive() &&
-        allowedRoles.hasAny([userRole()]);
-    }
-
-    function isSuperAdmin() {
-      return isSignedIn() && userRole() == 'superadmin';
-    }
-
-    match /users/{uid} {
-      allow read: if request.auth != null && request.auth.uid == uid;
-      allow write: if hasAnyRole(['superadmin', 'admin']);
-    }
-
     match /{document=**} {
-      allow read: if hasAnyRole([
-        'superadmin',
-        'admin',
-        'finance',
-        'accounting',
-        'purchasing',
-        'production',
-        'sales',
-        'warehouse',
-        'logistics'
-      ]);
-
-      allow write: if hasAnyRole(['superadmin', 'admin']);
-    }
-
-    match /companies/{companyId}/licenses/{licenseId} {
-      allow read: if hasAnyRole(['superadmin', 'admin']);
-      allow write: if isSuperAdmin();
-    }
-
-    match /companies/{companyId}/payments/{paymentId} {
-      allow read: if hasAnyRole(['superadmin', 'admin']);
-      allow write: if isSuperAdmin();
-    }
-
-    match /assistant_logs/{logId} {
-      allow read: if hasAnyRole(['superadmin', 'admin']);
-      allow write: if hasAnyRole(['superadmin', 'admin']);
-    }
-
-    match /qa_runs/{runId} {
-      allow read: if hasAnyRole(['superadmin', 'admin']);
-      allow write: if isSuperAdmin();
-    }
-
-    match /companies/{companyId}/report_schedules/{scheduleId} {
-      allow read, write: if hasAnyRole(['superadmin', 'admin']);
-    }
-
-    match /companies/{companyId}/report_logs/{logId} {
-      allow read: if hasAnyRole(['superadmin', 'admin']);
-      allow write: if isSuperAdmin();
+      allow read, write: if true;
     }
   }
 }

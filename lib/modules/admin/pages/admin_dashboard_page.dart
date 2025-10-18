@@ -122,11 +122,11 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
     final cards = [
       _KpiTile(
         title: 'Toplam Kullanıcı',
-        value: NumberFormat.decimalPattern('tr_TR').format(data.totalUsers),
+        value: NumberFormat.decimalPattern(Intl.defaultLocale).format(data.totalUsers),
       ),
       _KpiTile(
         title: 'Aktif Kullanıcı',
-        value: NumberFormat.decimalPattern('tr_TR').format(data.activeUsers),
+        value: NumberFormat.decimalPattern(Intl.defaultLocale).format(data.activeUsers),
       ),
       _KpiTile(title: 'Toplam Rol', value: data.totalRoles.toString()),
       _KpiTile(title: 'Aktif Modül', value: data.activeModules.toString()),
