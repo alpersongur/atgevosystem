@@ -94,15 +94,16 @@ exports.collectUsageData = onSchedule("every 6 hours", async () => {
 exports.collectMetrics = onSchedule("every 6 hours", async () => monitoring.collectMetricsTask());
 exports.summarizeMetrics = onSchedule({schedule: "0 3 * * *", timeZone: "Europe/Istanbul"}, async () => monitoring.summarizeMetricsTask());
 exports.license_check = onSchedule({schedule: "0 2 * * *", timeZone: "Europe/Istanbul"}, async () => licenseChecks.licenseCheckTask());
+exports.mz_refresh = mzRefresh.mz_refresh;
 exports.getSystemMetrics = functions.https.onCall(async () => monitoring.getSystemMetricsCallable());
 exports.createUserWithRole = require("./createUserWithRole").createUserWithRole;
 exports.aiQuery = aiAssistant.aiQuery;
 exports.runBQQuery = bqQuery.runBQQuery;
-exports.mz_refresh = mzRefresh.mz_refresh;
 exports.api = functions.region("europe-west1").https.onRequest(apiApp);
 exports.requestImmediateReport = reportCallable.requestImmediateReport;
 exports.sendScheduledReport = reportsScheduler.sendScheduledReport;
 exports.ingestQaRun = qaIngest.ingestQaRun;
+exports.mz_refresh = mzRefresh.mz_refresh;
 
 /**
  * Creates a system notification document and logs the operation.

@@ -1,6 +1,6 @@
-const functions = require("firebase-functions");
 const logger = require("firebase-functions/logger");
 const {BigQuery} = require("@google-cloud/bigquery");
+const {onSchedule} = require("firebase-functions/v2/scheduler");
 
 const bigquery = new BigQuery();
 
@@ -13,10 +13,12 @@ async function runStatement(statement) {
   logger.info("BigQuery job finished", {jobId: job.id});
 }
 
-exports.mz_refresh = functions.pubsub
-    .schedule("0 2 * * *")
-    .timeZone("Europe/Istanbul")
-    .onRun(async () => {
+exports.mz_refresh = onSchedule(
+    {
+      schedule: "0 2 * * *",
+      timeZone: "Europe/Istanbul",
+    },
+    async () => {
       const scripts = [
         `
         BEGIN TRANSACTION;
@@ -79,4 +81,5 @@ exports.mz_refresh = functions.pubsub
       }
 
       logger.info("Materialized tables refreshed successfully");
-    });
+    },
+);
