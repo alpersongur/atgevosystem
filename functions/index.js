@@ -99,7 +99,7 @@ exports.getSystemMetrics = functions.https.onCall(async () => monitoring.getSyst
 exports.createUserWithRole = require("./createUserWithRole").createUserWithRole;
 exports.aiQuery = aiAssistant.aiQuery;
 exports.runBQQuery = bqQuery.runBQQuery;
-exports.api = functions.region("europe-west1").https.onRequest(apiApp);
+exports.api = functionsV1.region("europe-west1").https.onRequest(apiApp);
 exports.requestImmediateReport = reportCallable.requestImmediateReport;
 exports.sendScheduledReport = reportsScheduler.sendScheduledReport;
 exports.ingestQaRun = qaIngest.ingestQaRun;

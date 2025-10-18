@@ -1,6 +1,6 @@
-const functions = require("firebase-functions");
 const logger = require("firebase-functions/logger");
 const admin = require("firebase-admin");
+const {onSchedule} = require("firebase-functions/v2/scheduler");
 
 const {
   fetchReportData,
@@ -76,10 +76,12 @@ async function enqueueEmail({companyId, to, subject, text, attachment}) {
   });
 }
 
-exports.sendScheduledReport = functions.pubsub
-    .schedule('0 6 * * *')
-    .timeZone('Europe/Istanbul')
-    .onRun(async () => {
+exports.sendScheduledReport = onSchedule(
+    {
+      schedule: '0 6 * * *',
+      timeZone: 'Europe/Istanbul',
+    },
+    async () => {
       const now = new Date();
       const companies = await admin.firestore().collection('companies').get();
       for (const company of companies.docs) {
@@ -134,4 +136,5 @@ exports.sendScheduledReport = functions.pubsub
           }
         }
       }
-    });
+    },
+);
